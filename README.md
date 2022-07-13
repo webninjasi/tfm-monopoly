@@ -1,2 +1,7 @@
-# pshy_merge_template
-Template for projects using pshy_merge.
+# Monopoly
+
+Build with a docker environment:
+
+```sh
+docker-compose up
+```

@@ -3,9 +3,8 @@ TEST_RESULTS_DIR		= test_results
 DEPS_DIR				= deps
 
 # Modulepacks names:
-NAME_MAIN				= $(OUT_DIR)/authorname_modulename.tfm.lua.txt
-NAME_MAIN_EXT			= $(OUT_DIR)/authorname_modulename_ext.tfm.lua.txt
-ALL_NAMES				= $(NAME_MAIN) $(NAME_MAIN_EXT)
+NAME_MAIN				= $(OUT_DIR)/monopoly.tfm.lua.txt
+ALL_NAMES				= $(NAME_MAIN)
 ALL_TESTS				= $(patsubst $(OUT_DIR)/%.tfm.lua.txt, $(TEST_RESULTS_DIR)/%.stdout.txt, $(ALL_NAMES))
 
 # Rules:

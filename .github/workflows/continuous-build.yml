@@ -1,0 +1,32 @@
+name: "Development Build"
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  development-build:
+    name: "Development Build"
+    runs-on: "ubuntu-latest"
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: "Pull Submodules"
+      run: git submodule update --init
+    - name: "Update Packages"
+      run: sudo apt update
+    - name: "Install Lua"
+      run: sudo apt install lua5.3
+    - name: "Combine"
+      run: make re
+    - uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest-build"
+        prerelease: true
+        title: "Development Build"
+        files: |
+          tfm_lua/*.tfm.lua.txt
+

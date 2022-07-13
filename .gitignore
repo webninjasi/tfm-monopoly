@@ -1,0 +1,16 @@
+# Compiled scripts:
+tfm.lua/
+pshy_merge/examples/
+pshy_merge/tfm.lua/
+*.tfm.lua
+*.tfm.lua.txt
+
+# Temporary files:
+tmp/
+pshy_merge/tmp/
+*.tmp
+test_results/
+deps/
+
+# Thirdparty scripts:
+pshy_merge/lua/other/

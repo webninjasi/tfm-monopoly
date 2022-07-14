@@ -16,6 +16,7 @@ local houseSize = monopoly.config.board.houseSize
 local tokenSize = monopoly.config.board.tokenSize
 local tokenOffset = monopoly.config.board.tokenOffset
 local positions = monopoly.config.board.positions
+local tokenImages = monopoly.config.images.tokens
 local cellCount = #positions
 local tokenPos = {
   { 0, 0 }, -- 1 token
@@ -27,17 +28,19 @@ local board = {}
 
 
 -- Private Functions
-local function getPos(index, x, y, count)
-  local off = tokenSize / 2 + tokenOffset / 2
-
-  x, y = x - tokenSize / 2, y - tokenSize / 2
-
-  if index > count or index < 1 then
+local function getPos(index, x, y, count, tokenId)
+  print({ tokenId, index, count })
+  if index > count or index < 1 or not tokenImages[tokenId] then
     return x, y
   end
 
-  return x + off * tokenPos[count][index * 2 - 1],
-         y + off * tokenPos[count][index * 2]
+  local offX = tokenImages[tokenId][2] / 2 + 1
+  local offY = tokenImages[tokenId][3] / 2 + 1
+
+  print({ tokenId, offX, offY })
+
+  return x + offX * tokenPos[count][index * 2 - 1],
+         y + offY * tokenPos[count][index * 2]
 end
 
 local function placeToCell(cellId, tokenId)
@@ -89,15 +92,31 @@ local function updateTokens(cellId)
     return
   end
 
-  local originX = (pos[1] + pos[3]) / 2
-  local originY = (pos[2] + pos[4] + houseSize) / 2
+  local direction = math.floor(cellId / 10)
+  local originX = pos[1] + pos[3]
+  local originY = pos[2] + pos[4]
   local x, y
   local index = 0
 
+  if cellId % 10 ~= 1 then -- corners
+    if direction == 1 then -- bottom
+      originY = originY + houseSize
+    elseif direction == 2 then -- left
+      originX = originX - houseSize
+    elseif direction == 3 then -- top
+      originY = originY - houseSize
+    elseif direction == 4 then -- right
+      originX = originX + houseSize
+    end
+  end
+
+  originX = originX / 2
+  originY = originY / 2
+
   for tokenId in pairs(cell) do
-    if tokenId ~= 'len' then
+    if tokenId ~= 'count' then
       index = 1 + index
-      x, y = getPos(index, originX, originY, cell.count)
+      x, y = getPos(index, originX, originY, cell.count, tokenId)
       monopoly.tokens.update(tokenId, x, y)
     end
   end
@@ -156,19 +175,19 @@ monopoly.board.moveToken = function(tokenId, cellId, relative)
 
   if token.cell then
     removeFromCell(token.cell, tokenId)
+    updateTokens(token.cell)
   end
-
-  local prevCellId = cellId
 
   if relative then
     cellId = ((token.cell + cellId - 1) % cellCount) + 1
   end
 
+  local prevCellId = token.cell
   token.cell = placeToCell(cellId, tokenId)
   updateTokens(cellId)
 
   if eventTokenMove then
-    eventTokenMove(tokenId, cellId, cellId < prevCellId)
+    eventTokenMove(tokenId, cellId, prevCellId and cellId < prevCellId)
   end
 end
 

@@ -12,18 +12,23 @@ pshy.require("monopoly.config")
 
 
 -- Tokens Variables
+local defaultX = monopoly.config.tokens.defaultX
+local defaultY = monopoly.config.tokens.defaultY
+local images = monopoly.config.images.tokens
 local tokens = { _len=0 }
 
 
 -- Private Functions
-local function showToken(id, img, x, y)
-  ui.addImage("token" .. id, img, '!1', x, y)
+local function showToken(id, x, y)
+  x, y = x - images[id][2] / 2, y - images[id][3] / 2
+
+  ui.addImage("token" .. id, images[id][1], '!1', x, y)
   ui.addTextArea(
     "token" .. id,
-    '<font size="40"><a href="event:token' .. id .. '">  ',
+    '<font size="90"><a href="event:token' .. id .. '">    ',
     nil,
     x, y,
-    40, 40,
+    images[id][2], images[id][3],
     0, 0, 0,
     false
   )
@@ -34,20 +39,19 @@ end
 monopoly.tokens = {}
 
 monopoly.tokens.create = function()
-  local x, y = monopoly.config.tokens.defaultX, monopoly.config.tokens.defaultY
-  local images = monopoly.config.images.tokens
+  local x, y = defaultX, defaultY
   tokens._len = #images
 
   for i=1,tokens._len do
+    x = x + images[i][2] / 2
     tokens[i] = {
-      img = images[i],
       x = x,
       y = y,
       defaultX = x,
       defaultY = y,
     }
-    showToken(i, images[i], x, y)
-    x = x + 60
+    showToken(i, x, y)
+    x = x + images[i][2] / 2 + 10
   end
 end
 
@@ -56,7 +60,7 @@ monopoly.tokens.show = function()
 
   for i=1,tokens._len do
     token = tokens[i]
-    showToken(i, token.img, token.x, token.y)
+    showToken(i, token.x, token.y)
   end
 end
 
@@ -73,7 +77,7 @@ monopoly.tokens.update = function(tokenId, x, y)
     token.x, token.y = x, y
   end
 
-  showToken(tokenId, token.img, token.x, token.y)
+  showToken(tokenId, token.x, token.y)
 end
 
 

@@ -9,6 +9,7 @@ end
 
 -- Dependencies
 pshy.require("monopoly.config")
+pshy.require("monopoly.tokens")
 
 
 -- Board Variables
@@ -23,21 +24,20 @@ local tokenPos = {
   { -1, 0, 1, 0 }, -- 2 tokens
   { -1, -1, 1, -1, 0, 1 }, -- 3 tokens
   { -1, -1, 1, -1, -1, 1, 1, 1 }, -- 4 tokens
+  { -1, -1, 1, -1, -1, 1, 1, 1, 0, 2 }, -- 5 tokens
+  { -1, -2, 1, -2, -1, 0, 1, 0, -1, 2, 1, 2 }, -- 6 tokens
 }
 local board = {}
 
 
 -- Private Functions
-local function getPos(index, x, y, count, tokenId)
-  print({ tokenId, index, count })
+local function getPos(index, x, y, scale, count, tokenId)
   if index > count or index < 1 or not tokenImages[tokenId] then
     return x, y
   end
 
-  local offX = tokenImages[tokenId][2] / 2 + 1
-  local offY = tokenImages[tokenId][3] / 2 + 1
-
-  print({ tokenId, offX, offY })
+  local offX = tokenImages[tokenId][2] * scale / 2 + 1
+  local offY = tokenImages[tokenId][3] * scale / 2 + 1
 
   return x + offX * tokenPos[count][index * 2 - 1],
          y + offY * tokenPos[count][index * 2]
@@ -92,10 +92,10 @@ local function updateTokens(cellId)
     return
   end
 
-  local direction = math.floor(cellId / 10)
+  local direction = math.ceil(cellId / 10)
   local originX = pos[1] + pos[3]
   local originY = pos[2] + pos[4]
-  local x, y
+  local x, y, scale
   local index = 0
 
   if cellId % 10 ~= 1 then -- corners
@@ -112,12 +112,13 @@ local function updateTokens(cellId)
 
   originX = originX / 2
   originY = originY / 2
+  scale = cellId % 10 ~= 1 and cell.count > 1 and 0.5 or 1
 
   for tokenId in pairs(cell) do
     if tokenId ~= 'count' then
       index = 1 + index
-      x, y = getPos(index, originX, originY, cell.count, tokenId)
-      monopoly.tokens.update(tokenId, x, y)
+      x, y = getPos(index, originX, originY, scale, cell.count, tokenId)
+      monopoly.tokens.update(tokenId, x, y, scale)
     end
   end
 end

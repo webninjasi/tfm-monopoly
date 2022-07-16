@@ -14,6 +14,7 @@ pshy.require("monopoly.board")
 pshy.require("monopoly.votes")
 pshy.require("monopoly.dice")
 pshy.require("monopoly.money")
+pshy.require("monopoly.actionui")
 
 
 -- Game Variables
@@ -67,7 +68,7 @@ local function updateStartButton()
       "startbtn",
       '<p align="center"><b>\n\n' .. 
       (player and player.indexDice and '<G>Waiting for others...' or (
-        lobbyTurn == nil and '<ROSE><a href="event:votestart">Roll to start' or
+        lobbyTurn == nil and '<ROSE>Roll to start' or
         (lobbyTurn == name and '<V>You\'re rolling...'
                             or '<V>Rolling...')
       )),
@@ -82,29 +83,6 @@ end
 
 local function hideStartButton(name)
   ui.removeTextArea("startbtn", name)
-end
-
-local function updateRollButton()
-  local name, player
-
-  for i=1, players._len do
-    name = players[i]
-    player = players[name]
-    ui.addTextArea(
-      "rollbtn",
-      '<p align="center"><b>\n\n' ..
-      (whoseTurn == i and '<ROSE><a href="event:rolldice">Roll' or '<G>Roll'),
-      name,
-      monopoly.config.roll.x, monopoly.config.roll.y,
-      monopoly.config.roll.w, monopoly.config.roll.h,
-      0, 0, 0,
-      false
-    )
-  end
-end
-
-local function hideRollButton(name)
-  ui.removeTextArea("rollbtn", name)
 end
 
 
@@ -158,43 +136,6 @@ function eventPlayerLeft(name)
   end
 end
 
-function eventTextAreaCallback(id, name, callback)
-  if callback == 'votestart' then
-    local player = players[name]
-
-    if game.state ~= states.LOBBY or not player then
-      return
-    end
-
-    -- play order is already decided or being decided right now
-    if player.indexDice or lobbyTurn then
-      return
-    end
-
-    -- reached the max number of players
-    if players._len == 4 then
-      return
-    end
-
-    local count = monopoly.votes.vote('start', name)
-
-    if count then
-      lobbyTurn = name
-      monopoly.dice.roll()
-      updateStartButton()
-    end
-  elseif callback == 'rolldice' then
-    if game.state ~= states.WAITING then
-      return
-    end
-
-    if whoseTurn and players[whoseTurn] == name then
-      game.state = states.ROLLING
-      monopoly.dice.roll()
-    end
-  end
-end
-
 function eventDiceRoll(dice1, dice2)
   if game.state == states.ROLLING then
     local player = whoseTurn and players[whoseTurn] and players[players[whoseTurn]]
@@ -202,7 +143,6 @@ function eventDiceRoll(dice1, dice2)
     if player then
       game.state = states.MOVING
       monopoly.board.moveToken(player.tokenid, dice1 + dice2, true)
-      updateRollButton()
     end
   elseif game.state == states.LOBBY then
     local name = lobbyTurn
@@ -248,11 +188,16 @@ function eventDiceRoll(dice1, dice2)
       game.state = states.WAITING
       whoseTurn = 1
       hideStartButton()
-      updateRollButton()
+      monopoly.tokens.hide()
 
-      -- give some money
+      -- give some money and enable actions
       for i=1, players._len do
         monopoly.money.give(players[i], 1500)
+        monopoly.actionui.update(players[i], nil, true)
+
+        if whoseTurn ~= i then
+          monopoly.actionui.update(players[i], "Dice", false)
+        end
       end
     end
   end
@@ -280,6 +225,10 @@ function eventTokenMove(tokenId, cellId, passedGo)
 
     whoseTurn = 1 + (whoseTurn % players._len)
     game.state = states.WAITING
+
+    if players[whoseTurn] then
+      monopoly.actionui.update(players[whoseTurn], "Dice", true)
+    end
   end
 end
 
@@ -292,6 +241,11 @@ function eventTokenClicked(name, tokenid)
     if players[name] then
       return
     end
+  
+    -- reached the max number of players
+    if players._len == 6 then
+      return
+    end
 
     players._len = 1 + players._len
     players[players._len] = name
@@ -300,6 +254,40 @@ function eventTokenClicked(name, tokenid)
     }
     monopoly.board.addToken(tokenid)
     monopoly.board.moveToken(tokenid, 1)
+    monopoly.tokens.keep(tokenid)
     updateStartButton()
+    monopoly.actionui.show(name)
+  end
+end
+
+function eventActionUIClick(name, action)
+  if action == "Dice" then
+    if game.state == states.LOBBY then
+      local player = players[name]
+
+      if not player then
+        return
+      end
+  
+      -- play order is already decided or being decided right now
+      if player.indexDice or lobbyTurn then
+        return
+      end
+  
+      local count = monopoly.votes.vote('start', name)
+  
+      if count then
+        lobbyTurn = name
+        monopoly.dice.roll()
+        monopoly.actionui.update(name, "Dice", false)
+        updateStartButton()
+      end
+    elseif game.state == states.WAITING then
+      if whoseTurn and players[whoseTurn] == name then
+        game.state = states.ROLLING
+        monopoly.dice.roll()
+        monopoly.actionui.update(name, "Dice", false)
+      end
+    end
   end
 end

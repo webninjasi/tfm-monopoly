@@ -62,6 +62,19 @@ monopoly.config.images = {
     {"181f075125b.png", 28, 36},
     {"181f0755e5c.png", 50, 34},
   },
+  actionui = {
+    x = 280, y = 260,
+    w = 50, h = 50,
+    sep = 10,
+    taw = 40, tah = 40,
+    alpha = 0.5,
+
+    {"Dice", "181f077be5d.png", true},
+    {"Cards", "181f076da5c.png"},
+    {"Build", "181f077265d.png"},
+    {"Trade", "181f0780a5c.png"},
+    {"Stop", "181f077725b.png"},
+  },
 }
 
 -- spawn locations when rolling the dices

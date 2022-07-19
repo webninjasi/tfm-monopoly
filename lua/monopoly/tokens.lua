@@ -15,22 +15,43 @@ pshy.require("monopoly.config")
 local defaultX = monopoly.config.tokens.defaultX
 local defaultY = monopoly.config.tokens.defaultY
 local images = monopoly.config.images.tokens
+local circleImage = monopoly.config.images.circle
 local tokens = { _len=0 }
 
 
 -- Private Functions
-local function showToken(id, x, y, scale, clickable)
-  x, y = x - images[id][2] * scale / 2, y - images[id][3] * scale / 2
+local function showToken(token, clickable)
+  ui.addImage(
+    "token" .. token.id,
+    token.img,
+    '!1',
+    token.x, token.y,
+    nil,
+    token.scale, token.scale,
+    token.rotation, 1,
+    0.5, 0.5
+  )
 
-  ui.addImage("token" .. id, images[id][1], '!1', x, y, nil, scale, scale)
+  if token.circle then
+    ui.addImage(
+      "token_circle",
+      circleImage,
+      '!100',
+      token.x, token.y,
+      nil,
+      token.scale, token.scale,
+      0, 1,
+      0.5, 0.5
+    )
+  end
 
   if clickable then
     ui.addTextArea(
-      "token" .. id,
-      '<font size="90"><a href="event:token' .. id .. '">    ',
+      "token" .. token.id,
+      '<font size="90"><a href="event:token' .. token.id .. '">    ',
       nil,
-      x, y,
-      images[id][2] * scale, images[id][3] * scale,
+      token.x, token.y,
+      token.w * token.scale, token.h * token.scale,
       0, 0, 0,
       false
     )
@@ -53,15 +74,19 @@ monopoly.tokens.create = function()
   for i=1,tokens._len do
     x = x + images[i][2] / 2
     tokens[i] = {
+      id = i,
       x = x,
       y = y,
+      img = images[i][1],
+      w = images[i][2],
+      h = images[i][3],
       defaultX = x,
       defaultY = y,
       scale = 1,
       active = true,
       unused = true,
     }
-    showToken(i, x, y, 1, true)
+    showToken(tokens[i], true)
     x = x + images[i][2] / 2 + 10
   end
 end
@@ -73,7 +98,7 @@ monopoly.tokens.show = function()
     token = tokens[i]
 
     if token.active then
-      showToken(i, token.x, token.y, token.scale, token.active)
+      showToken(token, token.active)
     end
   end
 end
@@ -108,7 +133,7 @@ monopoly.tokens.hide = function(tokenid)
   end
 end
 
-monopoly.tokens.update = function(tokenId, x, y, scale)
+monopoly.tokens.update = function(tokenId, x, y, scale, rotation)
   local token = tokens[tokenId]
 
   if not token then
@@ -122,8 +147,20 @@ monopoly.tokens.update = function(tokenId, x, y, scale)
   end
 
   token.scale = scale
+  token.rotation = rotation
 
-  showToken(tokenId, token.x, token.y, token.scale, false)
+  showToken(token, false)
+end
+
+monopoly.tokens.circleMode = function(tokenId, enabled)
+  local token = tokens[tokenId]
+
+  if not token then
+    return
+  end
+
+  token.circle = enabled
+  showToken(token, false)
 end
 
 

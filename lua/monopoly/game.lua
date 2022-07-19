@@ -89,6 +89,35 @@ local function showBoard(target)
   ui.addImage("bg", monopoly.config.images.background, "?1", 0, 20, target)
 end
 
+local function getPlayerByIdx(idx)
+  local name = players[idx]
+  local player = name and players[name]
+
+  return player
+end
+
+local function setWhoseTurn(idx)
+  local prev = whoseTurn
+
+  whoseTurn = 1 + ((idx - 1) % players._len)
+
+  -- Add circle around the player's token
+  local player = getPlayerByIdx(whoseTurn)
+
+  if player and player.tokenid then
+    monopoly.tokens.circleMode(player.tokenid, true)
+  end
+
+  -- Remove circle from previous player
+  if prev ~= whoseTurn then
+    player = getPlayerByIdx(prev)
+
+    if player and player.tokenid then
+      monopoly.tokens.circleMode(player.tokenid, false)
+    end
+  end
+end
+
 
 -- Events
 function eventInit()
@@ -195,7 +224,7 @@ function eventDiceRoll(dice1, dice2)
       tfm.exec.chatMessage('<ROSE>The game is starting...')
 
       game.state = states.WAITING
-      whoseTurn = 1
+      setWhoseTurn(1)
       hideStartButton()
       monopoly.tokens.hide()
 
@@ -225,6 +254,11 @@ function eventTokenMove(tokenId, cellId, passedGo)
   local player = name and players[name]
 
   if player then
+    -- Possible using !move
+    if player.tokenid ~= tokenId then
+      return
+    end
+
     if passedGo then
       monopoly.money.give(name, 200)
     end
@@ -232,7 +266,7 @@ function eventTokenMove(tokenId, cellId, passedGo)
     -- TODO card action here
     --monopoly.money.take(name, 100)
 
-    whoseTurn = 1 + (whoseTurn % players._len)
+    setWhoseTurn(whoseTurn + 1)
     game.state = states.WAITING
 
     if players[whoseTurn] then
@@ -298,5 +332,28 @@ function eventActionUIClick(name, action)
         monopoly.actionui.update(name, "Dice", false)
       end
     end
+  end
+end
+
+-- TODO use pshy.commands
+function eventChatCommand(name, cmd)
+  local args = {}
+
+  for arg in cmd:gmatch('%S+') do
+    args[1 + #args] = arg
+  end
+
+  if args[1] == 'move' then -- TODO restrict/remove after testing
+    if not players[name] or not players[name].tokenid then
+      return
+    end
+
+    local cellId = tonumber(args[2])
+
+    if not cellId or cellId < 1 or cellId > 40 then
+      return
+    end
+
+    monopoly.board.moveToken(players[name].tokenid, cellId)
   end
 end

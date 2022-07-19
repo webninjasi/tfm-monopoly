@@ -97,6 +97,7 @@ local function updateTokens(cellId)
   local originY = pos[2] + pos[4]
   local x, y, scale
   local index = 0
+  local rotation = (direction - 1) * math.pi / 2
 
   if cellId % 10 ~= 1 then -- corners
     if direction == 1 then -- bottom
@@ -118,7 +119,7 @@ local function updateTokens(cellId)
     if tokenId ~= 'count' then
       index = 1 + index
       x, y = getPos(index, originX, originY, scale, cell.count, tokenId)
-      monopoly.tokens.update(tokenId, x, y, scale)
+      monopoly.tokens.update(tokenId, x, y, scale, rotation)
     end
   end
 end

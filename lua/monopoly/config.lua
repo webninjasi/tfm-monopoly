@@ -47,6 +47,7 @@ monopoly.config.mapXML = [[
 
 monopoly.config.images = {
   background = "181f07394f8.png",
+  circle = "182144f123d.png",
   dices = {
     "181d6e0712b.png",
     "181d6e0bd5c.png",

@@ -85,6 +85,10 @@ local function hideStartButton(name)
   ui.removeTextArea("startbtn", name)
 end
 
+local function showBoard(target)
+  ui.addImage("bg", monopoly.config.images.background, "?1", 0, 20, target)
+end
+
 
 -- Events
 function eventInit()
@@ -106,6 +110,8 @@ function eventNewGame()
     tfm.exec.killPlayer(name)
   end
 
+  showBoard()
+
   lobbyTurn = nil
   players = { _len=0 }
   monopoly.board.reset()
@@ -115,6 +121,7 @@ function eventNewGame()
 end
 
 function eventNewPlayer(name)
+  showBoard(name)
   monopoly.tokens.show()
 end
 
@@ -128,6 +135,8 @@ function eventPlayerLeft(name)
     players[name] = nil
     removeValue(players, name)
     monopoly.votes.unvote('start', name)
+
+    -- TODO update ui or whoseTurn if whoseTurn == this player
 
     if players._len == 1 then
       game.state = states.GAME_OVER

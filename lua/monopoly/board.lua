@@ -13,6 +13,8 @@ pshy.require("monopoly.tokens")
 
 
 -- Board Variables
+local boardCells = monopoly.config.board.cells
+local cellActions = {}
 local houseSize = monopoly.config.board.houseSize
 local tokenSize = monopoly.config.board.tokenSize
 local tokenOffset = monopoly.config.board.tokenOffset
@@ -191,6 +193,26 @@ monopoly.board.moveToken = function(tokenId, cellId, relative)
   if eventTokenMove then
     eventTokenMove(tokenId, cellId, prevCellId and cellId < prevCellId)
   end
+end
+
+monopoly.board.registerCellAction = function(cellType, fnc)
+  cellActions[cellType] = fnc
+end
+
+monopoly.board.cellAction = function(cellId)
+  local cell = boardCells[cellId]
+
+  if not cell then
+    return
+  end
+
+  local action = cellActions[cell.type]
+
+  if not action then
+    return
+  end
+
+  return action(cell)
 end
 
 -- Init

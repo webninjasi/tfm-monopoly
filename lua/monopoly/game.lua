@@ -15,6 +15,7 @@ pshy.require("monopoly.votes")
 pshy.require("monopoly.dice")
 pshy.require("monopoly.money")
 pshy.require("monopoly.actionui")
+pshy.require("monopoly.cellactions")
 
 
 -- Game Variables
@@ -263,9 +264,13 @@ function eventTokenMove(tokenId, cellId, passedGo)
       monopoly.money.give(name, 200)
     end
 
-    -- TODO card action here
-    --monopoly.money.take(name, 100)
+    local action = monopoly.board.cellAction(cellId)
 
+    if action then
+      action(name)
+    end
+
+    -- TODO wait for a bit before moving on to next turn
     setWhoseTurn(whoseTurn + 1)
     game.state = states.WAITING
 

@@ -12,6 +12,7 @@ monopoly.__cellactions = true
 -- Dependencies
 pshy.require("monopoly.board")
 pshy.require("monopoly.money")
+pshy.require("monopoly.property")
 
 
 -- Events
@@ -38,13 +39,22 @@ function eventInit()
     end
   end)
 
-  monopoly.board.registerCellAction("property", function(cell)
+  local function propertyCallback(cell)
     return function(name)
-    end
-  end)
+      local owner = monopoly.property.getOwner(cell.title)
 
-  monopoly.board.registerCellAction("utility", function(cell)
-    return function(name)
+      if owner then
+        if owner ~= name then
+          local rent = monopoly.property.calculateRent(cell)
+          monopoly.money.take(name, rent)
+        end
+      else
+        monopoly.property.showCard(cell, name, true)
+      end
     end
-  end)
+  end
+
+  monopoly.board.registerCellAction("property", propertyCallback)
+  monopoly.board.registerCellAction("utility", propertyCallback)
+  monopoly.board.registerCellAction("station", propertyCallback)
 end

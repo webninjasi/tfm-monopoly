@@ -33,6 +33,13 @@ local board = {}
 
 
 -- Private Functions
+local function updateCells()
+  for i=1, #boardCells do
+    boardCells[i].id = i
+    boardCells[i].header_color = boardCells[i].header_color and tonumber(boardCells[i].header_color, 16)
+  end
+end
+
 local function getPos(index, x, y, scale, count, tokenId)
   if index > count or index < 1 or not tokenImages[tokenId] then
     return x, y
@@ -217,3 +224,4 @@ end
 
 -- Init
 monopoly.board.reset()
+updateCells()

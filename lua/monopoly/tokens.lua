@@ -46,13 +46,15 @@ local function showToken(token, clickable)
   end
 
   if clickable then
+    local w = token.w * token.scale
+    local h = token.h * token.scale
     ui.addTextArea(
       "token" .. token.id,
       '<font size="90"><a href="event:token' .. token.id .. '">    ',
       nil,
-      token.x, token.y,
-      token.w * token.scale, token.h * token.scale,
-      0, 0, 0,
+      token.x - w / 2, token.y - h / 2,
+      w, h,
+      -1, 1, 1,
       false
     )
   end
@@ -106,6 +108,7 @@ end
 monopoly.tokens.keep = function(id)
   if tokens[id] then
     tokens[id].unused = nil
+    ui.removeTextArea("token" .. id)
   end
 end
 

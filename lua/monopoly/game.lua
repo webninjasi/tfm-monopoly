@@ -16,6 +16,7 @@ pshy.require("monopoly.dice")
 pshy.require("monopoly.money")
 pshy.require("monopoly.actionui")
 pshy.require("monopoly.cellactions")
+pshy.require("monopoly.property")
 
 
 -- Game Variables
@@ -25,7 +26,8 @@ local states = {
   WAITING = 1,
   ROLLING = 2,
   MOVING = 3,
-  GAME_OVER = 4,
+  PLAYING = 4,
+  GAME_OVER = 10,
 }
 local lobbyTurn
 local whoseTurn = 1
@@ -119,8 +121,18 @@ local function setWhoseTurn(idx)
   end
 end
 
+-- TODO auto move on to next turn after a timeout
+local function nextTurn()
+  setWhoseTurn(whoseTurn + 1)
+  game.state = states.WAITING
 
--- Events
+  if players[whoseTurn] then
+    monopoly.actionui.update(players[whoseTurn], "Dice", true)
+  end
+end
+
+
+-- Pshy Events
 function eventInit()
   system.disableChatCommandDisplay(nil, true)
   tfm.exec.disableAfkDeath(true)
@@ -135,6 +147,8 @@ function eventInit()
   tfm.exec.newGame(mapXML)
 end
 
+
+-- TFM Events
 function eventNewGame()
   for name in pairs(tfm.get.room.playerList) do
     tfm.exec.killPlayer(name)
@@ -148,6 +162,7 @@ function eventNewGame()
   monopoly.tokens.create()
   monopoly.votes.reset()
   monopoly.money.reset()
+  monopoly.property.reset()
 end
 
 function eventNewPlayer(name)
@@ -183,6 +198,49 @@ function eventPlayerLeft(name)
   end
 end
 
+-- TODO use pshy.commands
+function eventChatCommand(name, cmd)
+  local args = {}
+
+  for arg in cmd:gmatch('%S+') do
+    args[1 + #args] = arg
+  end
+
+  local player = players[name]
+
+  if args[1] == 'move' then -- TODO restrict/remove after testing
+    if not player or not player.tokenid then
+      return
+    end
+
+    local cellId = tonumber(args[2])
+
+    if not cellId or cellId < 1 or cellId > 40 then
+      return
+    end
+
+    local prevState = game.state
+    game.state = states.MOVING
+    whoseTurn = player.index
+    monopoly.board.moveToken(player.tokenid, cellId)
+    game.state = prevState
+  elseif args[1] == 'debug' then
+    tfm.exec.chatMessage(
+      string.format(
+        '<ROSE>game.state = %s\nwhoseTurn = %s\nlobbyTurn = %s',
+        game.state or 'nil',
+        whoseTurn or 'nil',
+        lobbyTurn or 'nil'
+      ),
+      name
+    )
+  elseif args[1] == 'setstate' then
+    game.state = tonumber(game.state) or 0
+  end
+end
+
+
+-- Monopoly Events
 function eventDiceRoll(dice1, dice2)
   if game.state == states.ROLLING then
     local player = whoseTurn and players[whoseTurn] and players[players[whoseTurn]]
@@ -227,6 +285,7 @@ function eventDiceRoll(dice1, dice2)
 
       for i=1, players._len do
         players[i] = sortedByDice[i][1]
+        players[players[i]].index = i
       end
 
       -- everyone is ready, start the game
@@ -278,13 +337,7 @@ function eventTokenMove(tokenId, cellId, passedGo)
       action(name)
     end
 
-    -- TODO wait for a bit before moving on to next turn
-    setWhoseTurn(whoseTurn + 1)
-    game.state = states.WAITING
-
-    if players[whoseTurn] then
-      monopoly.actionui.update(players[whoseTurn], "Dice", true)
-    end
+    game.state = states.PLAYING
   end
 end
 
@@ -319,14 +372,14 @@ function eventTokenClicked(name, tokenid)
 end
 
 function eventActionUIClick(name, action)
+  local player = players[name]
+
+  if not player then
+    return
+  end
+
   if action == "Dice" then
     if game.state == states.LOBBY then
-      local player = players[name]
-
-      if not player then
-        return
-      end
-  
       -- play order is already decided or being decided right now
       if player.indexDice or lobbyTurn then
         return
@@ -341,40 +394,70 @@ function eventActionUIClick(name, action)
         updateStartButton()
       end
     elseif game.state == states.WAITING then
-      if whoseTurn and players[whoseTurn] == name then
-        game.state = states.ROLLING
-        monopoly.dice.roll()
-        monopoly.actionui.update(name, "Dice", false)
+      if whoseTurn ~= player.index then
+        return
       end
+
+      game.state = states.ROLLING
+      monopoly.dice.roll()
+      monopoly.actionui.update(name, "Dice", false)
     end
+  elseif action == "Cards" then
+  elseif action == "Build" then
+    if game.state ~= states.PLAYING then
+      return
+    end
+  elseif action == "Trade" then
+  elseif action == "Stop" then
+    if game.state ~= states.PLAYING then
+      return
+    end
+
+    if whoseTurn ~= player.index then
+      return
+    end
+
+    nextTurn()
   end
 end
 
--- TODO use pshy.commands
-function eventChatCommand(name, cmd)
-  local args = {}
-
-  for arg in cmd:gmatch('%S+') do
-    args[1 + #args] = arg
+function eventBuyCardClick(name)
+  if game.state ~= states.PLAYING then
+    return
   end
 
-  local player = players[name]
+  local player = name and players[name]
 
-  if args[1] == 'move' then -- TODO restrict/remove after testing
-    if not player or not player.tokenid then
+  if not player or player.index ~= whoseTurn then
+    return
+  end
+
+  local card = monopoly.board.getTokenCell(player.tokenid)
+
+  if card and monopoly.property.canBuy(card) then
+    if not monopoly.money.hasEnough(name, card.price) then
       return
     end
 
-    local cellId = tonumber(args[2])
+    monopoly.money.take(name, card.price)
+    monopoly.property.setOwner(card.id, name)
+    monopoly.property.hideCard(name)
+    monopoly.property.showCard(card, name, false)
+  end
+end
 
-    if not cellId or cellId < 1 or cellId > 40 then
-      return
-    end
+function eventAuctionCardClick(name)
+  if game.state ~= states.PLAYING then
+    return
+  end
 
-    local prevState = game.state
-    game.state = states.MOVING
-    whoseTurn = player.index
-    monopoly.board.moveToken(player.tokenid, cellId)
-    game.state = prevState
+  local player = name and players[name]
+
+  if not player or player.index ~= whoseTurn then
+    return
+  end
+
+  if card and monopoly.property.canBuy(card) then
+    monopoly.property.auctionStart(card)
   end
 end

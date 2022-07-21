@@ -113,6 +113,25 @@ monopoly.property.setOwner = function(key, owner)
   end
 end
 
+monopoly.property.canBuy = function(card)
+  return not monopoly.property.getOwner(card.id)
+    and (
+      card.type == 'property'
+      or card.type == 'utility'
+      or card.type == 'station'
+    )
+end
+
+monopoly.property.hideCard = function(name)
+  ui.removeTextArea("cardheader", name)
+  ui.removeTextArea("cardinfo", name)
+  ui.removeTextArea("cardbtnbuy", name)
+  ui.removeTextArea("cardbtnauction", name)
+  ui.removeImage("cardbg", name)
+  ui.removeImage("cardbtnbuy", name)
+  ui.removeImage("cardbtnauction", name)
+end
+
 monopoly.property.showCard = function(cell, name, canBuy)
   if cell.type == 'property' then
     showPropertyCard(cell, name, 325, 100, canBuy)
@@ -124,18 +143,22 @@ monopoly.property.calculateRent = function(cell)
   return cell.rent
 end
 
+monopoly.property.auctionStart = function(cell)
+
+end
+
 
 -- Events
 function eventTextAreaCallback(id, name, callback)
   if id == ui.textAreaId("cardheader") then
-    ui.removeTextArea("cardheader", name)
-    ui.removeTextArea("cardinfo", name)
-    ui.removeTextArea("cardbtnbuy", name)
-    ui.removeTextArea("cardbtnauction", name)
-    ui.removeImage("cardbg", name)
-    ui.removeImage("cardbtnbuy", name)
-    ui.removeImage("cardbtnauction", name)
+    monopoly.property.hideCard(name)
   elseif id == ui.textAreaId("cardbtnbuy") then
+    if eventBuyCardClick then
+      eventBuyCardClick(name)
+    end
   elseif id == ui.textAreaId("cardbtnauction") then
+    if eventAuctionCardClick then
+      eventAuctionCardClick(name)
+    end
   end
 end

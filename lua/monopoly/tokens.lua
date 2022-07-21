@@ -54,7 +54,7 @@ local function showToken(token, clickable)
       nil,
       token.x - w / 2, token.y - h / 2,
       w, h,
-      -1, 1, 1,
+      0, 0, 0,
       false
     )
   end

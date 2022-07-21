@@ -40,12 +40,12 @@ function eventInit()
   end)
 
   local function propertyCallback(cell)
-    return function(name)
-      local owner = monopoly.property.getOwner(cell.title)
+    return function(name, diceSum)
+      local owner = monopoly.property.getOwner(cell.id)
 
       if owner then
         if owner ~= name then
-          local rent = monopoly.property.calculateRent(cell)
+          local rent = monopoly.property.calculateRent(cell, diceSum)
           monopoly.money.take(name, rent)
         end
       else

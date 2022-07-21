@@ -247,7 +247,8 @@ function eventDiceRoll(dice1, dice2)
 
     if player then
       game.state = states.MOVING
-      monopoly.board.moveToken(player.tokenid, dice1 + dice2, true)
+      player.diceSum = dice1 + dice2
+      monopoly.board.moveToken(player.tokenid, player.diceSum, true)
     end
   elseif game.state == states.LOBBY then
     local name = lobbyTurn
@@ -334,7 +335,8 @@ function eventTokenMove(tokenId, cellId, passedGo)
     local action = monopoly.board.cellAction(cellId)
 
     if action then
-      action(name)
+      -- diceSum can be nil if !move is used
+      action(name, player.diceSum or 2)
     end
 
     game.state = states.PLAYING

@@ -19,9 +19,27 @@ local cardRows = monopoly.config.cardRows
 cardRows._len = #cardRows
 
 local owners = {}
+local cellsByType = {}
 
 
 -- Private Functions
+local function scanBoardCells()
+  local list, cell
+
+  for i=1, #boardCells do
+    cell = boardCells[i]
+    list = cellsByType[cell.type]
+
+    if not list then
+      list = { _len = 0 }
+      cellsByType[cell.type] = list
+    end
+
+    list._len = 1 + list._len
+    list[list._len] = cell
+  end
+end
+
 local function showPropertyCard(cell, name, x, y, canBuy)
   local w, h = 150, 200
 
@@ -138,8 +156,28 @@ monopoly.property.showCard = function(cell, name, canBuy)
   end
 end
 
-monopoly.property.calculateRent = function(cell)
+monopoly.property.calculateRent = function(cell, diceSum)
+  if cell.type == 'utility' or cell.type == 'station' then
+    local list = cellsByType[cell.type]
+    local owner = owners[cell]
+    local count = 0
+
+    -- calculate number of same property owned
+    for i=1, list._len do
+      if owners[list[i].id] == owner then
+        count = 1 + count
+      end
+    end
+
+    if cell.type == 'utility' then
+      return diceSum * (count == 1 and 4 or 10)
+    end
+
+    return 25 * math.pow(2, count - 1) -- station rent
+  end
+
   -- TODO house/hotel/utility rents
+
   return cell.rent
 end
 
@@ -149,6 +187,10 @@ end
 
 
 -- Events
+function eventInit()
+  scanBoardCells()
+end
+
 function eventTextAreaCallback(id, name, callback)
   if id == ui.textAreaId("cardheader") then
     monopoly.property.hideCard(name)

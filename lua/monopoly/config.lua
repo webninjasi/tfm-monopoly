@@ -9,7 +9,7 @@ end
 monopoly.config = {}
 monopoly.config.mapXML = [[
 <C>
-  <P H="820" L="1000" D="181f07394f8.png,0,20" MEDATA=";;;;0,4-0;0:::1-"/>
+  <P H="820" L="800" D="181f07394f8.png,0,20" MEDATA=";;;;0,4-0;0:::1-"/>
   <Z>
     <S>
       <S T="12" X="400" Y="18" L="800" H="10" P="0,0,0.3,0.2,0,0,0,0"/>
@@ -80,7 +80,7 @@ monopoly.config.images = {
     {"181f0755e5c.png", 50, 34},
   },
   actionui = {
-    x = 280, y = 660,
+    x = 280, y = 680,
     w = 50, h = 50,
     sep = 10,
     taw = 40, tah = 40,

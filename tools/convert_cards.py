@@ -22,19 +22,17 @@ with open('cards.csv', newline='') as csvfile:
     lines += [ '  {' ]
     
     for idx, value in enumerate(card):
-      if idx < 2:
-        lines += [ f'    {head[idx]} = "{value}",' ]
-      else:
+      if value:
         try:
           int(value)
           lines += [ f'    {head[idx]} = {value},' ]
         except:
-          pass
+          lines += [ f'    {head[idx]} = \'{value}\',' ]
     
     lines += [ '  },' ]
   
   
   lines += [ '}' ]
 
-with open('cards.lua', 'w') as luafile:
+with open('../lua/monopoly/generated_cards.lua', 'w') as luafile:
   luafile.write('\n'.join(lines))

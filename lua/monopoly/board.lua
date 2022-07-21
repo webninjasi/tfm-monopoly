@@ -30,6 +30,7 @@ local tokenPos = {
   { -1, -2, 1, -2, -1, 0, 1, 0, -1, 2, 1, 2 }, -- 6 tokens
 }
 local board = {}
+local tokenCell = {}
 
 
 -- Private Functions
@@ -67,11 +68,13 @@ local function placeToCell(cellId, tokenId)
   if not cell[tokenId] then
     cell.count = 1 + cell.count
     cell[tokenId] = token
+    tokenCell[tokenId] = cellId
   end
 
   return cellId
 end
 
+-- must be used before placeToCell so tokenCell can work properly
 local function removeFromCell(cellId, tokenId)
   if not cellId or not tokenId then
     return
@@ -86,6 +89,7 @@ local function removeFromCell(cellId, tokenId)
   if cell[tokenId] then
     cell.count = -1 + cell.count
     cell[tokenId] = nil
+    tokenCell[tokenId] = nil
   end
 end
 
@@ -138,6 +142,7 @@ end
 monopoly.board = {}
 
 monopoly.board.reset = function()
+  tokenCell = {}
   board.tokens = {}
   board.cells = {}
 
@@ -200,6 +205,10 @@ monopoly.board.moveToken = function(tokenId, cellId, relative)
   if eventTokenMove then
     eventTokenMove(tokenId, cellId, prevCellId and cellId < prevCellId)
   end
+end
+
+monopoly.board.getTokenCell = function(tokenId)
+  return tokenId and tokenCell[tokenId] and boardCells[tokenCell[tokenId]]
 end
 
 monopoly.board.registerCellAction = function(cellType, fnc)

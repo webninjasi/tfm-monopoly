@@ -47,7 +47,7 @@ local function updateButton(btn, name, enabled)
   ui.addImage(
     btn.key,
     btn.img,
-    ":1",
+    "!200",
     btn.x, btn.y,
     name,
     1, 1, 0, enabled and 1 or btn.alpha
@@ -61,7 +61,7 @@ local function updateButton(btn, name, enabled)
       btn.tx, btn.ty,
       btn.tw, btn.th,
       0, 0, 0,
-      true
+      false
     )
   else
     ui.removeTextArea(btn.key, name)

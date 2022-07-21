@@ -88,3 +88,11 @@ monopoly.money.take = function(name, amount)
     eventMoneyChanged(name, money[name], -amount)
   end
 end
+
+monopoly.money.hasEnough = function(name, amount)
+  if not money[name] then
+    money[name] = 0
+  end
+
+  return money[name] >= amount
+end

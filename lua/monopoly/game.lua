@@ -160,13 +160,21 @@ function eventPlayerLeft(name)
     return
   end
 
-  if players[name] then
-    monopoly.board.removeToken(players[name].tokenid)
+  local player = players[name]
+
+  if player then
+    monopoly.board.removeToken(player.tokenid)
     players[name] = nil
     removeValue(players, name)
     monopoly.votes.unvote('start', name)
 
-    -- TODO update ui or whoseTurn if whoseTurn == this player
+    if whoseTurn == player.index then
+      setWhoseTurn(whoseTurn)
+    end
+
+    for i=1, players._len do
+      players[players[i]].index = i
+    end
 
     if players._len == 1 then
       game.state = states.GAME_OVER
@@ -299,7 +307,9 @@ function eventTokenClicked(name, tokenid)
     players[players._len] = name
     players[name] = {
       tokenid = tokenid,
+      index = players._len,
     }
+
     monopoly.board.addToken(tokenid)
     monopoly.board.moveToken(tokenid, 1)
     monopoly.tokens.keep(tokenid)
@@ -348,8 +358,10 @@ function eventChatCommand(name, cmd)
     args[1 + #args] = arg
   end
 
+  local player = players[name]
+
   if args[1] == 'move' then -- TODO restrict/remove after testing
-    if not players[name] or not players[name].tokenid then
+    if not player or not player.tokenid then
       return
     end
 
@@ -359,6 +371,10 @@ function eventChatCommand(name, cmd)
       return
     end
 
-    monopoly.board.moveToken(players[name].tokenid, cellId)
+    local prevState = game.state
+    game.state = states.MOVING
+    whoseTurn = player.index
+    monopoly.board.moveToken(player.tokenid, cellId)
+    game.state = prevState
   end
 end

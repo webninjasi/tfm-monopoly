@@ -143,7 +143,6 @@ function eventInit()
   tfm.exec.disableAutoTimeLeft(true)
   tfm.exec.disableDebugCommand(true)
   tfm.exec.disableMinimalistMode(true)
-  tfm.exec.disableMortCommand(true)
   tfm.exec.disablePhysicalConsumables(true)
 
   tfm.exec.newGame(mapXML)
@@ -246,6 +245,8 @@ function eventChatCommand(name, cmd)
     )
   elseif args[1] == 'setstate' then
     game.state = tonumber(game.state) or 0
+  elseif args[1] == 'r' then
+    tfm.exec.respawnPlayer(name)
   end
 end
 
@@ -271,6 +272,7 @@ function eventDiceRoll(dice1, dice2)
     if player then
       game.state = states.MOVING
       player.diceSum = dice1 + dice2
+      tfm.exec.chatMessage(('<ROSE>You rolled %d + %d = %d'):format(dice1, dice2, dice1 + dice2), name)
       monopoly.board.moveToken(player.tokenid, player.diceSum, true)
     end
   elseif game.state == states.LOBBY then

@@ -8,7 +8,7 @@ station,Deathmatch Station,200,,If 1 Station are owned  $25,If 2 Station are own
 property,Parkour Street,100,6,30,90,270,400,550,50,50,87a5d6
 chance,Chance,0,,,,,,,,,
 property,Racing Route,100,6,30,90,270,400,550,50,50,87a5d6
-property,Village Boulevard,120,8,40,100,300,450,600,50,60,87a5d6
+property,Fight Boulevard,120,8,40,100,300,450,600,50,60,87a5d6
 empty,In Jail - Just Visiting,0,,,,,,,,,
 property,"<font size=""10"">Transformice Alley",140,10,50,150,450,625,750,100,70,ee3878
 utility,Electric Utility Company,150,"If one utility is owned, rent is 4 times amount shown on dice.",,,,"If both utilities are owned, rent is 10 times amount shown on dice ",,,75,

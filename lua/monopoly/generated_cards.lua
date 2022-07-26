@@ -88,7 +88,7 @@ monopoly.config.board.cells = {
   },
   {
     type = 'property',
-    title = 'Village Boulevard',
+    title = 'Fight Boulevard',
     price = 120,
     rent = 8,
     house = 40,

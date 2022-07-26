@@ -60,7 +60,7 @@ monopoly.config.scrollPos = {
 }
 
 monopoly.config.images = {
-  background = "181f07394f8.png",
+  background = "1823c8f747a.png",
   circle = "182144f123d.png",
   cards = {
     empty = "18220bf6da4.png",

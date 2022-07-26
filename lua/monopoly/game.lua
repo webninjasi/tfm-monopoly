@@ -18,6 +18,8 @@ pshy.require("monopoly.actionui")
 pshy.require("monopoly.cellactions")
 pshy.require("monopoly.property")
 
+local command_list = pshy.require("pshy.commands.list")
+
 
 -- Game Variables
 local scrollPos = monopoly.config.scrollPos
@@ -204,49 +206,6 @@ function eventPlayerLeft(name)
       game.state = states.GAME_OVER
       tfm.exec.newGame(mapXML)
     end
-  end
-end
-
--- TODO use pshy.commands
-function eventChatCommand(name, cmd)
-  local args = {}
-
-  for arg in cmd:gmatch('%S+') do
-    args[1 + #args] = arg
-  end
-
-  local player = players[name]
-
-  if args[1] == 'move' then -- TODO restrict/remove after testing
-    if not player or not player.tokenid then
-      return
-    end
-
-    local cellId = tonumber(args[2])
-
-    if not cellId or cellId < 1 or cellId > 40 then
-      return
-    end
-
-    local prevState = game.state
-    game.state = states.MOVING
-    whoseTurn = player.index
-    monopoly.board.moveToken(player.tokenid, cellId)
-    game.state = prevState
-  elseif args[1] == 'debug' then
-    tfm.exec.chatMessage(
-      string.format(
-        '<ROSE>game.state = %s\nwhoseTurn = %s\nlobbyTurn = %s',
-        game.state or 'nil',
-        whoseTurn or 'nil',
-        lobbyTurn or 'nil'
-      ),
-      name
-    )
-  elseif args[1] == 'setstate' then
-    game.state = tonumber(game.state) or 0
-  elseif args[1] == 'r' then
-    tfm.exec.respawnPlayer(name)
   end
 end
 
@@ -488,3 +447,48 @@ function eventAuctionCardClick(name)
     monopoly.property.auctionStart(card)
   end
 end
+
+
+-- Commands
+local function ChatCommandMove(name, cellId)
+  local player = players[name]
+
+  if not player or not player.tokenid then
+    return
+  end
+
+  if not cellId or cellId < 1 or cellId > 40 then
+    return
+  end
+
+  local prevState = game.state
+  game.state = states.MOVING
+  whoseTurn = player.index
+  monopoly.board.moveToken(player.tokenid, cellId)
+  game.state = prevState
+end
+command_list["move"] = {
+  perms = "admins",
+  func = ChatCommandMove,
+  desc = "move players' token",
+  argc_min = 1, argc_max = 1, arg_types = {"number"}
+}
+
+local function ChatCommandSetState(name, state)
+  game.state = state or 0
+end
+command_list["setstate"] = {
+  perms = "admins",
+  func = ChatCommandSetState,
+  desc = "set game state",
+  argc_min = 1, argc_max = 1, arg_types = {"number"}
+}
+
+local function ChatCommandRespawn(name)
+  tfm.exec.respawnPlayer(name)
+end
+command_list["r"] = {
+  func = ChatCommandRespawn,
+  desc = "respawns the player",
+  argc_min = 0, argc_max = 0
+}

@@ -20,6 +20,7 @@ pshy.require("monopoly.property")
 
 
 -- Game Variables
+local scrollPos = monopoly.config.scrollPos
 local mapXML = monopoly.config.mapXML:gsub("[%s\r\n]+<", "<"):gsub(">[%s\r\n]+", ">")
 local states = {
   LOBBY = 0,
@@ -142,6 +143,7 @@ function eventInit()
   tfm.exec.disableAutoTimeLeft(true)
   tfm.exec.disableDebugCommand(true)
   tfm.exec.disableMinimalistMode(true)
+  tfm.exec.disableMortCommand(true)
   tfm.exec.disablePhysicalConsumables(true)
 
   tfm.exec.newGame(mapXML)
@@ -151,7 +153,7 @@ end
 -- TFM Events
 function eventNewGame()
   for name in pairs(tfm.get.room.playerList) do
-    tfm.exec.killPlayer(name)
+    eventInitPlayer(name)
   end
 
   showBoard()
@@ -168,6 +170,14 @@ end
 function eventNewPlayer(name)
   showBoard(name)
   monopoly.tokens.show()
+  tfm.exec.respawnPlayer(name)
+  eventInitPlayer(name)
+end
+
+function eventInitPlayer(name)
+  tfm.exec.bindKeyboard(name, 1, true, true)
+  tfm.exec.bindKeyboard(name, 3, true, true)
+  tfm.exec.freezePlayer(name, true, false)
 end
 
 function eventPlayerLeft(name)
@@ -236,6 +246,19 @@ function eventChatCommand(name, cmd)
     )
   elseif args[1] == 'setstate' then
     game.state = tonumber(game.state) or 0
+  end
+end
+
+function eventKeyboard(name, key, down, x, y)
+  if key == 1 or key == 3 then -- UP/DOWN key
+    local off = key == 1 and -1 or 1
+
+    for i=1, 3 do
+      if scrollPos[i + off] and math.abs(y - scrollPos[i]) < 10 then
+        tfm.exec.movePlayer(name, scrollPos.x, scrollPos[i + off])
+        break
+      end
+    end
   end
 end
 

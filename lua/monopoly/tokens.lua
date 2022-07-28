@@ -166,6 +166,11 @@ monopoly.tokens.circleMode = function(tokenId, enabled)
   showToken(token, false)
 end
 
+monopoly.tokens.randColor = function(tokenid)
+  local range = 0xffffff / tokens._len
+  return math.random((tokenid - 1) * range, tokenid * range)
+end
+
 
 -- Events
 function eventTextAreaCallback(id, name, callback)

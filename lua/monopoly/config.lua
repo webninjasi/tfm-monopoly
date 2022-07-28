@@ -6,7 +6,9 @@ if monopoly.config then
   return
 end
 
-monopoly.config = {}
+local config = {}
+
+monopoly.config = config
 monopoly.config.mapXML = [[
 <C>
   <P H="820" D="181f07394f8.png,0,20" MEDATA=";;;;0,4-0;0:::1-"/>
@@ -57,6 +59,11 @@ monopoly.config.mapXML = [[
 monopoly.config.scrollPos = {
   x = 900,
   235, 475, 795,
+}
+
+config.playersUI = {
+  x = 430,
+  y = 130,
 }
 
 monopoly.config.images = {
@@ -241,3 +248,5 @@ monopoly.config.cardRows = {
 
 -- cells on the board
 pshy.require('monopoly.generated_cards')
+
+return config

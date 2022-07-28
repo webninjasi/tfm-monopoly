@@ -13,11 +13,11 @@ pshy.require("monopoly.tokens")
 pshy.require("monopoly.board")
 pshy.require("monopoly.votes")
 pshy.require("monopoly.dice")
-pshy.require("monopoly.money")
 pshy.require("monopoly.actionui")
 pshy.require("monopoly.cellactions")
 pshy.require("monopoly.property")
 
+local players = pshy.require("monopoly.players")
 local command_list = pshy.require("pshy.commands.list")
 
 
@@ -33,8 +33,7 @@ local states = {
   GAME_OVER = 10,
 }
 local lobbyTurn
-local whoseTurn = 1
-local players = { _len=0 }
+local whoseTurn
 local game = {
   states = states,
   state = states.LOBBY,
@@ -63,75 +62,31 @@ end
 
 
 -- Game Functions
-local function updateStartButton()
-  local name, player
-
-  for i=1, players._len do
-    name = players[i]
-    player = players[name]
-
-    ui.addTextArea(
-      "startbtn",
-      '<p align="center"><b>\n\n' .. 
-      (player and player.indexDice and '<G>Waiting for others...' or (
-        lobbyTurn == nil and '<ROSE>Roll to start' or
-        (lobbyTurn == name and '<V>You\'re rolling...'
-                            or '<V>Rolling...')
-      )),
-      name,
-      monopoly.config.roll.x, monopoly.config.roll.y,
-      monopoly.config.roll.w, monopoly.config.roll.h,
-      0, 0, 0,
-      false
-    )
-  end
-end
-
-local function hideStartButton(name)
-  ui.removeTextArea("startbtn", name)
-end
-
 local function showBoard(target)
   ui.addImage("bg", monopoly.config.images.background, "?1", 0, 20, target)
 end
 
-local function getPlayerByIdx(idx)
-  local name = players[idx]
-  local player = name and players[name]
-
-  return player
-end
-
-local function setWhoseTurn(idx)
-  local prev = whoseTurn
-
-  whoseTurn = 1 + ((idx - 1) % players._len)
-
-  -- Add circle around the player's token
-  local player = getPlayerByIdx(whoseTurn)
-
-  if player and player.tokenid then
-    monopoly.tokens.circleMode(player.tokenid, true)
-  end
-
-  -- Remove circle from previous player
-  if prev ~= whoseTurn then
-    player = getPlayerByIdx(prev)
-
-    if player and player.tokenid then
-      monopoly.tokens.circleMode(player.tokenid, false)
-    end
-  end
-end
-
 -- TODO auto move on to next turn after a timeout
 local function nextTurn()
-  setWhoseTurn(whoseTurn + 1)
-  game.state = states.WAITING
-
-  if players[whoseTurn] then
-    monopoly.actionui.update(players[whoseTurn], "Dice", true)
+  if whoseTurn then
+    monopoly.tokens.circleMode(whoseTurn.tokenid, false)
   end
+
+  whoseTurn = players.next(whoseTurn)
+
+  if whoseTurn then
+    while whoseTurn.skipTurn and whoseTurn.skipTurn > 0 do
+      whoseTurn.skipTurn = whoseTurn.skipTurn - 1
+      whoseTurn = players.next(whoseTurn)
+    end
+  end
+
+  if whoseTurn then
+    monopoly.tokens.circleMode(whoseTurn.tokenid, true)
+    monopoly.actionui.update(whoseTurn.name, "Dice", true)
+  end
+
+  game.state = states.WAITING
 end
 
 
@@ -160,16 +115,16 @@ function eventNewGame()
   showBoard()
 
   lobbyTurn = nil
-  players = { _len=0 }
+  players.reset()
   monopoly.board.reset()
   monopoly.tokens.create()
   monopoly.votes.reset()
-  monopoly.money.reset()
   monopoly.property.reset()
 end
 
 function eventNewPlayer(name)
   showBoard(name)
+  players.showUI()
   monopoly.tokens.show()
   tfm.exec.respawnPlayer(name)
   eventInitPlayer(name)
@@ -181,31 +136,25 @@ function eventInitPlayer(name)
   tfm.exec.freezePlayer(name, true, false)
 end
 
-function eventPlayerLeft(name)
+function eventPlayersUpdated(name, player)
   if game.state == states.GAME_OVER then
     return
   end
 
-  local player = players[name]
+  monopoly.board.removeToken(player.tokenid)
+  monopoly.votes.unvote('start', name)
 
-  if player then
-    monopoly.board.removeToken(player.tokenid)
-    players[name] = nil
-    removeValue(players, name)
-    monopoly.votes.unvote('start', name)
+  if whoseTurn == player then
+    nextTurn()
+  end
 
-    if whoseTurn == player.index then
-      setWhoseTurn(whoseTurn)
+  if players.count() == 1 then
+    if whoseTurn then
+      tfm.exec.chatMessage(("<ROSE>%s won the game!"):format(whoseTurn.name))
     end
 
-    for i=1, players._len do
-      players[players[i]].index = i
-    end
-
-    if players._len == 1 then
-      game.state = states.GAME_OVER
-      tfm.exec.newGame(mapXML)
-    end
+    game.state = states.GAME_OVER
+    tfm.exec.newGame(mapXML)
   end
 end
 
@@ -226,68 +175,50 @@ end
 -- Monopoly Events
 function eventDiceRoll(dice1, dice2)
   if game.state == states.ROLLING then
-    local player = whoseTurn and players[whoseTurn] and players[players[whoseTurn]]
+    local player = whoseTurn
 
     if player then
       game.state = states.MOVING
       player.diceSum = dice1 + dice2
-      tfm.exec.chatMessage(('<ROSE>You rolled %d + %d = %d'):format(dice1, dice2, dice1 + dice2), name)
+      tfm.exec.chatMessage(('<ROSE>%s rolled %d + %d = %d'):format(player.name, dice1, dice2, dice1 + dice2))
       monopoly.board.moveToken(player.tokenid, player.diceSum, true)
     end
   elseif game.state == states.LOBBY then
-    local name = lobbyTurn
-    local player = players[lobbyTurn]
+    local player = lobbyTurn
+    local name = player and player.name
 
     lobbyTurn = nil
 
     if player then
-      player.indexDice = dice1 + dice2
-      tfm.exec.chatMessage(('<ROSE>You rolled %d + %d = %d'):format(dice1, dice2, dice1 + dice2), name)
-      updateStartButton()
+      players.update(player.name, 'order', dice1 + dice2)
+      tfm.exec.chatMessage(('<ROSE>%s rolled %d + %d = %d'):format(name, dice1, dice2, dice1 + dice2))
 
       -- only start with 2+ players
-      if players._len < 2 then
+      if players.count() < 2 then
         return
       end
 
-      local sortedByDice = { _len = 0 }
-      local playerIt
-
       -- stop if there's still people who didn't roll dice
-      for i=1, players._len do
-        playerIt = players[players[i]]
-
-        if playerIt and not playerIt.indexDice then
+      for player in players.iter do
+        if not player.order then
           return
         end
-
-        sortedByDice._len = 1 + sortedByDice._len
-        sortedByDice[sortedByDice._len] = { players[i], playerIt.indexDice }
-      end
-
-      -- reorder player list
-      table.sort(sortedByDice, function(a, b) return a[2] > b[2] end)
-
-      for i=1, players._len do
-        players[i] = sortedByDice[i][1]
-        players[players[i]].index = i
       end
 
       -- everyone is ready, start the game
       tfm.exec.chatMessage('<ROSE>The game is starting...')
 
+      whoseTurn = nil
       game.state = states.WAITING
-      setWhoseTurn(1)
-      hideStartButton()
+      nextTurn()
       monopoly.tokens.hide()
 
-      -- give some money and enable actions
-      for i=1, players._len do
-        monopoly.money.give(players[i], 1500)
-        monopoly.actionui.update(players[i], nil, true)
+      -- enable actions
+      for player in players.iter do
+        monopoly.actionui.update(player.name, nil, true)
 
-        if whoseTurn ~= i then
-          monopoly.actionui.update(players[i], "Dice", false)
+        if whoseTurn ~= player then
+          monopoly.actionui.update(player.name, "Dice", false)
         end
       end
     end
@@ -303,8 +234,8 @@ function eventTokenMove(tokenId, cellId, passedGo)
     return
   end
 
-  local name = whoseTurn and players[whoseTurn]
-  local player = name and players[name]
+  local player = whoseTurn
+  local name = player and player.name
 
   if player then
     -- Possible using !move
@@ -313,7 +244,7 @@ function eventTokenMove(tokenId, cellId, passedGo)
     end
 
     if passedGo then
-      monopoly.money.give(name, 200)
+      players.add(name, 'money', 200)
     end
 
     local action = monopoly.board.cellAction(cellId)
@@ -333,32 +264,33 @@ function eventTokenClicked(name, tokenid)
       return
     end
 
-    if players[name] then
+    if players.get(name) then
       return
     end
   
     -- reached the max number of players
-    if players._len == 6 then
+    if players.count() == 6 then
       return
     end
 
-    players._len = 1 + players._len
-    players[players._len] = name
-    players[name] = {
+    players.create({
+      name = name,
       tokenid = tokenid,
-      index = players._len,
-    }
+      color = monopoly.tokens.randColor(tokenid),
+      money = 1500,
+    })
 
     monopoly.board.addToken(tokenid)
     monopoly.board.moveToken(tokenid, 1)
     monopoly.tokens.keep(tokenid)
-    updateStartButton()
     monopoly.actionui.show(name)
+
+    tfm.exec.chatMessage("<ROSE>Roll the dice to determine start order", name)
   end
 end
 
 function eventActionUIClick(name, action)
-  local player = players[name]
+  local player = players.get(name)
 
   if not player then
     return
@@ -367,20 +299,19 @@ function eventActionUIClick(name, action)
   if action == "Dice" then
     if game.state == states.LOBBY then
       -- play order is already decided or being decided right now
-      if player.indexDice or lobbyTurn then
+      if player.order or lobbyTurn then
         return
       end
   
       local count = monopoly.votes.vote('start', name)
   
       if count then
-        lobbyTurn = name
+        lobbyTurn = player
         monopoly.dice.roll()
         monopoly.actionui.update(name, "Dice", false)
-        updateStartButton()
       end
     elseif game.state == states.WAITING then
-      if whoseTurn ~= player.index then
+      if whoseTurn ~= player then
         return
       end
 
@@ -399,7 +330,7 @@ function eventActionUIClick(name, action)
       return
     end
 
-    if whoseTurn ~= player.index then
+    if whoseTurn ~= player then
       return
     end
 
@@ -412,23 +343,24 @@ function eventBuyCardClick(name)
     return
   end
 
-  local player = name and players[name]
+  local player = players.get(name)
 
-  if not player or player.index ~= whoseTurn then
+  if player ~= whoseTurn then
     return
   end
 
   local card = monopoly.board.getTokenCell(player.tokenid)
 
   if card and monopoly.property.canBuy(card) then
-    if not monopoly.money.hasEnough(name, card.price) then
+    if player.money < card.price then
       return
     end
 
-    monopoly.money.take(name, card.price)
+    players.add(name, 'money', -card.price)
     monopoly.property.setOwner(card.id, name)
     monopoly.property.hideCard(name)
     monopoly.property.showCard(card, name, false)
+    tfm.exec.chatMessage(("<V>%s <J>bought %s"):format(name, card.title))
   end
 end
 
@@ -437,9 +369,9 @@ function eventAuctionCardClick(name)
     return
   end
 
-  local player = name and players[name]
+  local player = players.get(name)
 
-  if not player or player.index ~= whoseTurn then
+  if player ~= whoseTurn then
     return
   end
 
@@ -451,9 +383,9 @@ end
 
 -- Commands
 local function ChatCommandMove(name, cellId)
-  local player = players[name]
+  local player = players.get(name)
 
-  if not player or not player.tokenid then
+  if not player.tokenid then
     return
   end
 
@@ -463,7 +395,7 @@ local function ChatCommandMove(name, cellId)
 
   local prevState = game.state
   game.state = states.MOVING
-  whoseTurn = player.index
+  whoseTurn = player
   monopoly.board.moveToken(player.tokenid, cellId)
   game.state = prevState
 end
@@ -491,4 +423,13 @@ command_list["r"] = {
   func = ChatCommandRespawn,
   desc = "respawns the player",
   argc_min = 0, argc_max = 0
+}
+
+command_list["money"] = {
+  perms = "admins",
+  func = function(name, money, target)
+    players.add(target or name, 'money', money)
+  end,
+  desc = "set game state",
+  argc_min = 1, argc_max = 2, arg_types = {"number", "player"}
 }

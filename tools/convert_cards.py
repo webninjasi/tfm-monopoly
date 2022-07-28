@@ -1,6 +1,7 @@
 #!/usr/bin/py -3
 
 import csv
+import re
 
 head = []
 cards = []
@@ -25,9 +26,18 @@ with open('cards.csv', newline='') as csvfile:
       if value:
         try:
           int(value)
-          lines += [ f'    {head[idx]} = {value},' ]
         except:
-          lines += [ f'    {head[idx]} = \'{value}\',' ]
+          value = "'" + value.replace("'", "\\'") + "'"
+        
+        if head[idx] == 'title':
+          # filter out html tags
+          filtered = re.sub(r'<.+?>', '', value)
+          
+          if filtered != value:
+            lines += [ f'    title_html = {value},' ]
+            value = filtered
+        
+        lines += [ f'    {head[idx]} = {value},' ]
     
     lines += [ '  },' ]
   

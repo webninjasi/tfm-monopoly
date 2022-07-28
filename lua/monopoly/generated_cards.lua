@@ -6,7 +6,8 @@ monopoly.config.board.cells = {
   },
   {
     type = 'property',
-    title = '<N>Vanilla Avenue',
+    title_html = '<N>Vanilla Avenue',
+    title = 'Vanilla Avenue',
     price = 60,
     rent = 2,
     house = 10,
@@ -25,7 +26,8 @@ monopoly.config.board.cells = {
   },
   {
     type = 'property',
-    title = '<N>Defilante Street',
+    title_html = '<N>Defilante Street',
+    title = 'Defilante Street',
     price = 60,
     rent = 4,
     house = 20,
@@ -107,7 +109,8 @@ monopoly.config.board.cells = {
   },
   {
     type = 'property',
-    title = '<font size="10">Transformice Alley',
+    title_html = '<font size="10">Transformice Alley',
+    title = 'Transformice Alley',
     price = 140,
     rent = 10,
     house = 50,
@@ -167,7 +170,8 @@ monopoly.config.board.cells = {
   },
   {
     type = 'property',
-    title = '<font size="12">Prophunt Avenue',
+    title_html = '<font size="12">Prophunt Avenue',
+    title = 'Prophunt Avenue',
     price = 180,
     rent = 14,
     house = 70,
@@ -252,7 +256,8 @@ monopoly.config.board.cells = {
   },
   {
     type = 'property',
-    title = '<font size="10">Towerdefense Street',
+    title_html = '<font size="10">Towerdefense Street',
+    title = 'Towerdefense Street',
     price = 240,
     rent = 20,
     house = 100,
@@ -331,7 +336,8 @@ monopoly.config.board.cells = {
   },
   {
     type = 'property',
-    title = '<font size="12">Hardcamp Avenue',
+    title_html = '<font size="12">Hardcamp Avenue',
+    title = 'Hardcamp Avenue',
     price = 300,
     rent = 26,
     house = 130,
@@ -345,7 +351,8 @@ monopoly.config.board.cells = {
   },
   {
     type = 'property',
-    title = '<font size="10">Hidenseek Boulevard',
+    title_html = '<font size="10">Hidenseek Boulevard',
+    title = 'Hidenseek Boulevard',
     price = 300,
     rent = 26,
     house = 130,
@@ -393,7 +400,8 @@ monopoly.config.board.cells = {
   },
   {
     type = 'property',
-    title = '<N>Records Plaza',
+    title_html = '<N>Records Plaza',
+    title = 'Records Plaza',
     price = 350,
     rent = 35,
     house = 175,
@@ -412,7 +420,8 @@ monopoly.config.board.cells = {
   },
   {
     type = 'property',
-    title = '<N><font size="12">Bootcamp Avenue',
+    title_html = '<N><font size="12">Bootcamp Avenue',
+    title = 'Bootcamp Avenue',
     price = 400,
     rent = 50,
     house = 200,

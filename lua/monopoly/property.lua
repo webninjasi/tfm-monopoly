@@ -47,7 +47,7 @@ local function showPropertyCard(cell, name, x, y, canBuy)
     "cardheader",
     string.format(
       '<p align="center"><font size="15" color="#000000"><a href="event:close">%s',
-      cell.title
+      cell.title_html or cell.title
     ),
     name,
     x + 10, y + 15,
@@ -75,7 +75,11 @@ local function showPropertyCard(cell, name, x, y, canBuy)
       end
 
       rows._len = 1 + rows._len
-      rows[rows._len] = string.format('%s\t<font color="#006400">$%d</font>', card.title, val)
+      rows[rows._len] = string.format(
+        '%s\t<font color="#006400">$%d</font>',
+        card.title_html or card.title,
+        val
+      )
     end
   end
 

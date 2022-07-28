@@ -11,21 +11,22 @@ monopoly.__cellactions = true
 
 -- Dependencies
 pshy.require("monopoly.board")
-pshy.require("monopoly.money")
 pshy.require("monopoly.property")
+
+local players = pshy.require("monopoly.players")
 
 
 -- Events
 function eventInit()
   monopoly.board.registerCellAction("win", function(cell)
     return function(name)
-      monopoly.money.give(name, cell.price)
+      players.add(name, 'money', cell.price)
     end
   end)
 
   monopoly.board.registerCellAction("lose", function(cell)
     return function(name)
-      monopoly.money.take(name, cell.price)
+      players.add(name, 'money', -cell.price)
     end
   end)
 
@@ -46,7 +47,7 @@ function eventInit()
       if owner then
         if owner ~= name then
           local rent = monopoly.property.calculateRent(cell, diceSum)
-          monopoly.money.take(name, rent)
+          players.add(name, 'money', -rent)
         end
       else
         monopoly.property.showCard(cell, name, true)

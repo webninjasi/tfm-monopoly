@@ -1,21 +1,13 @@
 --- monopoly.property
 
-monopoly = monopoly or {}
-
-if monopoly.property then
-  return
-end
-
-
--- Dependencies
-pshy.require("monopoly.config")
+local config = pshy.require("monopoly.config")
 
 
 -- Variables
-local boardCells = monopoly.config.board.cells
-local cardImages = monopoly.config.images.cards
-local pixels = monopoly.config.images.pixels
-local cardRows = monopoly.config.cardRows
+local boardCells = config.board.cells
+local cardImages = config.images.cards
+local pixels = config.images.pixels
+local cardRows = config.cardRows
 cardRows._len = #cardRows
 
 local owners = {}
@@ -119,24 +111,24 @@ end
 
 
 -- Public Functions
-monopoly.property = {}
+local module = {}
 
-monopoly.property.reset = function()
+module.reset = function()
   owners = {}
 end
 
-monopoly.property.getOwner = function(key)
+module.getOwner = function(key)
   return key and owners[key]
 end
 
-monopoly.property.setOwner = function(key, owner)
+module.setOwner = function(key, owner)
   if key then
     owners[key] = owner
   end
 end
 
-monopoly.property.canBuy = function(card)
-  return not monopoly.property.getOwner(card.id)
+module.canBuy = function(card)
+  return not module.getOwner(card.id)
     and (
       card.type == 'property'
       or card.type == 'utility'
@@ -144,7 +136,7 @@ monopoly.property.canBuy = function(card)
     )
 end
 
-monopoly.property.hideCard = function(name)
+module.hideCard = function(name)
   ui.removeTextArea("cardheader", name)
   ui.removeTextArea("cardinfo", name)
   ui.removeTextArea("cardbtnbuy", name)
@@ -154,13 +146,13 @@ monopoly.property.hideCard = function(name)
   ui.removeImage("cardbtnauction", name)
 end
 
-monopoly.property.showCard = function(cell, name, canBuy)
+module.showCard = function(cell, name, canBuy)
   if cell.type == 'property' then
     showPropertyCard(cell, name, 325, 100, canBuy)
   end
 end
 
-monopoly.property.calculateRent = function(cell, diceSum)
+module.calculateRent = function(cell, diceSum)
   if cell.type == 'utility' or cell.type == 'station' then
     local list = cellsByType[cell.type]
     local owner = owners[cell]
@@ -185,7 +177,7 @@ monopoly.property.calculateRent = function(cell, diceSum)
   return cell.rent
 end
 
-monopoly.property.auctionStart = function(cell)
+module.auctionStart = function(cell)
 
 end
 
@@ -197,7 +189,7 @@ end
 
 function eventTextAreaCallback(id, name, callback)
   if id == ui.textAreaId("cardheader") then
-    monopoly.property.hideCard(name)
+    module.hideCard(name)
   elseif id == ui.textAreaId("cardbtnbuy") then
     if eventBuyCardClick then
       eventBuyCardClick(name)
@@ -208,3 +200,5 @@ function eventTextAreaCallback(id, name, callback)
     end
   end
 end
+
+return module

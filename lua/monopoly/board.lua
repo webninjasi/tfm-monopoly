@@ -1,25 +1,17 @@
 --- monopoly.board
 
-monopoly = monopoly or {}
-
-if monopoly.board then
-  return
-end
-
-
--- Dependencies
-pshy.require("monopoly.config")
-pshy.require("monopoly.tokens")
+local config = pshy.require("monopoly.config")
+local tokens = pshy.require("monopoly.tokens")
 
 
 -- Board Variables
-local boardCells = monopoly.config.board.cells
+local boardCells = config.board.cells
 local cellActions = {}
-local houseSize = monopoly.config.board.houseSize
-local tokenSize = monopoly.config.board.tokenSize
-local tokenOffset = monopoly.config.board.tokenOffset
-local positions = monopoly.config.board.positions
-local tokenImages = monopoly.config.images.tokens
+local houseSize = config.board.houseSize
+local tokenSize = config.board.tokenSize
+local tokenOffset = config.board.tokenOffset
+local positions = config.board.positions
+local tokenImages = config.images.tokens
 local cellCount = #positions
 local tokenPos = {
   { 0, 0 }, -- 1 token
@@ -132,16 +124,16 @@ local function updateTokens(cellId)
     if tokenId ~= 'count' then
       index = 1 + index
       x, y = getPos(index, originX, originY, scale, cell.count, tokenId)
-      monopoly.tokens.update(tokenId, x, y, scale, rotation)
+      tokens.update(tokenId, x, y, scale, rotation)
     end
   end
 end
 
 
 -- Functions
-monopoly.board = {}
+local module = {}
 
-monopoly.board.reset = function()
+module.reset = function()
   tokenCell = {}
   board.tokens = {}
   board.cells = {}
@@ -151,11 +143,11 @@ monopoly.board.reset = function()
   end
 end
 
-monopoly.board.hasToken = function(tokenId)
+module.hasToken = function(tokenId)
   return not not board.tokens[tokenId]
 end
 
-monopoly.board.addToken = function(tokenId)
+module.addToken = function(tokenId)
   local token = board.tokens[tokenId]
 
   if token then
@@ -167,7 +159,7 @@ monopoly.board.addToken = function(tokenId)
   }
 end
 
-monopoly.board.removeToken = function(tokenId)
+module.removeToken = function(tokenId)
   local token = board.tokens[tokenId]
 
   if not token then
@@ -182,7 +174,7 @@ monopoly.board.removeToken = function(tokenId)
   board.cells[tokenId] = nil
 end
 
-monopoly.board.moveToken = function(tokenId, cellId, relative)
+module.moveToken = function(tokenId, cellId, relative)
   local token = board.tokens[tokenId]
 
   if not token then
@@ -207,15 +199,15 @@ monopoly.board.moveToken = function(tokenId, cellId, relative)
   end
 end
 
-monopoly.board.getTokenCell = function(tokenId)
+module.getTokenCell = function(tokenId)
   return tokenId and tokenCell[tokenId] and boardCells[tokenCell[tokenId]]
 end
 
-monopoly.board.registerCellAction = function(cellType, fnc)
+module.registerCellAction = function(cellType, fnc)
   cellActions[cellType] = fnc
 end
 
-monopoly.board.cellAction = function(cellId)
+module.cellAction = function(cellId)
   local cell = boardCells[cellId]
 
   if not cell then
@@ -232,5 +224,7 @@ monopoly.board.cellAction = function(cellId)
 end
 
 -- Init
-monopoly.board.reset()
+module.reset()
 updateCells()
+
+return module

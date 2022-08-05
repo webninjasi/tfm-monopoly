@@ -1,21 +1,13 @@
 --- monopoly.tokens
 
-monopoly = monopoly or {}
-
-if monopoly.tokens then
-  return
-end
-
-
--- Dependencies
-pshy.require("monopoly.config")
+local config = pshy.require("monopoly.config")
 
 
 -- Tokens Variables
-local defaultX = monopoly.config.tokens.defaultX
-local defaultY = monopoly.config.tokens.defaultY
-local images = monopoly.config.images.tokens
-local circleImage = monopoly.config.images.circle
+local defaultX = config.tokens.defaultX
+local defaultY = config.tokens.defaultY
+local images = config.images.tokens
+local circleImage = config.images.circle
 local tokens = { _len=0 }
 
 
@@ -67,9 +59,9 @@ end
 
 
 -- Functions
-monopoly.tokens = {}
+local module = {}
 
-monopoly.tokens.create = function()
+module.create = function()
   local x, y = defaultX, defaultY
   tokens._len = #images
 
@@ -93,7 +85,7 @@ monopoly.tokens.create = function()
   end
 end
 
-monopoly.tokens.show = function()
+module.show = function()
   local token
 
   for i=1,tokens._len do
@@ -105,14 +97,14 @@ monopoly.tokens.show = function()
   end
 end
 
-monopoly.tokens.keep = function(id)
+module.keep = function(id)
   if tokens[id] then
     tokens[id].unused = nil
     ui.removeTextArea("token" .. id)
   end
 end
 
-monopoly.tokens.hide = function(tokenid)
+module.hide = function(tokenid)
   local token
 
   if tokenid then
@@ -136,7 +128,7 @@ monopoly.tokens.hide = function(tokenid)
   end
 end
 
-monopoly.tokens.update = function(tokenId, x, y, scale, rotation)
+module.update = function(tokenId, x, y, scale, rotation)
   local token = tokens[tokenId]
 
   if not token then
@@ -155,7 +147,7 @@ monopoly.tokens.update = function(tokenId, x, y, scale, rotation)
   showToken(token, false)
 end
 
-monopoly.tokens.circleMode = function(tokenId, enabled)
+module.circleMode = function(tokenId, enabled)
   local token = tokens[tokenId]
 
   if not token then
@@ -166,7 +158,7 @@ monopoly.tokens.circleMode = function(tokenId, enabled)
   showToken(token, false)
 end
 
-monopoly.tokens.randColor = function(tokenid)
+module.randColor = function(tokenid)
   local range = 0xffffff / tokens._len
   return math.random((tokenid - 1) * range, tokenid * range)
 end
@@ -182,3 +174,5 @@ function eventTextAreaCallback(id, name, callback)
     end
   end
 end
+
+return module

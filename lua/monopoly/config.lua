@@ -1,15 +1,8 @@
 --- monopoly.config
 
-monopoly = monopoly or {}
-
-if monopoly.config then
-  return
-end
-
 local config = {}
 
-monopoly.config = config
-monopoly.config.mapXML = [[
+config.mapXML = [[
 <C>
   <P H="820" D="181f07394f8.png,0,20" MEDATA=";;;;0,4-0;0:::1-"/>
   <Z>
@@ -56,7 +49,7 @@ monopoly.config.mapXML = [[
   </Z>
 </C>
 ]]
-monopoly.config.scrollPos = {
+config.scrollPos = {
   x = 900,
   235, 475, 795,
 }
@@ -66,7 +59,7 @@ config.playersUI = {
   y = 130,
 }
 
-monopoly.config.images = {
+config.images = {
   background = "1823c8f747a.png",
   circle = "182144f123d.png",
   cards = {
@@ -120,11 +113,11 @@ monopoly.config.images = {
 }
 
 -- spawn locations when rolling the dices
-monopoly.config.dice1 = { x = 355, y = 375 }
-monopoly.config.dice2 = { x = 435, y = 375 }
+config.dice1 = { x = 355, y = 375 }
+config.dice2 = { x = 435, y = 375 }
 
 -- roll config
-monopoly.config.roll = {
+config.roll = {
   delay = 2000, -- length of the dice roll animation
   x = 325, -- button x
   y = 305, -- button y
@@ -133,22 +126,22 @@ monopoly.config.roll = {
 }
 
 -- tokens default position
-monopoly.config.tokens = {
+config.tokens = {
   defaultX = 130,
   defaultY = 620,
 }
 
 -- money ui
-monopoly.config.money = { x = 370, y = 150 }
+config.money = { x = 370, y = 150 }
 
 -- board configs
-monopoly.config.board = {}
+config.board = {}
 
 -- height of houses to place on top of properties
-monopoly.config.board.houseSize = 20
+config.board.houseSize = 20
 
 -- property positions in clockwise order
-monopoly.config.board.positions = {
+config.board.positions = {
   -- bottom right corner
   {692,712,800,820}, -- GO
 
@@ -207,7 +200,7 @@ monopoly.config.board.positions = {
 }
 
 -- cell rows on card
-monopoly.config.cardRows = {
+config.cardRows = {
   {
     key = "price",
     title = "Price",
@@ -247,6 +240,6 @@ monopoly.config.cardRows = {
 }
 
 -- cells on the board
-pshy.require('monopoly.generated_cards')
+config.board.cells = pshy.require('monopoly.generated_cards')
 
 return config

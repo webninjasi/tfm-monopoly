@@ -1,20 +1,12 @@
 --- monopoly.votes
 
-monopoly = monopoly or {}
-
-if monopoly.votes then
-  return
-end
-
-
--- Votes Variables
 local votes = {}
 
 
 -- Functions
-monopoly.votes = {}
+local module = {}
 
-monopoly.votes.reset = function(voteName)
+module.reset = function(voteName)
   if voteName then
     votes[voteName] = {}
   else
@@ -22,7 +14,7 @@ monopoly.votes.reset = function(voteName)
   end
 end
 
-monopoly.votes.vote = function(voteName, name)
+module.vote = function(voteName, name)
   if not voteName or not name then
     return
   end
@@ -44,7 +36,7 @@ monopoly.votes.vote = function(voteName, name)
   return votes[voteName].count
 end
 
-monopoly.votes.unvote = function(voteName, name)
+module.unvote = function(voteName, name)
   if not voteName or not name then
     return
   end
@@ -62,3 +54,5 @@ monopoly.votes.unvote = function(voteName, name)
 
   return votes[voteName].count
 end
+
+return module

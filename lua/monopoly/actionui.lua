@@ -1,21 +1,13 @@
 --- monopoly.actionui
 
-monopoly = monopoly or {}
-
-if monopoly.actionui then
-  return
-end
-
-
--- Dependencies
-pshy.require("monopoly.config")
+local config = pshy.require("monopoly.config")
 
 
 -- Buttons
 local buttons = {}
 
 do
-  local images = monopoly.config.images.actionui
+  local images = config.images.actionui
   local img
   local x = images.x - images.w / 2
   local y = images.y - images.h / 2
@@ -71,25 +63,25 @@ end
 
 
 -- Functions
-monopoly.actionui = {}
+local module = {}
 
-monopoly.actionui.show = function(name)
+module.show = function(name)
   for _, btn in pairs(buttons) do
     updateButton(btn, name, btn.enabled)
   end
 end
 
-monopoly.actionui.hide = function(name)
+module.hide = function(name)
   for _, btn in pairs(buttons) do
     ui.removeImage(btn.key, name)
     ui.removeTextArea(btn.key, name)
   end
 end
 
-monopoly.actionui.update = function(name, action, enabled)
+module.update = function(name, action, enabled)
   if not action then
     for action in pairs(buttons) do
-      monopoly.actionui.update(name, action, enabled)
+      module.update(name, action, enabled)
     end
 
     return
@@ -113,3 +105,5 @@ function eventTextAreaCallback(id, name, callback)
     end
   end
 end
+
+return module

@@ -1,4 +1,4 @@
-monopoly.config.board.cells = {
+return {
   {
     type = 'win',
     title = 'Go - Collect 200 as you pass',

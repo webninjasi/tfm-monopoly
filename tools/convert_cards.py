@@ -17,7 +17,7 @@ with open('cards.csv', newline='') as csvfile:
   head = cards[0]
   cards = cards[1:]
   
-  lines += [ 'monopoly.config.board.cells = {' ]
+  lines += [ 'return {' ]
   
   for card in cards:
     lines += [ '  {' ]

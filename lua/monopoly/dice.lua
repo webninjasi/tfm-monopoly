@@ -1,28 +1,20 @@
 --- monopoly.dice
 
-monopoly = monopoly or {}
-
-if monopoly.dice then
-  return
-end
-
-
--- Dependencies
-pshy.require("monopoly.config")
+local config = pshy.require("monopoly.config")
 
 
 -- Variables
-local images = monopoly.config.images.dices
-local dice1 = monopoly.config.dice1
-local dice2 = monopoly.config.dice2
-local rollDelay = monopoly.config.roll.delay
+local images = config.images.dices
+local dice1 = config.dice1
+local dice2 = config.dice2
+local rollDelay = config.roll.delay
 local rollTime
 
 
 -- Functions
-monopoly.dice = {}
+local module = {}
 
-monopoly.dice.roll = function()
+module.roll = function()
   if rollTime then
     return
   end
@@ -71,3 +63,5 @@ function eventLoop(elapsed, remaining)
     eventDiceRoll(num1, num2)
   end
 end
+
+return module

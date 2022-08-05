@@ -9,6 +9,7 @@ pshy_merge/tfm.lua/
 tmp/
 pshy_merge/tmp/
 *.tmp
+*.tmp.lua
 test_results/
 deps/
 

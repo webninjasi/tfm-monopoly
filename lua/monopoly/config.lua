@@ -59,6 +59,13 @@ config.playersUI = {
   y = 130,
 }
 
+config.logsUI = {
+  x = 115,
+  y = 130,
+  width = 300,
+  lines = 10, -- 2000/10 = ~200 chars per line
+}
+
 config.images = {
   background = "1823c8f747a.png",
   circle = "182144f123d.png",

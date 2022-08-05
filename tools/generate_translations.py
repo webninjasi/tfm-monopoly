@@ -5,7 +5,7 @@ import re
 
 lines = []
 
-with open('translations.csv', newline='') as csvfile:
+with open('translations.csv', newline='', encoding="utf8") as csvfile:
   reader = csv.reader(csvfile, delimiter=',', quotechar='"')
   head = None
   languages = {}
@@ -58,5 +58,5 @@ with open('translations.csv', newline='') as csvfile:
   
   lines += [ '}' ]
 
-with open('../lua/monopoly/generated_translations.lua', 'w') as luafile:
+with open('../lua/monopoly/generated_translations.lua', 'w', encoding="utf8") as luafile:
   luafile.write('\n'.join(lines))

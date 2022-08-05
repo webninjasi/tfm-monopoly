@@ -10,6 +10,7 @@ local cellactions = pshy.require("monopoly.cellactions")
 local property = pshy.require("monopoly.property")
 local players = pshy.require("monopoly.players")
 local translations = pshy.require('monopoly.translations')
+local logs = pshy.require('monopoly.logs')
 local command_list = pshy.require("pshy.commands.list")
 
 
@@ -58,11 +59,11 @@ end
 
 -- TODO auto move on to next turn after a timeout
 local function nextTurn()
-  if whoseTurn then
-    tokens.circleMode(whoseTurn.tokenid, false)
-  end
+  local prev = whoseTurn
 
-  whoseTurn = players.next(whoseTurn)
+  if not whoseTurn or not whoseTurn.double then
+    whoseTurn = players.next(whoseTurn)
+  end
 
   if whoseTurn then
     while whoseTurn.skipTurn and whoseTurn.skipTurn > 0 do
@@ -72,8 +73,17 @@ local function nextTurn()
   end
 
   if whoseTurn then
-    tokens.circleMode(whoseTurn.tokenid, true)
+    if prev ~= whoseTurn then
+      if prev then
+        tokens.circleMode(prev.tokenid, false)
+      end
+
+      tokens.circleMode(whoseTurn.tokenid, true)
+    end
+
     actionui.update(whoseTurn.name, "Dice", true)
+    tfm.exec.playSound('transformice/son/chamane', 100, nil, nil, whoseTurn.name)
+    logs.add('player_turn', whoseTurn.name)
   end
 
   game.state = states.WAITING
@@ -138,9 +148,11 @@ function eventPlayersUpdated(name, player)
     nextTurn()
   end
 
+  logs.add("player_left", name)
+
   if players.count() == 1 then
     if whoseTurn then
-      tfm.exec.chatMessage(("<ROSE>%s won the game!"):format(whoseTurn.name))
+      logs.add("won", whoseTurn.name)
     end
 
     game.state = states.GAME_OVER
@@ -170,8 +182,43 @@ function eventDiceRoll(dice1, dice2)
     if player then
       game.state = states.MOVING
       player.diceSum = dice1 + dice2
-      tfm.exec.chatMessage(('<ROSE>%s rolled %d + %d = %d'):format(player.name, dice1, dice2, dice1 + dice2))
-      board.moveToken(player.tokenid, player.diceSum, true)
+
+      if dice1 == dice2 then
+        if player.jail then
+          player.jail = nil
+          logs.add('roll_double', player.name, dice1, dice2, dice1 + dice2)
+          logs.add('jail_out', player.name)
+        else
+          if player.double then
+            logs.add('roll_jail', player.name, player.double, dice2, dice1 + dice2)
+            player.double = nil
+            player.jail = 0
+            board.moveToken(player.tokenid, 11)
+          else
+            player.double = dice1
+            logs.add('roll_double', player.name, dice1, dice2, dice1 + dice2)
+            nextTurn()
+          end
+        end
+      else
+        if player.jail then
+          player.jail = player.jail + 1
+
+          if player.jail == 3 then
+            player.jail = nil
+            players.add(name, 'money', -50)
+          end
+        end
+
+        player.double = nil
+        logs.add('roll_once', player.name, dice1, dice2, dice1 + dice2)
+      end
+
+      if player.jail then
+        nextTurn()
+      else
+        board.moveToken(player.tokenid, player.diceSum, true)
+      end
     end
   elseif game.state == states.LOBBY then
     local player = lobbyTurn
@@ -181,7 +228,7 @@ function eventDiceRoll(dice1, dice2)
 
     if player then
       players.update(player.name, 'order', dice1 + dice2)
-      tfm.exec.chatMessage(('<ROSE>%s rolled %d + %d = %d'):format(name, dice1, dice2, dice1 + dice2))
+      logs.add('roll_once', player.name, dice1, dice2, dice1 + dice2)
 
       -- only start with 2+ players
       if players.count() < 2 then
@@ -196,12 +243,11 @@ function eventDiceRoll(dice1, dice2)
       end
 
       -- everyone is ready, start the game
-      tfm.exec.chatMessage('<ROSE>The game is starting...')
-
       whoseTurn = nil
       game.state = states.WAITING
       nextTurn()
       tokens.hide()
+      logs.add('newgame')
 
       -- enable actions
       for player in players.iter do
@@ -233,15 +279,24 @@ function eventTokenMove(tokenId, cellId, passedGo)
       return
     end
 
-    if passedGo then
+    if passedGo and not player.jail then
       players.add(name, 'money', 200)
+      logs.add('passed_go', name)
     end
 
     local action = board.cellAction(cellId)
 
     if action then
       -- diceSum can be nil if !move is used
-      action(name, player.diceSum or 2)
+      action(name, player.diceSum or 2, player)
+
+      if player.jail then
+        player.double = nil
+        board.moveToken(player.tokenid, 11)
+        logs.add('jail_in', name)
+        nextTurn()
+        return
+      end
     end
 
     game.state = states.PLAYING
@@ -275,7 +330,7 @@ function eventTokenClicked(name, tokenid)
     tokens.keep(tokenid)
     actionui.show(name)
 
-    tfm.exec.chatMessage("<ROSE>Roll the dice to determine start order", name)
+    translations.chatMessage('start_roll', name)
   end
 end
 
@@ -350,7 +405,7 @@ function eventBuyCardClick(name)
     property.setOwner(card.id, name)
     property.hideCard(name)
     property.showCard(card, name, false)
-    tfm.exec.chatMessage(("<V>%s <J>bought %s"):format(name, card.title))
+    logs.add("purchase", name, card.header_color, card.title)
   end
 end
 
@@ -440,5 +495,14 @@ command_list["lang"] = {
     translations.setLanguage(name, lang)
   end,
   desc = "set your game language",
+  argc_min = 0, argc_max = 1, arg_types = {"string"}
+}
+
+command_list["setlang"] = {
+  perms = "admins",
+  func = function(name, lang)
+    translations.setLanguage(nil, lang or 'en')
+  end,
+  desc = "set default language",
   argc_min = 0, argc_max = 1, arg_types = {"string"}
 }

@@ -22,6 +22,10 @@ local function _translate(key, target, arg1, ...)
   return translation
 end
 
+module.getLanguage = function(target)
+  return playerLang[target] or defaultLang
+end
+
 module.setLanguage = function(target, language)
   if target then
     playerTrans[target] = language and translations[language] or nil
@@ -54,6 +58,25 @@ end
 
 module.cacheDisable = function(key)
   cache[key] = nil
+end
+
+module.getForEachLang = function(key, ...)
+  local ret = {}
+  local cacheEnabled = cache[key]
+    
+  if not cacheEnabled then
+    module.cacheEnable(key)
+  end
+
+  for name in pairs(tfm.get.room.playerList) do
+    ret[playerLang[name] or defaultLang] = module.get(key, name, ...)
+  end
+
+  if not cacheEnabled then
+    module.cacheDisable(key)
+  end
+
+  return ret
 end
 
 module.chatMessage = function(key, target, ...)

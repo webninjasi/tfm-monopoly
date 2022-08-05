@@ -1,0 +1,11 @@
+key,en
+pass go,"<J>player {player} passed GO, and he collected $200"
+rolling dice once,<J>player {player} rolled a {dice1} and {dice2} for {dicesum}
+rolling dice double,<J>player {player} rolled double {dice1} and {dice2} for {dicesum}
+rolling dice doube jail,"<J>player {player} rolled double 3 times, now he go to jail."
+move,<J>player {player} moved to {movedtoproperty}
+purchase,<J>player {player} purchased {purchaseproperty}
+auction,<J>player {player} purchased {auctionproperty}
+pay rent,<J>player {player} payed {money} in rent to {playerowner}
+jail in,"<J>player {player} Go to jail move directly to jail do not pass ""GO"" do not collect $200"
+jail out,<J>player {player} is out of jail

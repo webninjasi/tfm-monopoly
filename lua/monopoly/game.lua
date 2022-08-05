@@ -19,6 +19,7 @@ pshy.require("monopoly.property")
 
 local players = pshy.require("monopoly.players")
 local command_list = pshy.require("pshy.commands.list")
+local translations = pshy.require('monopoly.translations')
 
 
 -- Game Variables
@@ -432,4 +433,23 @@ command_list["money"] = {
   end,
   desc = "set game state",
   argc_min = 1, argc_max = 2, arg_types = {"number", "player"}
+}
+
+command_list["tr"] = {
+  perms = "admins",
+  func = function(name, key, target, ...)
+    target = target ~= '*' and target or nil
+    translations.chatMessage(key, target, ...)
+  end,
+  desc = "send a translated message",
+  argc_min = 2, argc_max = 10, arg_types = {"string", "string"}
+}
+
+command_list["lang"] = {
+  perms = "everyone",
+  func = function(name, lang)
+    translations.setLanguage(name, lang)
+  end,
+  desc = "set your game language",
+  argc_min = 0, argc_max = 1, arg_types = {"string"}
 }

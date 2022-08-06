@@ -58,7 +58,7 @@ local function showPropertyCard(cell, name, x, y, canBuy)
     ui.addTextArea(
       "cardheader",
       string.format(
-        '<p align="center"><font size="15" color="#000000"><a href="event:close">%s',
+        '<p align="center"><font size="15" color="#000000"><a href="event:closecard">%s',
         cell.title_html or cell.title
       ),
       name,
@@ -81,7 +81,7 @@ local function showPropertyCard(cell, name, x, y, canBuy)
   else
     rows._len = 1 + rows._len
     rows[rows._len] = string.format(
-      '\n\n\n\n<font size="9" color="#000000"><p align="center"><b>%s</b></p>\n<textformat tabstops="[110]"><font size="8" color="#8E8E8E">',
+      '\n\n\n\n<font size="9" color="#000000"><p align="center"><b><a href="event:closecard">%s</a></b></p>\n<textformat tabstops="[110]"><font size="8" color="#8E8E8E">',
       cell.title_html or cell.title
     )
   end
@@ -222,7 +222,7 @@ function eventInit()
 end
 
 function eventTextAreaCallback(id, name, callback)
-  if id == ui.textAreaId("cardheader") then
+  if callback == "closecard" then
     module.hideCard(name)
   elseif id == ui.textAreaId("cardbtnbuy") then
     if eventBuyCardClick then

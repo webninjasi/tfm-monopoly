@@ -279,7 +279,7 @@ function eventTokenMove(tokenId, cellId, passedGo)
       return
     end
 
-    if passedGo and not player.jail then
+    if passedGo and not player.jail and cellId ~= 1 then
       players.add(name, 'money', 200)
       logs.add('passed_go', name)
     end

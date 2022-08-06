@@ -207,7 +207,8 @@ config.board.positions = {
 }
 
 -- cell rows on card
-config.cardRows = {
+config.cardRows = {}
+config.cardRows.property = {
   {
     key = "price",
     title = "Price",
@@ -242,7 +243,51 @@ config.cardRows = {
   },
   {
     key = "mortgage",
-    title = "Mortgage Costs",
+    title = "Mortgage",
+  },
+}
+config.cardRows.station = {
+  {
+    key = "price",
+    title = "Price",
+  },
+  {
+    key = "station1",
+    title = "If 1 Station is owned",
+  },
+  {
+    key = "station2",
+    title = "If 2 Stations are owned",
+  },
+  {
+    key = "station3",
+    title = "If 3 Stations are owned",
+  },
+  {
+    key = "station4",
+    title = "If 4 Stations are owned",
+  },
+  {
+    key = "mortgage",
+    title = "Mortgage",
+  },
+}
+config.cardRows.utility = {
+  {
+    key = "price",
+    title = "Price",
+  },
+  {
+    key = "utility1",
+    title = "If one utility is owned, rent is 4\ntimes amount shown on dice.",
+  },
+  {
+    key = "utility2",
+    title = "If both utilities are owned, rent\nis 10 times amount shown on\ndice",
+  },
+  {
+    key = "mortgage",
+    title = "Mortgage",
   },
 }
 

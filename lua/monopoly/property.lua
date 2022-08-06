@@ -7,11 +7,15 @@ local config = pshy.require("monopoly.config")
 local boardCells = config.board.cells
 local cardImages = config.images.cards
 local pixels = config.images.pixels
-local cardRows = config.cardRows
-cardRows._len = #cardRows
+local cardRowsByType = config.cardRows
+
+for _, rows in pairs(cardRowsByType) do
+  rows._len = #rows
+end
 
 local owners = {}
 local cellsByType = {}
+local separator = '<p align="center">' .. string.rep('━', 12) .. '</p>'
 
 
 -- Private Functions
@@ -27,6 +31,20 @@ local function scanBoardCells()
       cellsByType[cell.type] = list
     end
 
+    cell.card_image = cardImages[cell.card_image or 'empty']
+    cell.header_color = cell.header_color or '000000'
+
+    if cell.type == 'station' then
+      cell.station1 = 25
+      cell.station2 = 50
+      cell.station3 = 100
+      cell.station4 = 200
+    elseif cell.type == 'utility' then
+      cell.utility1 = -1
+      cell.utility2 = -1
+      --cell.card_width = 136
+    end
+
     list._len = 1 + list._len
     list[list._len] = cell
   end
@@ -34,44 +52,62 @@ end
 
 local function showPropertyCard(cell, name, x, y, canBuy)
   local w, h = 150, 200
+  local isProperty = cell.type == 'property'
 
-  ui.addTextArea(
-    "cardheader",
-    string.format(
-      '<p align="center"><font size="15" color="#000000"><a href="event:close">%s',
-      cell.title_html or cell.title
-    ),
-    name,
-    x + 10, y + 15,
-    w - 20, 50,
-    cell.header_color, cell.header_color, 1,
-    true
-  )
-  ui.addImage("cardbg", cardImages.empty, "~150", x, y, name)
+  if isProperty then
+    ui.addTextArea(
+      "cardheader",
+      string.format(
+        '<p align="center"><font size="15" color="#000000"><a href="event:close">%s',
+        cell.title_html or cell.title
+      ),
+      name,
+      x + 10, y + 15,
+      w - 20, 50,
+      cell.header_color, cell.header_color, 1,
+      true
+    )
+  end
 
-  local rows = {
-    _len = 1,
-    '<textformat tabstops="[90]"><font size="10" color="#000000">'
-  }
-  local separator = '<p align="center">' .. string.rep('━', 12) .. '</p>'
+  ui.addImage("cardbg", cell.card_image, "~150", x, y, name)
+
+  local cardRows = cardRowsByType[cell.type]
+  local rows = { _len = 0 }
   local val, card
 
-  for i=1, cardRows._len do
-    card = cardRows[i]
-    val = cell[card.key]
+  if isProperty then
+    rows._len = 1 + rows._len
+    rows[rows._len] = '<textformat tabstops="[90]"><font size="10" color="#000000">'
+  else
+    rows._len = 1 + rows._len
+    rows[rows._len] = string.format(
+      '\n\n\n\n<font size="9" color="#000000"><p align="center"><b>%s</b></p>\n<textformat tabstops="[110]"><font size="8" color="#8E8E8E">',
+      cell.title_html or cell.title
+    )
+  end
 
-    if val then
-      if card.key == 'house_hotel' then
+  if cardRows then
+    for i=1, cardRows._len do
+      card = cardRows[i]
+      val = cell[card.key]
+
+      if val then
+        if card.key == 'house_hotel' then
+          rows._len = 1 + rows._len
+          rows[rows._len] = separator
+        end
+
         rows._len = 1 + rows._len
-        rows[rows._len] = separator
+        if val > 0 then
+          rows[rows._len] = string.format(
+            '%s\t<font color="#006400">$%d</font>',
+            card.title_html or card.title,
+            val
+          )
+        else
+          rows[rows._len] = card.title_html or card.title
+        end
       end
-
-      rows._len = 1 + rows._len
-      rows[rows._len] = string.format(
-        '%s\t<font color="#006400">$%d</font>',
-        card.title_html or card.title,
-        val
-      )
     end
   end
 
@@ -102,8 +138,8 @@ local function showPropertyCard(cell, name, x, y, canBuy)
     "cardinfo",
     table.concat(rows, '\n'),
     name,
-    x + 10, y + 35,
-    nil, nil,
+    x + (isProperty and 10 or 7), y + 35,
+    cell.card_width, nil,
     0, 0, 0,
     true
   )
@@ -147,9 +183,7 @@ module.hideCard = function(name)
 end
 
 module.showCard = function(cell, name, canBuy)
-  if cell.type == 'property' then
-    showPropertyCard(cell, name, 325, 100, canBuy)
-  end
+  showPropertyCard(cell, name, 325, 100, canBuy)
 end
 
 module.calculateRent = function(cell, diceSum)

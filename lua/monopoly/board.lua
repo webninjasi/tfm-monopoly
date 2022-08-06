@@ -174,7 +174,7 @@ module.removeToken = function(tokenId)
   board.cells[tokenId] = nil
 end
 
-module.moveToken = function(tokenId, cellId, relative)
+module.moveToken = function(tokenId, cellId, relative, ignoreGo)
   local token = board.tokens[tokenId]
 
   if not token then
@@ -195,7 +195,7 @@ module.moveToken = function(tokenId, cellId, relative)
   updateTokens(cellId)
 
   if eventTokenMove then
-    eventTokenMove(tokenId, cellId, prevCellId and cellId < prevCellId)
+    eventTokenMove(tokenId, cellId, not ignoreGo and prevCellId and cellId < prevCellId)
   end
 end
 

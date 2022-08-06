@@ -4,6 +4,7 @@ local board = pshy.require("monopoly.board")
 local property = pshy.require("monopoly.property")
 local players = pshy.require("monopoly.players")
 local logs = pshy.require("monopoly.logs")
+local randcard = pshy.require("monopoly.randcard")
 
 
 -- Events
@@ -25,12 +26,14 @@ function eventInit()
   end)
 
   board.registerCellAction("chance", function(cell)
-    return function(name)
+    return function(name, sum, player)
+      randcard.chance(name, player)
     end
   end)
 
   board.registerCellAction("chest", function(cell)
     return function(name)
+      randcard.community(name, player)
     end
   end)
 

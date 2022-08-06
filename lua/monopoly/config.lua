@@ -291,6 +291,14 @@ config.cardRows.utility = {
   },
 }
 
+-- chance/community cards
+config.randCard = {
+  x = 300, y = 150,
+  width = 200, height = 100,
+  communityCount = 13,
+  chanceCount = 15
+}
+
 -- cells on the board
 config.board.cells = pshy.require('monopoly.generated_cards')
 

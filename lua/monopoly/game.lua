@@ -404,7 +404,7 @@ function eventBuyCardClick(name)
     players.add(name, 'money', -card.price)
     property.setOwner(card.id, name)
     property.hideCard(name)
-    property.showCard(card, name, false)
+    --property.showCard(card, name, false)
     logs.add("purchase", name, card.header_color, card.title)
   end
 end
@@ -427,45 +427,43 @@ end
 
 
 -- Commands
-local function ChatCommandMove(name, cellId)
-  local player = players.get(name)
-
-  if not player.tokenid then
-    return
-  end
-
-  if not cellId or cellId < 1 or cellId > 40 then
-    return
-  end
-
-  local prevState = game.state
-  game.state = states.MOVING
-  whoseTurn = player
-  board.moveToken(player.tokenid, cellId)
-  game.state = prevState
-end
 command_list["move"] = {
   perms = "admins",
-  func = ChatCommandMove,
+  func = function(name, cellId)
+    local player = players.get(name)
+  
+    if not player.tokenid then
+      return
+    end
+  
+    if not cellId or cellId < 1 or cellId > 40 then
+      return
+    end
+  
+    local prevState = game.state
+    game.state = states.MOVING
+    whoseTurn = player
+    board.moveToken(player.tokenid, cellId, false, true)
+    game.state = prevState
+  end,
   desc = "move players' token",
   argc_min = 1, argc_max = 1, arg_types = {"number"}
 }
 
-local function ChatCommandSetState(name, state)
-  game.state = state or 0
-end
 command_list["setstate"] = {
   perms = "admins",
-  func = ChatCommandSetState,
+  func = function(name, state)
+    game.state = state or 0
+  end,
   desc = "set game state",
   argc_min = 1, argc_max = 1, arg_types = {"number"}
 }
 
-local function ChatCommandRespawn(name)
-  tfm.exec.respawnPlayer(name)
-end
 command_list["r"] = {
-  func = ChatCommandRespawn,
+  perms = "admins",
+  func = function(name)
+    tfm.exec.respawnPlayer(name)
+  end,
   desc = "respawns the player",
   argc_min = 0, argc_max = 0
 }

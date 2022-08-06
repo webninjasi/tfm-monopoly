@@ -1,6 +1,7 @@
 --- monopoly.property
 
 local config = pshy.require("monopoly.config")
+local translations = pshy.require("monopoly.translations")
 
 
 -- Variables
@@ -33,6 +34,7 @@ local function scanBoardCells()
 
     cell.card_image = cardImages[cell.card_image or 'empty']
     cell.header_color = cell.header_color or '000000'
+    cell.title_tr = "card_" .. i
 
     if cell.type == 'station' then
       cell.station1 = 25
@@ -59,7 +61,7 @@ local function showPropertyCard(cell, name, x, y, canBuy)
       "cardheader",
       string.format(
         '<p align="center"><font size="15" color="#000000"><a href="event:closecard">%s',
-        cell.title_html or cell.title
+        translations.get(cell.title_tr, name)
       ),
       name,
       x + 10, y + 15,
@@ -82,7 +84,7 @@ local function showPropertyCard(cell, name, x, y, canBuy)
     rows._len = 1 + rows._len
     rows[rows._len] = string.format(
       '\n\n\n\n<font size="9" color="#000000"><p align="center"><b><a href="event:closecard">%s</a></b></p>\n<textformat tabstops="[110]"><font size="8" color="#8E8E8E">',
-      cell.title_html or cell.title
+      translations.get(cell.title_tr, name)
     )
   end
 

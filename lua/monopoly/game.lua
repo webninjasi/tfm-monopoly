@@ -108,6 +108,8 @@ end
 
 -- TFM Events
 function eventNewGame()
+  ui.setBackgroundColor(config.bgcolor)
+
   for name in pairs(tfm.get.room.playerList) do
     eventInitPlayer(name)
   end

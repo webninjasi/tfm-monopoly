@@ -9,8 +9,8 @@ local buttons = {}
 do
   local images = config.images.actionui
   local img
-  local x = images.x - images.w / 2
-  local y = images.y - images.h / 2
+  local x = images.x
+  local y = images.y
   local tx = images.x - images.taw / 2
   local ty = images.y - images.tah / 2
   local step = images.w + images.sep
@@ -40,10 +40,11 @@ local function updateButton(btn, name, enabled)
   ui.addImage(
     btn.key,
     btn.img,
-    "!200",
+    ":200",
     btn.x, btn.y,
     name,
-    1, 1, 0, enabled and 1 or btn.alpha
+    1, 1, 0, enabled and 1 or 0.5,
+    0.5, 0.5
   )
 
   if enabled then
@@ -54,7 +55,7 @@ local function updateButton(btn, name, enabled)
       btn.tx, btn.ty,
       btn.tw, btn.th,
       0, 0, 0,
-      false
+      true
     )
   else
     ui.removeTextArea(btn.key, name)

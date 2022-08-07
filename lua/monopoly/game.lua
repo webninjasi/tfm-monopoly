@@ -79,11 +79,11 @@ local function nextTurn()
       end
 
       tokens.circleMode(whoseTurn.tokenid, true)
+      logs.add('player_turn', whoseTurn.name)
     end
 
     actionui.update(whoseTurn.name, "Dice", true)
     tfm.exec.playSound('transformice/son/chamane', 100, nil, nil, whoseTurn.name)
-    logs.add('player_turn', whoseTurn.name)
   end
 
   game.state = states.WAITING
@@ -185,6 +185,11 @@ function eventDiceRoll(dice1, dice2)
 
     if player then
       game.state = states.MOVING
+
+      if player.luck then
+        dice2 = dice1
+      end
+
       player.diceSum = dice1 + dice2
 
       if player.jail then
@@ -533,8 +538,23 @@ command_list["setlang"] = {
 
 command_list["reset"] = {
   perms = "admins",
-  func = function(name, lang)
+  func = function(name)
     tfm.exec.newGame(mapXML)
+  end,
+  desc = "restart the game",
+  argc_min = 0, argc_max = 0, arg_types = {}
+}
+
+command_list["wishmeluck"] = {
+  perms = "admins",
+  func = function(name)
+    local player = players.get(name)
+  
+    if not player.tokenid then
+      return
+    end
+
+    player.luck = not player.luck or nil
   end,
   desc = "restart the game",
   argc_min = 0, argc_max = 0, arg_types = {}

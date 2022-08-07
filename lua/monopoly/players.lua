@@ -51,8 +51,9 @@ local function updateUI()
   while player do
     i = 1 + i
     list[i] = string.format(
-      '<font color="#%.6x"><b>• %s</b>\t<VP>$%s',
+      '<font color="#%.6x"><b>%s%s</b>\t<VP>$%s',
       player.color or 0,
+      player.turn and "• " or "",
       player.name,
       player.money or 0
     )

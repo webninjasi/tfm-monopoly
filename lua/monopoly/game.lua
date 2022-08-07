@@ -76,10 +76,12 @@ local function nextTurn()
     if prev ~= whoseTurn then
       if prev then
         tokens.circleMode(prev.tokenid, false)
+        prev.turn = nil
       end
 
       tokens.circleMode(whoseTurn.tokenid, true)
       logs.add('player_turn', whoseTurn.name)
+      players.update(whoseTurn.name, "turn", true)
     end
 
     actionui.update(whoseTurn.name, "Dice", true)

@@ -10,6 +10,7 @@ local players = {}
 local _count = 0
 local first, last = nil, nil -- linked list of players
 local uiText = '' -- cached ui text
+local uiTextShadow = ''
 local module = {}
 
 
@@ -45,13 +46,20 @@ end
 
 local function updateUI()
   local player = first
-  local list = { '<textformat tabstops="[190]">' }
+  local list = {'<p align="right"><font size="15">'}
+  local listShadow = {'<p align="right"><font size="15" color="#000000">'}
   local i = #list
 
   while player do
     i = 1 + i
+    listShadow[i] = string.format(
+      '<b>%s%s</b>\n$%s',
+      player.turn and "• " or "",
+      player.name,
+      player.money or 0
+    )
     list[i] = string.format(
-      '<font color="#%.6x"><b>%s%s</b>\t<VP>$%s',
+      '<font color="#%.6x"><b>%s%s</b>\n<VP>$%s',
       player.color or 0,
       player.turn and "• " or "",
       player.name,
@@ -61,21 +69,32 @@ local function updateUI()
   end
 
   uiText = table.concat(list, '\n')
+  uiTextShadow = table.concat(listShadow, '\n')
 end
 
 local function showUI(target)
+  ui.addTextArea(
+    "playerlistshadow",
+    uiTextShadow,
+    target,
+    uiX+1, uiY+1,
+    260, nil,
+    0, 0, 0,
+    false
+  )
   ui.addTextArea(
     "playerlist",
     uiText,
     target,
     uiX, uiY,
-    nil, nil,
+    260, nil,
     0, 0, 0,
     false
   )
 end
 
 local function hideUI()
+  ui.removeTextArea("playerlistshadow")
   ui.removeTextArea("playerlist")
 end
 
@@ -83,6 +102,7 @@ local function reset()
   first = nil
   last = nil
   uiText = ''
+  uiTextShadow = ''
   players = {}
   _count = 0
   hideUI()

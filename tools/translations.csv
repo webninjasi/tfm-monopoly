@@ -1,13 +1,13 @@
 key,en,tr
 passed_go,<V>{player} <J>passed GO and collected <VP>$200,<V>{player} <J>BAŞLANGIÇ üzerinden geçti ve <VP>$200 <J>kazandı.
-roll_once,<V>{player} <J>rolled a <BL>{dice1} <J>and <BL>{dice2} <J>moved <BL>{dicesum} <J>spaces!,<V>{player} <J>attığı zarlar <BL>{dice1} <J>ve <BL>{dice2} <J>geldi ve <BL>{dicesum} <J>adım ilerledi!
+roll_once,<V>{player} <J>rolled a <BL>{dice1} <J>and <BL>{dice2} <J>moved <BL>{dicesum} <J>spaces!,<V>{player} <J>attığı zarlar <BL>{dice1} <J>ile <BL>{dice2} <J>geldi ve <BL>{dicesum} <J>adım ilerledi!
 roll_double,<V>{player} <J>rolled double <VP>{dice1} <J>and <VP>{dice2} <J>moved <VP>{dicesum} <J>spaces!,<V>{player} <J>attığı zarlar çift <VP>{dice1} <J>geldi ve <VP>{dicesum} <J>adım ilerledi!
 roll_jail,<V>{player} <R>rolled a double 3 times and went to jail.,<V>{player} <R>üç defa çift zar attığı için hapise düştü.
 move,"<V>{player} <J>moved to <font color=""#{propertycolor}"">{movedtoproperty}","<V>{player} <font color=""#{propertycolor}"">{movedtoproperty} <J>arazisinde."
 purchase,"<V>{player} <J>purchased <font color=""#{propertycolor}"">{purchaseproperty}","<V>{player} <font color=""#{propertycolor}"">{purchaseproperty} <J>arazisini satın aldı."
 auction,"<V>{player} <J>purchased <font color=""#{propertycolor}"">{auctionproperty} <J>in the auction.","<V>{player} <J>ihaleyle <font color=""#{propertycolor}"">{auctionproperty} <J>arazisini satın aldı."
 pay_rent,<V>{player} <J>payed <VP>${money} <J>in rent to <V>{playerowner}.,<V>{player} <J>kira bedeli olarak <VP>${money} <J>kadar <V>{playerowner} <J>oyuncusuna ödedi.
-jail_in,"<V>{player} <R>was sent to jail! Do not pass ""GO"" or collect $200.",<V>{player} <R>hapise düştü!
+jail_in,<V>{player} <R>was sent to jail!,<V>{player} <R>hapise düştü!
 jail_out,<V>{player} <J>did some parkour to escape jail!,<V>{player} <J>hapisten çıktı
 won,<V>{player} <ROSE>won the game!,<V>{player} <ROSE>oyunu kazandı!
 player_left,<V>{player} <R>left the game!,<V>{player} <R>oyunu terk etti!
@@ -61,31 +61,31 @@ card_37,Chance,Şans
 card_38,<N>Records Plaza,<N>Records Plaza
 card_39,Tax,Vergi
 card_40,"<N><font size=""12"">Bootcamp Avenue","<N><font size=""12"">Bootcamp Caddesi"
-community_1,Advance to Go\nCollect $200,
-community_2,Go back to Vanilla Avenue,
-community_3,Bank error in your favor\nCollect $200,
-community_4,From sale of stock you get $50,
-community_5,Income tax refund.\nCollect $20,
-community_6,Life insurance matures\nCollect $100,
-community_7,You have won second prize in a beauty contest.\nCollect $10,
-community_8,It is your birthday.\nCollect $10 from every player,
-community_9,Doctor's fees\nPay $50,
-community_10,Hospital Fees.\nPay $50,
-community_11,Pay school fees\nof $150,
-community_12,"Go to Jail. Go directly to jail.\nDo not pass Go, Do not collect $200.",
-community_13,Get out of jail free\nThis card may kept until needed,
-chance_1,Advance to Go\nCollect $200,
-chance_2,Advance to Bootcamp Avenue,
-chance_3,Go back three spaces,
-chance_4,Advance to Transformice Alley\nIf you pass GO collect $200,
-chance_5,Take a trip to Trade Station\nIf you pass GO collect $200,
-chance_6,Advance to Towerdefence Street\nIf you pass GO collect $200,
-chance_7,Pay school fees\nof $150,
-chance_8,Speeding fine $15,
-chance_9,Make general repairs on all of your houses\nFor each house pay $25\nFor each hotel pay $100,
-chance_10,You are assessed for street repairs\nFor each house pay $40\nFor each hotel pay $115,
-chance_11,Bank pays you dividend Of $50,
-chance_12,You have won a crossword competition\nCollect $100,
-chance_13,Your Building loan matures\nReceive $150,
-chance_14,"Go to Jail. Go directly to jail.\nDo not pass Go, Do not collect $200.",
-chance_15,Get out of jail free\nThis card may kept until needed,
+community_1,Advance to Go\nCollect $200,Başlangıça ilerle\n$200 al
+community_2,Go back to Vanilla Avenue,Vanilla Caddesine geri dön
+community_3,Bank error in your favor\nCollect $200,Bankada senin yararına bir hata oldu\n$200 kazandın
+community_4,From sale of stock you get $50,Hisse satışından $50 aldın
+community_5,Income tax refund.\nCollect $20,Gelir vergisi iadesi\n$20 al
+community_6,Life insurance matures\nCollect $100,Hayat sigortası primlerin geri ödendi\n$100 al
+community_7,You have won second prize in a beauty contest.\nCollect $10,Güzellik yarışmasında ikincilik ödülü kazandın\n$10 al
+community_8,It is your birthday.\nCollect $10 from every player,Bugün doğum günün\nHerkesten $10 al
+community_9,Doctor's fees\nPay $50,Doktor ücreti\n$50 öde
+community_10,Hospital Fees.\nPay $50,Hastane masrafı\n$50 öde
+community_11,Pay school fees\nof $150,Okul harcı için\n$150 öde
+community_12,Go to Jail,Hapise Git
+community_13,Get out of jail free\nThis card may kept until needed,Hapisten kefaret ödemeden çık\nBu kartı lazım olana dek saklayabilirsin
+chance_1,Advance to Go\nCollect $200,Başlangıça ilerle\n$200 al
+chance_2,Advance to Bootcamp Avenue,Bootcamp caddesine ilerle
+chance_3,Go back three spaces,Üç adım geri git
+chance_4,Advance to Transformice Alley\nIf you pass GO collect $200,Transformice Caddesine ilerle\nBaşlangıçtan geçersen $200 al
+chance_5,Take a trip to Trade Station\nIf you pass GO collect $200,Trade İstasyonuna git\nBaşlangıçtan geçersen $200 al
+chance_6,Advance to Towerdefence Street\nIf you pass GO collect $200,Towerdefense Sokağa git\nBaşlangıçtan geçersen $200 al
+chance_7,Pay school fees\nof $150,Okul harcı için\n$150 öde
+chance_8,Speeding fine $15,Hız cezası $15 öde
+chance_9,Make general repairs on all of your houses\nFor each house pay $25\nFor each hotel pay $100,Binalarının genel tadilatını yap\nHer ev için $25 öde\nHer otel için $100 öde
+chance_10,You are assessed for street repairs\nFor each house pay $40\nFor each hotel pay $115,Sokağın tadilatı sana düştü\nHer ev için $40 öde\nHer otel için $115 öde
+chance_11,Bank pays you dividend Of $50,Banka hissenden sana $50 payını ödüyor
+chance_12,You have won a crossword competition\nCollect $100,Kare bulmaca turnuvasını kazandın\n$100 al
+chance_13,Your Building loan matures\nReceive $150,İnşaat kredinin primleri geri ödendi\n$150 al
+chance_14,Go to Jail,Hapise Git
+chance_15,Get out of jail free\nThis card may kept until needed,Hapisten kefaret ödemeden çık\nBu kartı lazım olana dek saklayabilirsin

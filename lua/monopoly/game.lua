@@ -226,6 +226,7 @@ function eventDiceRoll(dice1, dice2)
           logs.add('roll_double', player.name, dice1, dice2, dice1 + dice2)
           logs.add('roll_jail', player.name)
           board.moveToken(player.tokenid, 11)
+          nextTurn()
 
           return
         end

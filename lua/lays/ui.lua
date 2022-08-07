@@ -2,12 +2,6 @@
 --
 -- @author TFM:Lays#1146
 
-if _G.__lays_ui then
-  return
-end
-
-_G.__lays_ui = true
-
 do
   local keyToId = {}
   local lastId = 0
@@ -50,14 +44,22 @@ do
 
   local addImage = tfm.exec.addImage
   local removeImage = tfm.exec.removeImage
-
-  function eventPlayerLeft(name)
+    
+  ui._imageCleanup = function(name)
     if keyToIdPlayer[name] then
-      keyToIdPlayer[name] = nil
+        keyToIdPlayer[name] = nil
     end
   end
 
   ui.addImage = function(key, imageId, target, x, y, name, ...)
+    if name == "*" then
+      for pname in pairs(tfm.get.room.playerList) do
+        ui.addImage(key, imageId, target, x, y, pname, ...)
+      end
+
+      return
+    end
+
     local id = addImage(imageId, target, x, y, name, ...)
 
     if id then
@@ -82,6 +84,14 @@ do
   end
 
   ui.removeImage = function(key, name, ...)
+    if name == "*" then
+      for pname in pairs(tfm.get.room.playerList) do
+        ui.removeImage(key, pname, ...)
+      end
+
+      return
+    end
+
     local id
 
     if name then
@@ -99,5 +109,9 @@ do
         keyToId[key] = nil
       end
     end
+  end
+
+  function eventPlayerLeft(name)
+    ui._imageCleanup(name)
   end
 end

@@ -4,19 +4,76 @@ local config = pshy.require("monopoly.config")
 
 
 -- Tokens Variables
+local imgX = config.tokens.imgX
+local imgY = config.tokens.imgY
 local defaultX = config.tokens.defaultX
 local defaultY = config.tokens.defaultY
+local rowItems = config.tokens.rowItems
 local images = config.images.tokens
+local blackpx = config.images.pixels.black
 local circleImage = config.images.circle
-local tokens = { _len=0 }
+local tokens = { _len=#images }
 
+-- Initialize tokens
+do
+  local x, y = 0, 0
+  local widthList = {}
+  local width = 0
+  local startX, startY
+  local maxHeight = 0
+
+  for i=1, tokens._len do
+    width = width + images[i][2] + 10
+    x = x + images[i][2] / 2
+
+    tokens[i] = {
+      id = i,
+      x = x,
+      y = y,
+      img = images[i][1],
+      w = images[i][2],
+      h = images[i][3],
+      scale = 1,
+      active = true,
+      unused = true,
+    }
+
+    maxHeight = math.max(maxHeight, tokens[i].h)
+    x = x + 10 + images[i][2] / 2
+
+    if i % rowItems == 0 then
+      widthList[1 + #widthList] = width - 10
+      x = 0
+      width = 0
+      y = y + maxHeight + 10
+      maxHeight = 0
+    end
+  end
+
+  widthList[1 + #widthList] = width - 10
+
+  local j = 1
+
+  for i=1, tokens._len do
+    if tokens[i].y ~= y then
+      startX = defaultX - widthList[j] / 2
+      j = 1 + j
+      y = tokens[i].y
+    end
+
+    tokens[i].x = startX + tokens[i].x
+    tokens[i].y = defaultY + tokens[i].y
+    tokens[i].defaultX = tokens[i].x
+    tokens[i].defaultY = tokens[i].y
+  end
+end
 
 -- Private Functions
 local function showToken(token, clickable)
   ui.addImage(
     "token" .. token.id,
     token.img,
-    '!1',
+    clickable and ':1' or '!1',
     token.x, token.y,
     nil,
     token.scale, token.scale,
@@ -40,6 +97,7 @@ local function showToken(token, clickable)
   if clickable then
     local w = token.w * token.scale
     local h = token.h * token.scale
+
     ui.addTextArea(
       "token" .. token.id,
       '<font size="90"><a href="event:token' .. token.id .. '">    ',
@@ -47,7 +105,7 @@ local function showToken(token, clickable)
       token.x - w / 2, token.y - h / 2,
       w, h,
       0, 0, 0,
-      false
+      true
     )
   end
 end
@@ -62,31 +120,29 @@ end
 local module = {}
 
 module.create = function()
-  local x, y = defaultX, defaultY
-  tokens._len = #images
-
-  for i=1,tokens._len do
-    x = x + images[i][2] / 2
-    tokens[i] = {
-      id = i,
-      x = x,
-      y = y,
-      img = images[i][1],
-      w = images[i][2],
-      h = images[i][3],
-      defaultX = x,
-      defaultY = y,
-      scale = 1,
-      active = true,
-      unused = true,
-    }
-    showToken(tokens[i], true)
-    x = x + images[i][2] / 2 + 10
+  for i=1, tokens._len do
+    tokens[i].x = tokens[i].defaultX
+    tokens[i].y = tokens[i].defaultY
+    tokens[i].scale = 1
+    tokens[i].active = true
+    tokens[i].unused = true
   end
+
+  module.show()
 end
 
 module.show = function()
   local token
+
+  ui.addImage(
+    "tokensbg",
+    blackpx,
+    ":50",
+    imgX, imgY,
+    nil,
+    290, 120, 0, 0.9,
+    0.5, 0.5
+  )
 
   for i=1,tokens._len do
     token = tokens[i]
@@ -126,6 +182,8 @@ module.hide = function(tokenid)
       hideToken(i)
     end
   end
+
+  ui.removeImage("tokensbg")
 end
 
 module.update = function(tokenId, x, y, scale, rotation)

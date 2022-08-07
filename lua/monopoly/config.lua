@@ -133,8 +133,11 @@ config.roll = {
 
 -- tokens default position
 config.tokens = {
-  defaultX = 130,
-  defaultY = 620,
+  imgX = 400,
+  imgY = 230,
+  defaultX = 400,
+  defaultY = 200,
+  rowItems = 5,
 }
 
 -- money ui

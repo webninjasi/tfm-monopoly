@@ -102,6 +102,7 @@ function eventInit()
   tfm.exec.disableAutoTimeLeft(true)
   tfm.exec.disableDebugCommand(true)
   tfm.exec.disableMinimalistMode(true)
+  tfm.exec.disableMortCommand(true)
   tfm.exec.disablePhysicalConsumables(true)
 
   tfm.exec.newGame(mapXML)
@@ -129,6 +130,7 @@ function eventNewGame()
 end
 
 function eventNewPlayer(name)
+  ui.setBackgroundColor(config.bgcolor)
   showBoard(name)
   players.showUI()
   tokens.show()

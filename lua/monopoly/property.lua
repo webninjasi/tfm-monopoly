@@ -191,7 +191,7 @@ end
 module.calculateRent = function(cell, diceSum)
   if cell.type == 'utility' or cell.type == 'station' then
     local list = cellsByType[cell.type]
-    local owner = owners[cell]
+    local owner = owners[cell.id]
     local count = 0
 
     -- calculate number of same property owned

@@ -23,6 +23,7 @@ local tokenPos = {
 }
 local board = {}
 local tokenCell = {}
+local cellColors = {}
 
 
 -- Private Functions
@@ -85,6 +86,10 @@ local function removeFromCell(cellId, tokenId)
   end
 end
 
+local function cellDirection(cellId)
+  return math.ceil(cellId / 10)
+end
+
 local function updateTokens(cellId)
   if not cellId then
     return
@@ -97,7 +102,7 @@ local function updateTokens(cellId)
     return
   end
 
-  local direction = math.ceil(cellId / 10)
+  local direction = cellDirection(cellId)
   local originX = pos[1] + pos[3]
   local originY = pos[2] + pos[4]
   local x, y, scale
@@ -141,6 +146,12 @@ module.reset = function()
   for i=1, cellCount do
     board.cells[i] = { count=0 }
   end
+
+  for id in pairs(cellColors) do
+    ui.removeTextArea("cellcolor_" .. id)
+  end
+
+  cellColors = {}
 end
 
 module.hasToken = function(tokenId)
@@ -221,6 +232,72 @@ module.cellAction = function(cellId)
   end
 
   return action(cell)
+end
+
+module.showCellColor = function(cellId)
+  if not cellId then
+    for id in pairs(cellColors) do
+      module.showCellColor(id)
+    end
+
+    return
+  end
+
+  local cell = board.cells[cellId]
+  local pos = positions[cellId]
+  local color = cellColors[cellId]
+
+  if not cell or not pos or not color then
+    return
+  end
+
+  local direction = cellDirection(cellId)
+  local x, y = 0, 0
+  local w, h = 0, 0
+  local scale = 1 / 2.5
+  local thickness = 1
+  local offset = 10
+
+  if direction == 1 then -- bottom
+    w = (pos[3] - pos[1]) * scale
+    h = thickness
+    x = (pos[1] + pos[3] - w) / 2
+    y = pos[2] - offset
+  elseif direction == 2 then -- left
+    w = thickness
+    h = (pos[4] - pos[2]) * scale
+    x = pos[3] + offset
+    y = (pos[4] + pos[2] - h) / 2
+  elseif direction == 3 then -- top
+    w = (pos[3] - pos[1]) * scale
+    h = thickness
+    x = (pos[1] + pos[3] - w) / 2
+    y = pos[4] + offset
+  elseif direction == 4 then -- right
+    w = thickness
+    h = (pos[4] - pos[2]) * scale
+    x = pos[1] - offset
+    y = (pos[4] + pos[2] - h) / 2
+  end
+
+  ui.addTextArea(
+    "cellcolor_" .. cellId,
+    "",
+    nil,
+    x, y, w, h,
+    color, color, 1, false
+  )
+end
+
+module.setCellColor = function(cellId, color)
+  cellColors[cellId] = color
+
+  if not color then
+    ui.removeTextArea("cellcolor_" .. cellId)
+    return
+  end
+
+  module.showCellColor(cellId)
 end
 
 -- Init

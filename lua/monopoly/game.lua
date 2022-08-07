@@ -112,6 +112,8 @@ function eventNewGame()
     eventInitPlayer(name)
   end
 
+  game.state = states.LOBBY
+
   showBoard()
 
   lobbyTurn = nil
@@ -215,7 +217,7 @@ function eventDiceRoll(dice1, dice2)
       end
 
       if dice1 == dice2 then
-        if player.double and player.double > 2 then
+        if player.double and player.double > 1 then
           player.double = nil
           player.jail = 0
 
@@ -423,6 +425,7 @@ function eventBuyCardClick(name)
 
     players.add(name, 'money', -card.price)
     property.setOwner(card.id, name)
+    board.setCellColor(card.id, player.color)
     property.hideCard(name)
     --property.showCard(card, name, false)
     logs.add("purchase", name, card.header_color, card.title)
@@ -523,4 +526,13 @@ command_list["setlang"] = {
   end,
   desc = "set default language",
   argc_min = 0, argc_max = 1, arg_types = {"string"}
+}
+
+command_list["reset"] = {
+  perms = "admins",
+  func = function(name, lang)
+    tfm.exec.newGame(mapXML)
+  end,
+  desc = "restart the game",
+  argc_min = 0, argc_max = 0, arg_types = {}
 }

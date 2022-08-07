@@ -60,8 +60,8 @@ config.playersUI = {
 }
 
 config.logsUI = {
-  x = 115,
-  y = 130,
+  x = 125,
+  y = 145,
   width = 300,
   lines = 10, -- 2000/10 = ~200 chars per line
 }
@@ -105,7 +105,7 @@ config.images = {
     {"1821023e89f.png", 40, 45},
   },
   actionui = {
-    x = 280, y = 680,
+    x = 280, y = 670,
     w = 50, h = 50,
     sep = 10,
     taw = 40, tah = 40,

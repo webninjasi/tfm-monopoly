@@ -208,7 +208,7 @@ module.calculateRent = function(cell, diceSum)
     return 25 * math.pow(2, count - 1) -- station rent
   end
 
-  -- TODO house/hotel/utility rents
+  -- TODO house/hotel rents
 
   return cell.rent
 end

@@ -59,8 +59,6 @@ local community = {
 
   function(name, player)
     player.jail = 0
-    board.moveToken(player.tokenid, 11, false, true)
-    nextTurn()
   end,
 
   function(name, player)
@@ -133,10 +131,6 @@ local chance = {
 
   function(name, player)
     player.jail = 0
-    board.moveToken(player.tokenid, 11, false, true)
-    nextTurn()
-
-    -- TODO write a method for this
   end,
 
   function(name, player)

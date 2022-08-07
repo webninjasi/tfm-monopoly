@@ -32,7 +32,7 @@ function eventInit()
   end)
 
   board.registerCellAction("chest", function(cell)
-    return function(name)
+    return function(name, sum, player)
       randcard.community(name, player)
     end
   end)

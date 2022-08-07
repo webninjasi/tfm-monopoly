@@ -183,42 +183,61 @@ function eventDiceRoll(dice1, dice2)
       game.state = states.MOVING
       player.diceSum = dice1 + dice2
 
-      if dice1 == dice2 then
-        if player.jail then
+      if player.jail then
+        if dice1 == dice2 then
           player.jail = nil
+
           logs.add('roll_double', player.name, dice1, dice2, dice1 + dice2)
           logs.add('jail_out', player.name)
+
+          board.moveToken(player.tokenid, player.diceSum, true)
+          return
+        end
+
+        player.jail = player.jail + 1
+
+        if player.jail == 3 then
+          player.jail = nil
+          players.add(name, 'money', -50)
+
+          -- TODO use a different translation
+          logs.add('roll_once', player.name, dice1, dice2, dice1 + dice2)
+          logs.add('jail_out', player.name)
+
+          board.moveToken(player.tokenid, player.diceSum, true)
         else
-          if player.double then
-            logs.add('roll_jail', player.name, player.double, dice2, dice1 + dice2)
-            player.double = nil
-            player.jail = 0
-            board.moveToken(player.tokenid, 11)
-          else
-            player.double = dice1
-            logs.add('roll_double', player.name, dice1, dice2, dice1 + dice2)
-            nextTurn()
-          end
-        end
-      else
-        if player.jail then
-          player.jail = player.jail + 1
-
-          if player.jail == 3 then
-            player.jail = nil
-            players.add(name, 'money', -50)
-          end
+          -- TODO use a different translation
+          logs.add('roll_once', player.name, dice1, dice2, dice1 + dice2)
+          nextTurn()
         end
 
-        player.double = nil
-        logs.add('roll_once', player.name, dice1, dice2, dice1 + dice2)
+        return
       end
 
-      if player.jail then
-        nextTurn()
-      else
+      if dice1 == dice2 then
+        if player.double and player.double > 2 then
+          player.double = nil
+          player.jail = 0
+
+          logs.add('roll_double', player.name, dice1, dice2, dice1 + dice2)
+          logs.add('roll_jail', player.name)
+          board.moveToken(player.tokenid, 11)
+
+          return
+        end
+
+        player.double = 1 + (player.double or 0)
+
+        logs.add('roll_double', player.name, dice1, dice2, dice1 + dice2)
         board.moveToken(player.tokenid, player.diceSum, true)
+
+        return
       end
+
+      player.double = nil
+
+      logs.add('roll_once', player.name, dice1, dice2, dice1 + dice2)
+      board.moveToken(player.tokenid, player.diceSum, true)
     end
   elseif game.state == states.LOBBY then
     local player = lobbyTurn
@@ -228,6 +247,7 @@ function eventDiceRoll(dice1, dice2)
 
     if player then
       players.update(player.name, 'order', dice1 + dice2)
+      -- TODO use a different translation
       logs.add('roll_once', player.name, dice1, dice2, dice1 + dice2)
 
       -- only start with 2+ players

@@ -78,7 +78,7 @@ local function showUI(target)
     uiTextShadow,
     target,
     uiX+1, uiY+1,
-    260, nil,
+    245, nil,
     0, 0, 0,
     false
   )
@@ -87,7 +87,7 @@ local function showUI(target)
     uiText,
     target,
     uiX, uiY,
-    260, nil,
+    245, nil,
     0, 0, 0,
     false
   )

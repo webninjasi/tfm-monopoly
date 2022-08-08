@@ -6,6 +6,8 @@ local translations = pshy.require("monopoly.translations")
 
 -- Variables
 local boardCells = config.board.cells
+local positions = config.board.positions
+local cellCount = #positions
 local cardImages = config.images.cards
 local pixels = config.images.pixels
 local cardRowsByType = config.cardRows
@@ -35,6 +37,7 @@ local function scanBoardCells()
     cell.card_image = cardImages[cell.card_image or 'empty']
     cell.header_color = cell.header_color or '000000'
     cell.title_tr = "card_" .. i
+    cell.infoY = 35
 
     if cell.type == 'station' then
       cell.station1 = 25
@@ -44,7 +47,12 @@ local function scanBoardCells()
     elseif cell.type == 'utility' then
       cell.utility1 = -1
       cell.utility2 = -1
-      --cell.card_width = 136
+    elseif cell.type ~= 'property' then
+      cell.card_width = 136
+
+      if cell.type == 'chance' or cell.type == 'jailvisit' then
+        cell.infoY = 50
+      end
     end
 
     list._len = 1 + list._len
@@ -140,7 +148,7 @@ local function showPropertyCard(cell, name, x, y, canBuy)
     "cardinfo",
     table.concat(rows, '\n'),
     name,
-    x + (isProperty and 10 or 7), y + 35,
+    x + (isProperty and 10 or 7), y + cell.infoY,
     cell.card_width, nil,
     0, 0, 0,
     true
@@ -153,6 +161,24 @@ local module = {}
 
 module.reset = function()
   owners = {}
+end
+
+module.showButtons = function(target)
+  local spaces = string.rep(' ', 50)
+  local pos
+
+  for i=1, cellCount do
+    pos = positions[i]
+    ui.addTextArea(
+      "boardcell_" .. i,
+      '<a href="event:boardcell_' .. i .. '"><font size="72">' .. spaces,
+      target,
+      pos[1], pos[2],
+      pos[3] - pos[1] - 5, pos[4] - pos[2] - 5,
+      0, 0, 0,
+      false
+    )
+  end
 end
 
 module.getOwner = function(key)
@@ -223,6 +249,7 @@ function eventInit()
   scanBoardCells()
 end
 
+-- Events
 function eventTextAreaCallback(id, name, callback)
   if callback == "closecard" then
     module.hideCard(name)
@@ -233,6 +260,13 @@ function eventTextAreaCallback(id, name, callback)
   elseif id == ui.textAreaId("cardbtnauction") then
     if eventAuctionCardClick then
       eventAuctionCardClick(name)
+    end
+  elseif callback:sub(1, 10) == 'boardcell_' then
+    local id = tonumber(callback:sub(11))
+    local cell = id and boardCells[id]
+
+    if cell and eventPropertyClicked then
+      eventPropertyClicked(name, cell)
     end
   end
 end

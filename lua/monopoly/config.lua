@@ -76,6 +76,13 @@ config.images = {
     water = "181f075f65a.png",
     electric = "181f076425d.png",
     train = "181f0768e5c.png",
+    
+    go = "18221958959.png",
+    gojail = "1822338d615.png",
+    jail = "1822195d55d.png",
+    afkvillage = "18223387796.png",
+    chance2 = "18221945952.png",
+    community2 = "1822194a55a.png",
   },
   pixels = {
     red = "17948d9ecc2.png",

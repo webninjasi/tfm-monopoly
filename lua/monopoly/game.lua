@@ -75,6 +75,7 @@ local function nextTurn()
   if whoseTurn then
     if prev ~= whoseTurn then
       if prev then
+        actionui.update(prev.name, "Stop", false)
         tokens.circleMode(prev.tokenid, false)
         prev.turn = nil
       end
@@ -120,6 +121,7 @@ function eventNewGame()
   game.state = states.LOBBY
 
   showBoard()
+  property.showButtons()
 
   lobbyTurn = nil
   players.reset()
@@ -132,6 +134,7 @@ end
 function eventNewPlayer(name)
   ui.setBackgroundColor(config.bgcolor)
   showBoard(name)
+  property.showButtons(name)
   players.showUI()
   tokens.show()
   tfm.exec.respawnPlayer(name)
@@ -286,6 +289,7 @@ function eventDiceRoll(dice1, dice2)
       -- enable actions
       for player in players.iter do
         actionui.update(player.name, nil, true)
+        actionui.update(player.name, "Stop", false)
 
         if whoseTurn ~= player then
           actionui.update(player.name, "Dice", false)
@@ -334,6 +338,7 @@ function eventTokenMove(tokenId, cellId, passedGo)
     end
 
     game.state = states.PLAYING
+    actionui.update(whoseTurn.name, "Stop", true)
   end
 end
 
@@ -458,6 +463,19 @@ function eventAuctionCardClick(name)
   if card and property.canBuy(card) then
     property.auctionStart(card)
   end
+end
+
+function eventPropertyClicked(name, cell)
+  local canBuy = false
+  local player = players.get(name)
+
+  if player then
+    local card = board.getTokenCell(player.tokenid)
+
+    canBuy = card.id == cell.id and property.canBuy(cell)
+  end
+
+  property.showCard(cell, name, canBuy)
 end
 
 

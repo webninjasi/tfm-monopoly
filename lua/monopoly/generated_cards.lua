@@ -3,6 +3,7 @@ return {
     type = 'win',
     title = 'Go - Collect 200 as you pass',
     price = 200,
+    card_image = 'go',
   },
   {
     type = 'property',
@@ -23,6 +24,7 @@ return {
     type = 'chest',
     title = 'Community Chest',
     price = 0,
+    card_image = 'community2',
   },
   {
     type = 'property',
@@ -70,6 +72,7 @@ return {
     type = 'chance',
     title = 'Chance',
     price = 0,
+    card_image = 'chance2',
   },
   {
     type = 'property',
@@ -100,9 +103,10 @@ return {
     header_color = '87a5d6',
   },
   {
-    type = 'empty',
+    type = 'jailvisit',
     title = 'In Jail - Just Visiting',
     price = 0,
+    card_image = 'jail',
   },
   {
     type = 'property',
@@ -180,6 +184,7 @@ return {
     type = 'chest',
     title = 'Community Chest',
     price = 0,
+    card_image = 'community2',
   },
   {
     type = 'property',
@@ -211,8 +216,9 @@ return {
   },
   {
     type = 'empty',
-    title = 'Free Parking',
+    title = 'Village AFK',
     price = 0,
+    card_image = 'afkvillage',
   },
   {
     type = 'property',
@@ -232,6 +238,7 @@ return {
     type = 'chance',
     title = 'Chance',
     price = 0,
+    card_image = 'chance2',
   },
   {
     type = 'property',
@@ -322,6 +329,7 @@ return {
     type = 'jail',
     title = 'Go To Jail',
     price = 0,
+    card_image = 'gojail',
   },
   {
     type = 'property',
@@ -357,6 +365,7 @@ return {
     type = 'chest',
     title = 'Community Chest',
     price = 0,
+    card_image = 'community2',
   },
   {
     type = 'property',
@@ -383,6 +392,7 @@ return {
     type = 'chance',
     title = 'Chance',
     price = 0,
+    card_image = 'chance2',
   },
   {
     type = 'property',

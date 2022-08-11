@@ -51,6 +51,7 @@ function eventInit()
         if owner ~= name then
           local rent = property.calculateRent(cell, diceSum)
           players.add(name, 'money', -rent)
+          players.add(owner, 'money', rent)
           logs.add('pay_rent', name, rent, owner)
         end
       else

@@ -143,6 +143,7 @@ module.create = function()
     tokens[i].x = tokens[i].defaultX
     tokens[i].y = tokens[i].defaultY
     tokens[i].scale = 1
+    tokens[i].rotation = 0
     tokens[i].active = true
     tokens[i].unused = true
   end

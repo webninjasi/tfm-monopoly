@@ -82,11 +82,30 @@ local function showToken(token, clickable)
   )
 
   if token.circle then
+    tfm.exec.addPhysicObject(43, token.x, token.y, {
+      type = 14,
+      miceCollision = false,
+      groundCollision = false,
+    })
+    tfm.exec.addPhysicObject(44, token.x, token.y, {
+      dynamic = true,
+      type = 14,
+      mass = 1,
+      miceCollision = false,
+      groundCollision = false,
+      foreground = true,
+    })
+    tfm.exec.addJoint(3, 44, 43, {
+      type = 3,
+      speedMotor = -1.2,
+      forceMotor = 100,
+    })
+
     ui.addImage(
       "token_circle",
       circleImage,
-      '!100',
-      token.x, token.y,
+      '+44',
+      0, 0,
       nil,
       token.scale, token.scale,
       0, 1,

@@ -521,13 +521,29 @@ command_list["move"] = {
   argc_min = 1, argc_max = 1, arg_types = {"number"}
 }
 
-command_list["setstate"] = {
+command_list["skip"] = {
+  perms = "admins",
+  func = function(name)
+    if whoseTurn then
+      whoseTurn.double = nil
+    end
+
+    nextTurn()
+  end,
+  desc = "skip turn",
+}
+
+command_list["state"] = {
   perms = "admins",
   func = function(name, state)
-    game.state = state or 0
+    if state then
+      game.state = state
+    else
+      tfm.exec.chatMessage("<ROSE>Game State: <V>" .. game.state, name)
+    end
   end,
   desc = "set game state",
-  argc_min = 1, argc_max = 1, arg_types = {"number"}
+  argc_min = 0, argc_max = 1, arg_types = {"number"}
 }
 
 command_list["r"] = {

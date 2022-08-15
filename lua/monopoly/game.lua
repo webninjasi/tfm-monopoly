@@ -16,6 +16,7 @@ local command_list = pshy.require("pshy.commands.list")
 
 -- Game Variables
 local scrollPos = config.scrollPos
+local diceArea = config.diceArea
 local mapXML = config.mapXML:gsub("[%s\r\n]+<", "<"):gsub(">[%s\r\n]+", ">")
 local states = {
   LOBBY = 0,
@@ -145,6 +146,7 @@ function eventInitPlayer(name)
   tfm.exec.bindKeyboard(name, 1, true, true)
   tfm.exec.bindKeyboard(name, 3, true, true)
   tfm.exec.freezePlayer(name, true, false)
+  system.bindMouse(name, true)
 end
 
 function eventPlayersUpdated(name, player)
@@ -181,6 +183,43 @@ function eventKeyboard(name, key, down, x, y)
         break
       end
     end
+  end
+end
+
+function eventMouse(name, x, y)
+  local player = players.get(name)
+
+  if not player or not player.allowMouse then
+    return
+  end
+
+  if not (x >= diceArea.x1 and x <= diceArea.x2 and y >= diceArea.y1 and y <= diceArea.y2) then
+    return
+  end
+
+  player.allowMouse = false
+
+  if game.state == states.LOBBY then
+    -- play order is already decided or being decided right now
+    if player.order or lobbyTurn then
+      return
+    end
+
+    local count = votes.vote('start', name)
+
+    if count then
+      lobbyTurn = player
+      dice.roll(x, y)
+      actionui.update(name, "Dice", false)
+    end
+  elseif game.state == states.WAITING then
+    if whoseTurn ~= player then
+      return
+    end
+
+    game.state = states.ROLLING
+    dice.roll(x, y)
+    actionui.update(name, "Dice", false)
   end
 end
 
@@ -381,28 +420,7 @@ function eventActionUIClick(name, action)
   end
 
   if action == "Dice" then
-    if game.state == states.LOBBY then
-      -- play order is already decided or being decided right now
-      if player.order or lobbyTurn then
-        return
-      end
-  
-      local count = votes.vote('start', name)
-  
-      if count then
-        lobbyTurn = player
-        dice.roll()
-        actionui.update(name, "Dice", false)
-      end
-    elseif game.state == states.WAITING then
-      if whoseTurn ~= player then
-        return
-      end
-
-      game.state = states.ROLLING
-      dice.roll()
-      actionui.update(name, "Dice", false)
-    end
+    player.allowMouse = true
   elseif action == "Cards" then
   elseif action == "Build" then
     if game.state ~= states.PLAYING then

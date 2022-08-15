@@ -4,23 +4,46 @@ local config = pshy.require("monopoly.config")
 
 
 -- Variables
+local diceArea = config.diceArea
 local images = config.images.dices
 local dice1 = config.dice1
 local dice2 = config.dice2
 local rollDelay = config.roll.delay
 local rollTime
+local cage = {
+  { x=-70, y=0, w=10, h=60, a=0 },
+  { x=70, y=0, w=10, h=60, a=0 },
+  { x=0, y=70, w=60, h=10, a=0 },
+  { x=0, y=-70, w=60, h=10, a=0 },
+  { x=-50, y=-50, w=10, h=60, a=45 },
+  { x=50, y=50, w=10, h=60, a=45 },
+  { x=50, y=-50, w=60, h=10, a=45 },
+  { x=-50, y=50, w=60, h=10, a=45 },
+}
 
 
 -- Functions
 local module = {}
 
-module.roll = function()
+module.roll = function(x, y)
   if rollTime then
     return
   end
 
+  x = math.max(diceArea.x1 + diceArea.offset, math.min(diceArea.x2 - diceArea.offset, x))
+  y = math.max(diceArea.y1 + diceArea.offset, math.min(diceArea.y2 - diceArea.offset, y))
+
+  for i=1, #cage do
+    tfm.exec.addPhysicObject(2+i, x + cage[i].x, y + cage[i].y, {
+      type = 14,
+      width = cage[i].w,
+      height = cage[i].h,
+      angle = cage[i].a,
+    })
+  end
+
   rollTime = os.time()
-  tfm.exec.addPhysicObject(1, dice1.x, dice1.y, {
+  tfm.exec.addPhysicObject(1, x + dice1.x, y + dice1.y, {
     dynamic = true,
     fixedRotation = false,
     type = 12,
@@ -28,7 +51,7 @@ module.roll = function()
     width = 30,
     height = 30,
   })
-  tfm.exec.addPhysicObject(2, dice2.x, dice2.y, {
+  tfm.exec.addPhysicObject(2, x + dice2.x, y + dice2.y, {
     dynamic = true,
     fixedRotation = false,
     type = 12,

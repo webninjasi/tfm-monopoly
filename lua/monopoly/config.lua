@@ -68,6 +68,7 @@ config.logsUI = {
 config.images = {
   background = "1823c8f747a.png",
   circle = "182144f123d.png",
+  auction = "182a637db2c.png",
   cards = {
     empty = "18220bf6da4.png",
     chance = "18220c02228.png",
@@ -111,16 +112,18 @@ config.images = {
     {"1821023e89f.png", 40, 45},
   },
   actionui = {
-    x = 280, y = 365,
+    x = 200, y = 365,
     w = 50, h = 50,
     sep = 10,
     taw = 40, tah = 40,
 
+    {"JailCard", "182a6388113.png"},
+    {"JailPay", "182a6382f66.png"},
     {"Dice", "181f077be5d.png", true},
-    {"Cards", "181f076da5c.png"},
-    {"Build", "181f077265d.png"},
-    {"Trade", "181f0780a5c.png"},
-    {"Stop", "181f077725b.png"},
+    {"Cards", "181f076da5c.png", false},
+    {"Build", "181f077265d.png", false},
+    {"Trade", "181f0780a5c.png", false},
+    {"Stop", "181f077725b.png", false},
   },
 }
 

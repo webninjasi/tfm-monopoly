@@ -24,6 +24,7 @@ do
       x = x, y = y,
       alpha = images.alpha,
       enabled = img[3],
+      invisible = img[3] == nil,
 
       text = ('<font size="72"><a href="event:actionui %s">%s'):format(img[1], spaces),
       tx = tx, ty = ty,
@@ -62,36 +63,38 @@ local function updateButton(btn, name, enabled)
   end
 end
 
+local function hideButton(btn, name)
+  ui.removeImage(btn.key, name)
+  ui.removeTextArea(btn.key, name)
+end
+
 
 -- Functions
 local module = {}
 
 module.show = function(name)
   for _, btn in pairs(buttons) do
-    updateButton(btn, name, btn.enabled)
+    if btn.enabled or not btn.invisible then
+      updateButton(btn, name, btn.enabled)
+    end
   end
 end
 
 module.hide = function(name)
   for _, btn in pairs(buttons) do
-    ui.removeImage(btn.key, name)
-    ui.removeTextArea(btn.key, name)
+    hideButton(btn, name)
   end
 end
 
 module.update = function(name, action, enabled)
-  if not action then
-    for action in pairs(buttons) do
-      module.update(name, action, enabled)
-    end
-
-    return
-  end
-
   local btn = buttons[action]
 
   if btn then
-    updateButton(btn, name, enabled)
+    if enabled or not btn.invisible then
+      updateButton(btn, name, enabled)
+    else
+      hideButton(btn, name)
+    end
   end
 end
 

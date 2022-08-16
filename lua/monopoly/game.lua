@@ -86,6 +86,14 @@ local function nextTurn()
       players.update(whoseTurn.name, "turn", true)
     end
 
+    if whoseTurn.jail then
+      actionui.update(whoseTurn.name, "JailPay", true)
+
+      if whoseTurn.jailcard then
+        actionui.update(whoseTurn.name, "JailCard", true)
+      end
+    end
+
     actionui.update(whoseTurn.name, "Dice", true)
     tfm.exec.playSound('transformice/son/chamane', 100, nil, nil, whoseTurn.name)
   end
@@ -322,7 +330,7 @@ function eventDiceRoll(dice1, dice2)
 
           logs.add('roll_double', player.name, dice1, dice2, dice1 + dice2)
           logs.add('roll_jail', player.name)
-          board.moveToken(player.tokenid, 11)
+          board.moveToken(player.tokenid, 11, nil, nil, true)
           nextTurn()
 
           return
@@ -373,7 +381,9 @@ function eventDiceRoll(dice1, dice2)
 
       -- enable actions
       for player in players.iter do
-        actionui.update(player.name, nil, true)
+        actionui.update(player.name, "Cards", true)
+        actionui.update(player.name, "Build", true)
+        actionui.update(player.name, "Trade", true)
         actionui.update(player.name, "Stop", false)
 
         if whoseTurn ~= player then
@@ -420,7 +430,7 @@ function eventTokenMove(tokenId, cellId, passedGo)
 
       if player.jail then
         player.double = nil
-        board.moveToken(player.tokenid, 11)
+        board.moveToken(player.tokenid, 11, nil, nil, true)
         logs.add('jail_in', name)
         return
       end
@@ -456,7 +466,35 @@ function eventActionUIClick(name, action)
     return
   end
 
-  if action == "Dice" then
+  if action == "JailPay" then
+    if not player.jail or whoseTurn ~= player then
+      return
+    end
+    if game.state ~= states.WAITING or player.money < 50 then
+      return
+    end
+
+    players.add(player.name, "money", -50)
+    player.jail = nil
+    -- TODO log player used jail card
+    logs.add('jail_out', player.name)
+    actionui.update(player.name, "JailCard", false)
+    actionui.update(player.name, "JailPay", false)
+  elseif action == "JailCard" then
+    if not player.jail or whoseTurn ~= player then
+      return
+    end
+    if not player.jailcard or game.state ~= states.WAITING then
+      return
+    end
+
+    player.jailcard = nil
+    player.jail = nil
+    -- TODO log player used jail card
+    logs.add('jail_out', player.name)
+    actionui.update(player.name, "JailCard", false)
+    actionui.update(player.name, "JailPay", false)
+  elseif action == "Dice" then
     player.allowMouse = true
   elseif action == "Cards" then
   elseif action == "Build" then
@@ -499,7 +537,6 @@ function eventBuyCardClick(name)
     property.setOwner(card.id, name)
     board.setCellColor(card.id, player.color)
     property.hideCard(name)
-    --property.showCard(card, name, false)
     logs.add("purchase", name, card.header_color, card.title)
   end
 end
@@ -537,10 +574,10 @@ end
 -- Commands
 command_list["move"] = {
   perms = "admins",
-  func = function(name, cellId)
+  func = function(name, cellId, doAnim)
     local player = players.get(name)
   
-    if not player.tokenid then
+    if not player or not player.tokenid then
       return
     end
   
@@ -551,11 +588,41 @@ command_list["move"] = {
     local prevState = game.state
     game.state = states.MOVING
     whoseTurn = player
-    board.moveToken(player.tokenid, cellId, false, true)
+    board.moveToken(player.tokenid, cellId, false, true, not doAnim)
     game.state = prevState
   end,
   desc = "move players' token",
-  argc_min = 1, argc_max = 1, arg_types = {"number"}
+  argc_min = 1, argc_max = 2, arg_types = {"number", "boolean"}
+}
+
+command_list["roll"] = {
+  perms = "admins",
+  func = function(name, dice1, dice2)
+    if game.state ~= states.WAITING then
+      return
+    end
+
+    dice1 = dice1 or 6
+    dice2 = dice2 or dice1
+    game.state = states.ROLLING
+    eventDiceRoll(dice1, dice2)
+  end,
+  desc = "simulate dice roll",
+  argc_min = 0, argc_max = 2, arg_types = {"number", "number"}
+}
+
+command_list["jailcard"] = {
+  perms = "admins",
+  func = function(name)
+    local player = players.get(name)
+  
+    if not player or not player.tokenid then
+      return
+    end
+
+    player.jailcard = true
+  end,
+  desc = "receive a free get out of jail card",
 }
 
 command_list["skip"] = {

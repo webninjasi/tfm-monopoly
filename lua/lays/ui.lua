@@ -23,16 +23,19 @@ do
   local removeTextArea = ui.removeTextArea
   local updateTextArea = ui.updateTextArea
 
-  ui.addTextArea = function(key, ...)
-    addTextArea(getId(key), ...)
+  ui.addTextArea = function(key, text, target, ...)
+    target = target ~= "*" and target or nil
+    addTextArea(getId(key), text, target, ...)
   end
 
-  ui.removeTextArea = function(key, ...)
-    removeTextArea(getId(key), ...)
+  ui.removeTextArea = function(key, target, ...)
+    target = target ~= "*" and target or nil
+    removeTextArea(getId(key), target, ...)
   end
 
-  ui.updateTextArea = function(key, ...)
-    updateTextArea(getId(key), ...)
+  ui.updateTextArea = function(key, text, target, ...)
+    target = target ~= "*" and target or nil
+    updateTextArea(getId(key), text, target, ...)
   end
 
   ui.textAreaId = getId

@@ -44,6 +44,15 @@ config.diceArea = {
   offset = 70,
 }
 
+config.tokenColors = {
+  0xff00ff,
+  0x00ffff,
+  0xff0000,
+  0x00ff00,
+  0x0000ff,
+  0xffff00,
+}
+
 config.playersUI = {
   x = 430,
   y = 130,
@@ -131,10 +140,11 @@ config.roll = {
 -- tokens default position
 config.tokens = {
   imgX = 400,
-  imgY = 230,
+  imgY = 220,
   defaultX = 400,
-  defaultY = 200,
+  defaultY = 150,
   rowItems = 5,
+  colorsOffset = 30,
 }
 
 -- money ui

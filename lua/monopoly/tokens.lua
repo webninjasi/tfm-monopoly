@@ -6,13 +6,20 @@ local config = pshy.require("monopoly.config")
 -- Tokens Variables
 local imgX = config.tokens.imgX
 local imgY = config.tokens.imgY
+local tokenColors = config.tokenColors
 local defaultX = config.tokens.defaultX
 local defaultY = config.tokens.defaultY
 local rowItems = config.tokens.rowItems
+local colorsOffset = config.tokens.colorsOffset
 local images = config.images.tokens
 local blackpx = config.images.pixels.black
 local circleImage = config.images.circle
 local tokens = { _len=#images }
+local selectedColors = {}
+local colorUIx, colorUIy
+
+tokenColors._len = #tokenColors
+
 
 -- Initialize tokens
 do
@@ -34,8 +41,7 @@ do
       w = images[i][2],
       h = images[i][3],
       scale = 1,
-      active = true,
-      unused = true,
+      active = false,
     }
 
     maxHeight = math.max(maxHeight, tokens[i].h)
@@ -66,16 +72,19 @@ do
     tokens[i].defaultX = tokens[i].x
     tokens[i].defaultY = tokens[i].y
   end
+
+  colorUIx = startX
+  colorUIy = tokens[tokens._len].y + colorsOffset
 end
 
 -- Private Functions
-local function showToken(token, clickable)
+local function showToken(token, clickable, target)
   ui.addImage(
     "token" .. token.id,
     token.img,
     clickable and ':1' or '!1',
     token.x, token.y,
-    nil,
+    target,
     token.scale, token.scale,
     token.rotation, 1,
     0.5, 0.5
@@ -106,7 +115,7 @@ local function showToken(token, clickable)
       circleImage,
       '+44',
       0, 0,
-      nil,
+      target,
       token.scale, token.scale,
       0, 1,
       0.5, 0.5
@@ -120,7 +129,7 @@ local function showToken(token, clickable)
     ui.addTextArea(
       "token" .. token.id,
       '<font size="90"><a href="event:token' .. token.id .. '">    ',
-      nil,
+      target,
       token.x - w / 2, token.y - h / 2,
       w, h,
       0, 0, 0,
@@ -129,29 +138,65 @@ local function showToken(token, clickable)
   end
 end
 
-local function hideToken(id)
-  ui.removeImage("token" .. id)
-  ui.removeTextArea("token" .. id)
+local function hideToken(id, target)
+  ui.removeImage("token" .. id, target)
+  ui.removeTextArea("token" .. id, target)
+end
+
+local function updateColors(target)
+  local text = {'<font size="35">'}
+  local len = 1
+
+  for i=1,tokenColors._len do
+    len = 1 + len
+    text[len] = string.format(
+      '<font color="#%.6x"><a href="event:color%d">█</a>  ',
+      selectedColors[i] and -1 or tokenColors[i], i
+    )
+
+    if i % rowItems == 0 then
+      len = 1 + len
+      text[len] = "\n"
+    end
+  end
+
+  ui.updateTextArea(
+    "tokencolors",
+    table.concat(text, ''),
+    target
+  )
+end
+
+local function showColors(target)
+  ui.addTextArea(
+    "tokencolors",
+    '',
+    target,
+    colorUIx, colorUIy,
+    nil, nil,
+    0, 0, 0,
+    true
+  )
+  updateColors(target)
 end
 
 
 -- Functions
 local module = {}
 
-module.create = function()
+module.reset = function()
   for i=1, tokens._len do
     tokens[i].x = tokens[i].defaultX
     tokens[i].y = tokens[i].defaultY
     tokens[i].scale = 1
     tokens[i].rotation = 0
-    tokens[i].active = true
-    tokens[i].unused = true
+    tokens[i].active = false
   end
 
-  module.show()
+  selectedColors = {}
 end
 
-module.show = function()
+module.showUI = function(target)
   local token
 
   ui.addImage(
@@ -159,51 +204,51 @@ module.show = function()
     blackpx,
     ":50",
     imgX, imgY,
-    nil,
-    290, 120, 0, 0.9,
+    target,
+    290, 200, 0, 0.9,
     0.5, 0.5
   )
+  showColors(target)
+
+  for i=1,tokens._len do
+    token = tokens[i]
+
+    if not token.active then
+      showToken(token, true, target)
+    end
+  end
+end
+
+module.hideUI = function(target)
+  local token
+
+  ui.removeImage("tokensbg", target)
+  ui.removeTextArea("tokencolors", target)
+
+  for i=1,tokens._len do
+    token = tokens[i]
+
+    if not token.active then
+      hideToken(token.id, target)
+    end
+  end
+end
+
+module.show = function()
+  local token
 
   for i=1,tokens._len do
     token = tokens[i]
 
     if token.active then
-      showToken(token, token.active)
+      showToken(token, false)
     end
   end
 end
 
-module.keep = function(id)
-  if tokens[id] then
-    tokens[id].unused = nil
-    ui.removeTextArea("token" .. id)
-  end
-end
-
-module.hide = function(tokenid)
-  local token
-
-  if tokenid then
-    token = tokens[tokenid]
-
-    if token then
-      token.active = false
-      hideToken(tokenid)
-    end
-
-    return
-  end
-
-  for i=1,tokens._len do
-    token = tokens[i]
-
-    if token.unused then
-      token.active = false
-      hideToken(i)
-    end
-  end
-
-  ui.removeImage("tokensbg")
+module.selectColor = function(id)
+  selectedColors[id] = true
+  updateColors()
 end
 
 module.update = function(tokenId, x, y, scale, rotation)
@@ -222,6 +267,11 @@ module.update = function(tokenId, x, y, scale, rotation)
   token.scale = scale
   token.rotation = rotation
 
+  if not token.active then
+    token.active = true
+    hideToken(token.id, "*")
+  end
+
   showToken(token, false)
 end
 
@@ -236,19 +286,20 @@ module.circleMode = function(tokenId, enabled)
   showToken(token, false)
 end
 
-module.randColor = function(tokenid)
-  local range = 0xffffff / tokens._len
-  return math.random((tokenid - 1) * range, tokenid * range)
-end
-
 
 -- Events
 function eventTextAreaCallback(id, name, callback)
   if callback:sub(1, 5) == 'token' then
     local tokenid = tonumber(callback:sub(6))
 
-    if tokenid and tokens[tokenid] and eventTokenClicked then
+    if tokenid and tokens[tokenid] and not tokens[tokenid].active and eventTokenClicked then
       eventTokenClicked(name, tokenid)
+    end
+  elseif callback:sub(1, 5) == 'color' then
+    local idx = tonumber(callback:sub(6))
+
+    if idx and tokenColors[idx] and not selectedColors[idx] and eventColorSelected then
+      eventColorSelected(name, idx, tokenColors[idx])
     end
   end
 end

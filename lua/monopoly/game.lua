@@ -93,6 +93,47 @@ local function nextTurn()
   game.state = states.WAITING
 end
 
+local function createPlayer(name, coloridx, color, tokenid)
+  local player = players.get(name)
+
+  if player and player.color and player.tokenid then
+    return
+  end  
+
+  -- reached the max number of players
+  if players.count() == 6 then
+    return
+  end
+
+  if not player then
+    players.create({
+      name = name,
+      money = 1500,
+      color = color,
+      tokenid = tokenid,
+    })
+    player = players.get(name)
+  end
+
+  if not player.color and color then
+    player.color = color
+    tokens.selectColor(coloridx)
+  end
+
+  if not player.tokenid and tokenid then
+    player.tokenid = tokenid
+    board.addToken(player.tokenid)
+    board.moveToken(player.tokenid, 1)
+  end
+
+  if player.color and player.tokenid then
+    tokens.hideUI(name)
+    actionui.show(name)
+
+    translations.chatMessage('start_roll', name)
+  end
+end
+
 
 -- Pshy Events
 function eventInit()
@@ -127,9 +168,10 @@ function eventNewGame()
   lobbyTurn = nil
   players.reset()
   board.reset()
-  tokens.create()
+  tokens.reset()
   votes.reset()
   property.reset()
+  tokens.showUI("*")
 end
 
 function eventNewPlayer(name)
@@ -138,6 +180,11 @@ function eventNewPlayer(name)
   property.showButtons(name)
   players.showUI()
   tokens.show()
+
+  if game.state == states.LOBBY then
+    tokens.showUI(name)
+  end
+
   tfm.exec.respawnPlayer(name)
   eventInitPlayer(name)
 end
@@ -322,7 +369,7 @@ function eventDiceRoll(dice1, dice2)
       whoseTurn = nil
       game.state = states.WAITING
       nextTurn()
-      tokens.hide()
+      tokens.hideUI("*")
       logs.add('newgame')
 
       -- enable actions
@@ -381,34 +428,21 @@ function eventTokenMove(tokenId, cellId, passedGo)
   end
 end
 
+function eventColorSelected(name, index, color)
+  if game.state ~= states.LOBBY then
+    return
+  end
+
+  createPlayer(name, index, color)
+end
+
 function eventTokenClicked(name, tokenid)
   if game.state == states.LOBBY then
     if board.hasToken(tokenid) then
       return
     end
 
-    if players.get(name) then
-      return
-    end
-  
-    -- reached the max number of players
-    if players.count() == 6 then
-      return
-    end
-
-    players.create({
-      name = name,
-      tokenid = tokenid,
-      color = tokens.randColor(tokenid),
-      money = 1500,
-    })
-
-    board.addToken(tokenid)
-    board.moveToken(tokenid, 1)
-    tokens.keep(tokenid)
-    actionui.show(name)
-
-    translations.chatMessage('start_roll', name)
+    createPlayer(name, nil, nil, tokenid)
   end
 end
 

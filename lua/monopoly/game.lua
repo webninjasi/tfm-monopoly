@@ -178,6 +178,7 @@ function eventNewPlayer(name)
   property.showButtons(name)
   players.showUI()
   tokens.show()
+  board.showCellColor(nil, name)
 
   if game.state == states.LOBBY then
     tokens.showUI(name)
@@ -401,6 +402,11 @@ function eventTokenMove(tokenId, cellId, passedGo)
       return
     end
 
+    if player.jail then
+      nextTurn()
+      return
+    end
+
     if passedGo and not player.jail and cellId ~= 1 then
       players.add(name, 'money', 200)
       logs.add('passed_go', name)
@@ -416,7 +422,6 @@ function eventTokenMove(tokenId, cellId, passedGo)
         player.double = nil
         board.moveToken(player.tokenid, 11)
         logs.add('jail_in', name)
-        nextTurn()
         return
       end
     end

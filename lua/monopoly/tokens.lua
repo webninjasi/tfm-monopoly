@@ -92,35 +92,39 @@ local function showToken(token, clickable, target, ground)
   )
 
   if token.circle then
-    tfm.exec.addPhysicObject(43, token.x, token.y, {
-      type = 14,
-      miceCollision = false,
-      groundCollision = false,
-    })
-    tfm.exec.addPhysicObject(44, token.x, token.y, {
-      dynamic = true,
-      type = 14,
-      mass = 1,
-      miceCollision = false,
-      groundCollision = false,
-      foreground = true,
-    })
-    tfm.exec.addJoint(3, 44, 43, {
-      type = 3,
-      speedMotor = -1.2,
-      forceMotor = 100,
-    })
+    if ground then
+      ui.removeImage("token_circle", target)
+    else
+      tfm.exec.addPhysicObject(43, token.x, token.y, {
+        type = 14,
+        miceCollision = false,
+        groundCollision = false,
+      })
+      tfm.exec.addPhysicObject(44, token.x, token.y, {
+        dynamic = true,
+        type = 14,
+        mass = 1,
+        miceCollision = false,
+        groundCollision = false,
+        foreground = true,
+      })
+      tfm.exec.addJoint(3, 44, 43, {
+        type = 3,
+        speedMotor = -1.2,
+        forceMotor = 100,
+      })
 
-    ui.addImage(
-      "token_circle",
-      circleImage,
-      '+44',
-      0, 0,
-      target,
-      token.scale, token.scale,
-      0, 1,
-      0.5, 0.5
-    )
+      ui.addImage(
+        "token_circle",
+        circleImage,
+        '+44',
+        0, 0,
+        target,
+        token.scale, token.scale,
+        0, 1,
+        0.5, 0.5
+      )
+    end
   end
 
   if clickable then

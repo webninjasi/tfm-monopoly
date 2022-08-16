@@ -186,7 +186,7 @@ local function getMoveAxis(cellId1, cellId2)
 end
 
 local function getMoveDuration(x1, y1, x2, y2)
-  return math.sqrt(math.pow(x1 - x2, 2) + math.pow(y1 - y2, 2)) * 45 / 3
+  return math.sqrt(math.pow(x1 - x2, 2) + math.pow(y1 - y2, 2)) * 50 / 3
 end
 
 
@@ -319,10 +319,10 @@ module.cellAction = function(cellId)
   return action(cell)
 end
 
-module.showCellColor = function(cellId)
+module.showCellColor = function(cellId, target)
   if not cellId then
     for id in pairs(cellColors) do
-      module.showCellColor(id)
+      module.showCellColor(id, target)
     end
 
     return
@@ -368,7 +368,7 @@ module.showCellColor = function(cellId)
   ui.addTextArea(
     "cellcolor_" .. cellId,
     "",
-    nil,
+    target,
     x, y, w, h,
     color, color, 1, false
   )

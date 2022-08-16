@@ -207,6 +207,7 @@ module.reset = function()
   end
 
   cellColors = {}
+  movingToken = nil
 end
 
 module.hasToken = function(tokenId)
@@ -240,7 +241,8 @@ module.removeToken = function(tokenId)
   board.cells[tokenId] = nil
 end
 
-module.moveToken = function(tokenId, cellId, relative, ignoreGo)
+-- TODO implement counter-clockwise animation
+module.moveToken = function(tokenId, cellId, relative, ignoreGo, noanim)
   local token = board.tokens[tokenId]
 
   if not token then
@@ -261,16 +263,6 @@ module.moveToken = function(tokenId, cellId, relative, ignoreGo)
 
   token.cell = placeToCell(cellId, tokenId)
 
-  if not prevCellId then
-    updateTokens(cellId)
-
-    if eventTokenMove then
-      eventTokenMove(tokenId, cellId, passedGo)
-    end
-
-    return
-  end
-
   if movingToken then
     updateTokens(movingToken[2])
 
@@ -279,6 +271,16 @@ module.moveToken = function(tokenId, cellId, relative, ignoreGo)
     end
 
     movingToken = nil
+  end
+
+  if not prevCellId or noanim then
+    updateTokens(cellId)
+
+    if eventTokenMove then
+      eventTokenMove(tokenId, cellId, passedGo)
+    end
+
+    return
   end
 
   local targetCellId = getMoveTarget(prevCellId, cellId)

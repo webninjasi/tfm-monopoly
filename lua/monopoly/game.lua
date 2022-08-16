@@ -109,14 +109,12 @@ local function createPlayer(name, coloridx, color, tokenid)
     players.create({
       name = name,
       money = 1500,
-      color = color,
-      tokenid = tokenid,
     })
     player = players.get(name)
   end
 
   if not player.color and color then
-    player.color = color
+    players.update(player.name, "color", color)
     tokens.selectColor(coloridx)
   end
 
@@ -521,10 +519,10 @@ function eventPropertyClicked(name, cell)
   local canBuy = false
   local player = players.get(name)
 
-  if player then
+  if player and player.tokenid then
     local card = board.getTokenCell(player.tokenid)
 
-    canBuy = card.id == cell.id and property.canBuy(cell)
+    canBuy = card and card.id == cell.id and property.canBuy(cell)
   end
 
   property.showCard(cell, name, canBuy)

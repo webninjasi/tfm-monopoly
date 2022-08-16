@@ -24,6 +24,7 @@ local tokenPos = {
 local board = {}
 local tokenCell = {}
 local cellColors = {}
+local movingToken
 
 
 -- Private Functions
@@ -90,24 +91,20 @@ local function cellDirection(cellId)
   return math.ceil(cellId / 10)
 end
 
-local function updateTokens(cellId)
+local function cellCenter(cellId)
   if not cellId then
     return
   end
 
-  local cell = board.cells[cellId]
   local pos = positions[cellId]
 
-  if not cell or not pos or cell.count == 0 then
+  if not pos then
     return
   end
 
   local direction = cellDirection(cellId)
   local originX = pos[1] + pos[3]
   local originY = pos[2] + pos[4]
-  local x, y, scale
-  local index = 0
-  local rotation = (direction - 1) * math.pi / 2
 
   if cellId % 10 ~= 1 then -- corners
     if direction == 1 then -- bottom
@@ -123,6 +120,32 @@ local function updateTokens(cellId)
 
   originX = originX / 2
   originY = originY / 2
+
+  return originX, originY
+end
+
+local function updateTokens(cellId)
+  if not cellId then
+    return
+  end
+
+  local cell = board.cells[cellId]
+
+  if not cell or cell.count == 0 then
+    return
+  end
+
+  local direction = cellDirection(cellId)
+  local originX, originY = cellCenter(cellId)
+
+  if not originX or not originY then
+    return
+  end
+
+  local x, y, scale
+  local index = 0
+  local rotation = (direction - 1) * math.pi / 2
+
   scale = cellId % 10 ~= 1 and cell.count > 1 and 0.5 or 1
 
   for tokenId in pairs(cell) do
@@ -132,6 +155,38 @@ local function updateTokens(cellId)
       tokens.update(tokenId, x, y, scale, rotation)
     end
   end
+end
+
+local function getMoveTarget(cellId1, cellId2)
+  local dir1 = cellDirection(cellId1)
+
+  if cellId2 >= cellId1 and cellId2 <= dir1 * 10 + 1 then
+    return cellId2
+  end
+
+  return ((dir1 * 10) % cellCount) + 1
+end
+
+local function getMoveAxis(cellId1, cellId2)
+  local dir1 = cellDirection(cellId1)
+  local dir2 = cellDirection(cellId2)
+
+  if dir1 == 1 and (dir2 == 1 or dir2 == 2) then
+    return "-1,0"
+  end
+  if dir1 == 3 and (dir2 == 3 or dir2 == 4) then
+    return "1,0"
+  end
+  if dir1 == 2 and (dir2 == 2 or dir2 == 3) then
+    return "0,-1"
+  end
+  if dir1 == 4 and (dir2 == 4 or dir2 == 1) then
+    return "0,1"
+  end
+end
+
+local function getMoveDuration(x1, y1, x2, y2)
+  return math.sqrt(math.pow(x1 - x2, 2) + math.pow(y1 - y2, 2)) * 45 / 3
 end
 
 
@@ -202,12 +257,42 @@ module.moveToken = function(tokenId, cellId, relative, ignoreGo)
   end
 
   local prevCellId = token.cell
-  token.cell = placeToCell(cellId, tokenId)
-  updateTokens(cellId)
+  local passedGo = not ignoreGo and prevCellId and cellId < prevCellId
 
-  if eventTokenMove then
-    eventTokenMove(tokenId, cellId, not ignoreGo and prevCellId and cellId < prevCellId)
+  token.cell = placeToCell(cellId, tokenId)
+
+  if not prevCellId then
+    updateTokens(cellId)
+
+    if eventTokenMove then
+      eventTokenMove(tokenId, cellId, passedGo)
+    end
+
+    return
   end
+
+  if movingToken then
+    updateTokens(movingToken[2])
+
+    if eventTokenMove then
+      eventTokenMove(movingToken[1], movingToken[2], movingToken[3])
+    end
+
+    movingToken = nil
+  end
+
+  local targetCellId = getMoveTarget(prevCellId, cellId)
+  local originX, originY = cellCenter(prevCellId)
+  local targetX, targetY = cellCenter(targetCellId)
+
+  movingToken = {
+    tokenId,
+    cellId,
+    passedGo,
+    targetCellId,
+    os.time() + getMoveDuration(originX, originY, targetX, targetY)
+  }
+  tokens.animate(tokenId, originX, originY, targetX, targetY, getMoveAxis(prevCellId, targetCellId))
 end
 
 module.getTokenCell = function(tokenId)
@@ -299,6 +384,36 @@ module.setCellColor = function(cellId, color)
 
   module.showCellColor(cellId)
 end
+
+
+-- Events
+function eventLoop()
+  if not movingToken or os.time() < movingToken[5] then
+    return
+  end
+
+  if movingToken[4] == movingToken[2] then
+    updateTokens(movingToken[2])
+
+    if eventTokenMove then
+      eventTokenMove(movingToken[1], movingToken[2], movingToken[3])
+    end
+
+    movingToken = nil
+
+    return
+  end
+
+  local targetCellId = getMoveTarget(movingToken[4], movingToken[2])
+  local originX, originY = cellCenter(movingToken[4])
+  local targetX, targetY = cellCenter(targetCellId)
+  local axis = getMoveAxis(movingToken[4], targetCellId)
+
+  movingToken[4] = targetCellId
+  movingToken[5] = os.time() + getMoveDuration(originX, originY, targetX, targetY)
+  tokens.animate(movingToken[1], originX, originY, targetX, targetY, axis)
+end
+
 
 -- Init
 module.reset()

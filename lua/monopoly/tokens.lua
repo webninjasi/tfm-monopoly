@@ -78,12 +78,13 @@ do
 end
 
 -- Private Functions
-local function showToken(token, clickable, target)
+local function showToken(token, clickable, target, ground)
   ui.addImage(
     "token" .. token.id,
     token.img,
-    clickable and ':1' or '!1',
-    token.x, token.y,
+    ground and '+77' or (clickable and ':1' or '!1'),
+    ground and 0 or token.x,
+    ground and 0 or token.y,
     target,
     token.scale, token.scale,
     token.rotation, 1,
@@ -249,6 +250,37 @@ end
 module.selectColor = function(id)
   selectedColors[id] = true
   updateColors()
+end
+
+module.animate = function(tokenId, x1, y1, x2, y2, axis)
+  local token = tokens[tokenId]
+
+  if not token then
+    return
+  end
+
+  local limit = math.max(math.abs(x1 - x2), math.abs(y1 - y2)) / 30
+
+  tfm.exec.addPhysicObject(76, x1, y1, {
+    type = 14,
+    miceCollision = false,
+    groundCollision = false,
+  })
+  tfm.exec.addPhysicObject(77, x1, y1, {
+    dynamic = true,
+    type = 14,
+    miceCollision = false,
+    groundCollision = false,
+    mass = 1,
+  })
+  tfm.exec.addJoint(75, 76, 77, {
+    type = 1,
+    axis = axis,
+    speedMotor = 2,
+    forceMotor = 100,
+    limit2 = limit,
+  })
+  showToken(token, false, nil, true)
 end
 
 module.update = function(tokenId, x, y, scale, rotation)

@@ -283,6 +283,16 @@ module.animate = function(tokenId, x1, y1, x2, y2, axis)
   showToken(token, false, nil, true)
 end
 
+module.setRotation = function(tokenId, rotation)
+  local token = tokens[tokenId]
+
+  if not token then
+    return
+  end
+
+  token.rotation = rotation
+end
+
 module.update = function(tokenId, x, y, scale, rotation)
   local token = tokens[tokenId]
 

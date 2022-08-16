@@ -405,12 +405,16 @@ function eventLoop()
   end
 
   local targetCellId = getMoveTarget(movingToken[4], movingToken[2])
+  local direction = cellDirection(movingToken[4])
   local originX, originY = cellCenter(movingToken[4])
   local targetX, targetY = cellCenter(targetCellId)
   local axis = getMoveAxis(movingToken[4], targetCellId)
 
   movingToken[4] = targetCellId
   movingToken[5] = os.time() + getMoveDuration(originX, originY, targetX, targetY)
+
+  local rotation = (direction - 1) * math.pi / 2
+  tokens.setRotation(movingToken[1], rotation)
   tokens.animate(movingToken[1], originX, originY, targetX, targetY, axis)
 end
 

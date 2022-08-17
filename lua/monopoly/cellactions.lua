@@ -62,8 +62,8 @@ function eventInit()
           players.add(owner, 'money', rent)
           logs.add('pay_rent', name, rent, owner)
         end
-      else
-        property.showCard(cell, name, true)
+      elseif eventEmptyProperty then
+        eventEmptyProperty(name, cell)
       end
     end
   end

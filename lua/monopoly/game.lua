@@ -15,7 +15,7 @@ local command_list = pshy.require("pshy.commands.list")
 
 
 -- Game Variables
-local auctioncfg = config.auction
+local gameTime = config.gameTime
 local scrollPos = config.scrollPos
 local diceArea = config.diceArea
 local mapXML = config.mapXML:gsub("[%s\r\n]+<", "<"):gsub(">[%s\r\n]+", ">")
@@ -24,8 +24,9 @@ local states = {
   WAITING = 1,
   ROLLING = 2,
   MOVING = 3,
-  PLAYING = 4,
-  AUCTION = 5,
+  PROPERTY = 4,
+  PLAYING = 5,
+  AUCTION = 6,
   GAME_OVER = 10,
 }
 local lobbyTurn
@@ -99,8 +100,11 @@ local function nextTurn()
 
     actionui.update(whoseTurn.name, "Dice", true)
     tfm.exec.playSound('transformice/son/chamane', 100, nil, nil, whoseTurn.name)
+
+    whoseTurn.timer = os.time() + gameTime.dice * 1000
   end
 
+  tfm.exec.setGameTime(gameTime.dice)
   game.state = states.WAITING
 end
 
@@ -140,6 +144,19 @@ local function createPlayer(name, coloridx, color, tokenid)
     actionui.show(name)
 
     translations.chatMessage('start_roll', name)
+  end
+end
+
+local function buyProperty(name, color, card, bid)
+  players.add(name, 'money', bid and -bid or -card.price)
+  property.setOwner(card.id, name)
+  board.setCellColor(card.id, color)
+  property.hideCard(name)
+
+  if bid then
+    logs.add("auction", name, card.header_color, card.title)
+  else
+    logs.add("purchase", name, card.header_color, card.title)
   end
 end
 
@@ -448,6 +465,8 @@ function eventTokenMove(tokenId, cellId, passedGo)
     end
 
     if game.state == states.PLAYING then
+      whoseTurn.timer = os.time() + gameTime.play * 1000
+      tfm.exec.setGameTime(gameTime.play)
       actionui.update(whoseTurn.name, "Stop", true)
     end
   end
@@ -528,7 +547,7 @@ function eventActionUIClick(name, action)
 end
 
 function eventBuyCardClick(name)
-  if game.state ~= states.PLAYING then
+  if game.state ~= states.PROPERTY then
     return
   end
 
@@ -545,16 +564,17 @@ function eventBuyCardClick(name)
       return
     end
 
-    players.add(name, 'money', -card.price)
-    property.setOwner(card.id, name)
-    board.setCellColor(card.id, player.color)
-    property.hideCard(name)
-    logs.add("purchase", name, card.header_color, card.title)
+    buyProperty(name, player.color, card)
   end
+
+  game.state = states.PLAYING
+  whoseTurn.timer = os.time() + gameTime.play * 1000
+  tfm.exec.setGameTime(gameTime.play)
+  actionui.update(whoseTurn.name, "Stop", true)
 end
 
 function eventAuctionCardClick(name)
-  if game.state ~= states.PLAYING then
+  if game.state ~= states.PROPERTY then
     return
   end
 
@@ -573,11 +593,11 @@ function eventAuctionCardClick(name)
       bidder = '',
       card = card,
       start = os.time(),
-      timer = os.time() + auctioncfg.initialTime,
+      timer = os.time() + gameTime.auction * 1000,
     }
     property.showAuction(card)
     property.updateAuction(whoseTurn.name, 1, 'BANK')
-    tfm.exec.setGameTime(auctioncfg.initialTime / 1000)
+    tfm.exec.setGameTime(gameTime.auction)
   end
 end
 
@@ -608,33 +628,91 @@ function eventAuctionBid(name, bid)
   currentAuction.bidder = name
   property.updateAuction(name, bid, name)
 
-  if currentAuction.timer - now < auctioncfg.bidTime then
-    currentAuction.timer = now + auctioncfg.bidTime
-    tfm.exec.setGameTime(auctioncfg.bidTime / 1000)
+  if currentAuction.timer - now < gameTime.auctionBid * 1000 then
+    currentAuction.timer = now + gameTime.auctionBid * 1000
+    tfm.exec.setGameTime(gameTime.auctionBid)
   end
 end
 
 function eventTimeout()
+  local now = os.time()
+
+  if game.state == states.WAITING then
+    if not whoseTurn then
+      return
+    end
+
+    if whoseTurn.timer > now then
+      return
+    end
+
+    whoseTurn.allowMouse = true
+    actionui.update(whoseTurn.name, "Dice", false)
+    eventMouse(whoseTurn.name, 400, 400)
+
+    return
+  elseif game.state == states.PROPERTY then
+    if not whoseTurn then
+      return
+    end
+
+    if whoseTurn.timer > now then
+      return
+    end
+
+    local card = board.getTokenCell(whoseTurn.tokenid)
+
+    if card then
+      if whoseTurn.money >= card.price then
+        eventBuyCardClick(whoseTurn.name)
+      else
+        eventAuctionCardClick(whoseTurn.name)
+      end
+    end
+
+    return
+  elseif game.state == states.PLAYING then
+    if whoseTurn and whoseTurn.timer > now then
+      return
+    end
+
+    nextTurn()
+
+    return
+  end
+
   if game.state ~= states.AUCTION or not currentAuction then
+    return
+  end
+
+  if currentAuction.timer > now then
     return
   end
 
   local player = players.get(currentAuction.bidder)
 
-  if not player then
+  if player then
+    local card = currentAuction.card
+
     -- TODO log auction ended with no bid
+    buyProperty(player.name, player.color, card, currentAuction.bid)
+    property.hideAuction("*")
+    currentAuction = nil
+
     return
   end
 
-  local card = currentAuction.card
-
-  players.add(player.name, 'money', -currentAuction.bid)
-  property.setOwner(card.id, player.name)
-  board.setCellColor(card.id, player.color)
-  logs.add("auction", player.name, card.header_color, card.title)
-  property.hideAuction("*")
-  currentAuction = nil
   game.state = states.PLAYING
+  whoseTurn.timer = os.time() + gameTime.play * 1000
+  tfm.exec.setGameTime(gameTime.play)
+  actionui.update(whoseTurn.name, "Stop", true)
+end
+
+function eventEmptyProperty(name, cell)
+  property.showCard(cell, name, true)
+  whoseTurn.timer = os.time() + gameTime.property * 1000
+  tfm.exec.setGameTime(gameTime.property)
+  game.state = states.PROPERTY
 end
 
 function eventPropertyClicked(name, cell)

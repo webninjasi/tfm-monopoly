@@ -70,9 +70,12 @@ config.logsUI = {
   lines = 10, -- 2000/10 = ~200 chars per line
 }
 
-config.auction = {
-  initialTime = 60 * 1000,
-  bidTime = 5 * 1000,
+config.gameTime = {
+  dice = 10,
+  property = 20,
+  play = 60,
+  auction = 60,
+  auctionBid = 5,
 }
 
 config.images = {

@@ -395,13 +395,14 @@ function eventLoop()
   end
 
   if movingToken[4] == movingToken[2] then
-    updateTokens(movingToken[2])
-
-    if eventTokenMove then
-      eventTokenMove(movingToken[1], movingToken[2], movingToken[3])
-    end
+    local token = movingToken
 
     movingToken = nil
+    updateTokens(token[2])
+
+    if eventTokenMove then
+      eventTokenMove(token[1], token[2], token[3])
+    end
 
     return
   end

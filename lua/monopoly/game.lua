@@ -424,6 +424,8 @@ function eventTokenMove(tokenId, cellId, passedGo)
 
     local action = board.cellAction(cellId)
 
+    game.state = states.PLAYING
+
     if action then
       -- diceSum can be nil if !move is used
       action(name, player.diceSum or 2, player)
@@ -436,8 +438,9 @@ function eventTokenMove(tokenId, cellId, passedGo)
       end
     end
 
-    game.state = states.PLAYING
-    actionui.update(whoseTurn.name, "Stop", true)
+    if game.state == states.PLAYING then
+      actionui.update(whoseTurn.name, "Stop", true)
+    end
   end
 end
 

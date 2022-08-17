@@ -149,7 +149,7 @@ local function hideToken(id, target)
 end
 
 local function updateColors(target)
-  local text = {'<font size="35">'}
+  local text = {'<p align="center"><font size="35" face="Verdana">'}
   local len = 1
 
   for i=1,tokenColors._len do

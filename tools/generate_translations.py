@@ -2,9 +2,25 @@
 
 import csv
 import re
+import requests
+
+SHEET_LINK = 'https://docs.google.com/spreadsheets/d/1r7qHDy_qu1DBxr3t48Ml0nnztrI89EiBTeRImLTWY84/export?format=csv'
 
 lines = []
 
+
+print("Downloading new translations...")
+
+with requests.get(SHEET_LINK) as response:
+  if response.status_code == 200:
+    with open('translations.csv', 'wb') as f:
+      f.write(response.content)
+    print("Downloaded translations successfully!")
+  else:
+    print("Couldn't download translations sheet: ", response.status_code)
+
+
+print("Generating new translations file for lua...")
 with open('translations.csv', newline='', encoding="utf8") as csvfile:
   reader = csv.reader(csvfile, delimiter=',', quotechar='"')
   head = None
@@ -60,3 +76,4 @@ with open('translations.csv', newline='', encoding="utf8") as csvfile:
 
 with open('../lua/monopoly/generated_translations.lua', 'w', encoding="utf8") as luafile:
   luafile.write('\n'.join(lines))
+  print("Generated translations file successfully!")

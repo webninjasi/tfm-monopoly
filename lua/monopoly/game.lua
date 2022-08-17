@@ -198,6 +198,7 @@ function eventNewGame()
   votes.reset()
   property.reset()
   tokens.showUI("*")
+  actionui.hide("*")
 end
 
 function eventLoop(elapsed, remaining)

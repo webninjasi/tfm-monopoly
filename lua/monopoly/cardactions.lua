@@ -9,7 +9,7 @@ local community = {
   end,
 
   function(name, player)
-    board.moveToken(player.tokenid, 2, false, true)
+    board.moveToken(player.tokenid, 2, false, true, true)
   end,
 
   function(name, player)
@@ -76,7 +76,7 @@ local chance = {
   end,
 
   function(name, player)
-    board.moveToken(player.tokenid, -3, true, true)
+    board.moveToken(player.tokenid, -3, true, true, true)
   end,
 
   function(name, player)

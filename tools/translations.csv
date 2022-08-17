@@ -14,7 +14,7 @@ player_left,<V>{player} <R>left the game!,<V>{player} <R>oyunu terk etti!
 start_roll,<ROSE>Roll the dice to determine start order.,<ROSE>Zar at ve başlangıç sırasını belirle.
 new_game,<ROSE>The game has started.,<ROSE>Oyun başladı.
 player_turn,<V>{player} <J>is playing.,<J>Sıra <V>{player} <J>oyuncusunda.
-chance,<V>{player} <J>landed on a chance space!,<V>{player} <J>şans bölgesinde!
+chance_space,<V>{player} <J>landed on a chance space!,<V>{player} <J>şans bölgesinde!
 community_chest,<V>{player} <J>landed on community chest!,<V>{player} <J>topluluk sandığında!
 income_tax,<V>{player} <J>has to pay $200 in income tax from collecting too much cheese!,<V>{player} <J>çok fazla peynir topladığı için $200 gelir vergisi ödemek zorunda kaldı.
 luxury_tax,<V>{player} <J>has to pay $100 in luxury tax for being too noob!,<V>{player} <J>fazla noob olduğu için $100 özel tüketim vergisi ödemek zorunda kaldı.

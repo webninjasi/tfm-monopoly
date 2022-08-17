@@ -22,18 +22,26 @@ function eventInit()
   board.registerCellAction("lose", function(cell)
     return function(name)
       players.add(name, 'money', -cell.price)
+
+      if cell.price == 100 then
+        logs.add('luxury_tax', name)
+      elseif cell.price == 200 then
+        logs.add('income_tax', name)
+      end
     end
   end)
 
   board.registerCellAction("chance", function(cell)
     return function(name, sum, player)
       randcard.chance(name, player)
+      logs.add('chance_space', name)
     end
   end)
 
   board.registerCellAction("chest", function(cell)
     return function(name, sum, player)
       randcard.community(name, player)
+      logs.add('community_chest', name)
     end
   end)
 

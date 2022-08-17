@@ -56,12 +56,14 @@ module.add = function(key, ...)
   for lang, str in pairs(translated) do
     langLogs = allLogs[lang] or { _len = 0 }
     langLogs._len = 1 + langLogs._len
-    langLogs[langLogs._len] = str
+    langLogs[langLogs._len] = str:gsub('\n', ' ')
 
     if not allLogs[lang] then
       allLogs[lang] = langLogs
     end
   end
+
+  print(translated[translations.getLanguage()])
 
   module.show(1)
 end

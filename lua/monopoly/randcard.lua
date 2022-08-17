@@ -3,6 +3,7 @@
 local config = pshy.require('monopoly.config')
 local translations = pshy.require('monopoly.translations')
 local cardactions = pshy.require('monopoly.cardactions')
+local logs = pshy.require("monopoly.logs")
 
 local chanceBg = config.images.cards.chance
 local communityBg = config.images.cards.community
@@ -26,6 +27,7 @@ local function showCard(name, type, id)
     0, 0, 0,
     true
   )
+  logs.add('log_card', name, type, trkey)
 end
 
 local module = {}

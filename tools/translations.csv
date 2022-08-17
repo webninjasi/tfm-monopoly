@@ -1,6 +1,6 @@
 key,en,tr
 passed_go,<V>{player} <J>passed GO and collected <VP>$200,<V>{player} <J>BAŞLANGIÇ üzerinden geçti ve <VP>$200 <J>kazandı.
-roll_once,<V>{player} <J>rolled a <BL>{dice1} <J>and <BL>{dice2} <J>moved <BL>{dicesum} <J>spaces!,<V>{player} <J>attığı zarlar <BL>{dice1} <J>ile <BL>{dice2} <J>geldi ve <BL>{dicesum} <J>adım ilerledi!
+roll_once,<V>{player} <J>rolled a <CH>{dice1} <J>and <CH>{dice2} <J>moved <CH>{dicesum} <J>spaces!,<V>{player} <J>attığı zarlar <CH>{dice1} <J>ile <CH>{dice2} <J>geldi ve <CH>{dicesum} <J>adım ilerledi!
 roll_double,<V>{player} <J>rolled double <VP>{dice1} <J>and <VP>{dice2} <J>moved <VP>{dicesum} <J>spaces!,<V>{player} <J>attığı zarlar çift <VP>{dice1} <J>geldi ve <VP>{dicesum} <J>adım ilerledi!
 roll_jail,<V>{player} <R>rolled a double 3 times and went to jail.,<V>{player} <R>üç defa çift zar attığı için hapise düştü.
 move,"<V>{player} <J>moved to <font color=""#{propertycolor}"">{movedtoproperty}","<V>{player} <font color=""#{propertycolor}"">{movedtoproperty} <J>arazisinde."
@@ -21,7 +21,7 @@ luxury_tax,<V>{player} <J>has to pay $100 in luxury tax for being too noob!,<V>{
 bankrupt,<V>{player} <R>went bankrupt and has lost the game! All of their assets will be turned over to <V>{playerowner}.,<V>{player} <R>iflas etti ve oyunu kaybetti! Tüm malvarlığı <V>{playerowner} <R> oyuncusuna devredilecek.
 mortgage_property,"<V>{player} <J>landed on <V>{playerowner}<J>. Property is mortgaged, no rent was collected.",
 warn_need_fullset,"<J>Before you can buy a house, you must own all the properties of this color-group.",
-log_card,<V>{player} <ROSE>draw a <J>{type} <ROSE>card: <N>{cardtext},<V>{player} <ROSE>bir <J>{type} <ROSE>kartı çekti: <N>{cardtext}
+log_card,<V>{player} <ROSE>drew a <J>{type} <ROSE>card: <CH>{$cardtext},<V>{player} <ROSE>bir <J>{type} <ROSE>kartı çekti: <N>{$cardtext}
 community,community,topluluk
 chance,chance,şans
 card_1,Go - Collect 200 as you pass,Başlangıç

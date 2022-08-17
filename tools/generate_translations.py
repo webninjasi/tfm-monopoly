@@ -20,6 +20,15 @@ with requests.get(SHEET_LINK) as response:
     print("Couldn't download translations sheet: ", response.status_code)
 
 
+def replace_param(match):
+  param = match.group(1)
+
+  if param[0] == '$':
+    param = f'_translate({param[1:]}, _target)'
+
+  return f'", {param}, "'
+
+
 print("Generating new translations file for lua...")
 with open('translations.csv', newline='', encoding="utf8") as csvfile:
   reader = csv.reader(csvfile, delimiter=',', quotechar='"')
@@ -43,7 +52,12 @@ with open('translations.csv', newline='', encoding="utf8") as csvfile:
                 tvars = re.findall(r'\{(.+?)\}', value)
               
               # create a function that generates a translation with parameters
-              value = 'function(' + ', '.join(tvars) + ') return _concat({ "' + re.sub(r'\{(.+?)\}', r'", \1, "', value) + '" }) end'
+              fvalue = 'function(_translate, _target, '
+              fvalue += ', '.join(tvars).replace('$', '')
+              fvalue += ') return _concat({ "'
+              fvalue += re.sub(r'\{(.+?)\}', replace_param, value)
+              fvalue += '" }) end'
+              value = fvalue
             else:
               value = f'"{value}"'
             

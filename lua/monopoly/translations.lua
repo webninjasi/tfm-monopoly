@@ -12,11 +12,13 @@ local playerTrans = {}
 local module = {}
 local cache = {}
 
-local function _translate(key, target, arg1, ...)
+local _translate
+
+_translate = function(key, target, arg1, ...)
   local translation = target and playerTrans[target] and playerTrans[target][key] or defaultTrans[key]
 
   if arg1 then
-    return translation(arg1, ...)
+    return translation(_translate, target, arg1, ...)
   end
 
   return translation
@@ -68,8 +70,12 @@ module.getForEachLang = function(key, ...)
     module.cacheEnable(key)
   end
 
+  ret[defaultLang] = module.get(key, nil, ...)
+
   for name in pairs(tfm.get.room.playerList) do
-    ret[playerLang[name] or defaultLang] = module.get(key, name, ...)
+    if playerLang[name] then
+      ret[playerLang[name]] = module.get(key, name, ...)
+    end
   end
 
   if not cacheEnabled then

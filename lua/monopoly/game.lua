@@ -625,6 +625,39 @@ command_list["jailcard"] = {
   desc = "receive a free get out of jail card",
 }
 
+command_list["jail"] = {
+  perms = "admins",
+  func = function(name, target)
+    local player = players.get(target or name)
+  
+    if not player or not player.tokenid or player.jail then
+      return
+    end
+
+    player.jail = 0
+    logs.add('jail_in', player.name)
+    board.moveToken(player.tokenid, 11, nil, nil, true)
+  end,
+  desc = "put someone into jail",
+  argc_min = 0, argc_max = 1, arg_types = {"player"}
+}
+
+command_list["unjail"] = {
+  perms = "admins",
+  func = function(name, target)
+    local player = players.get(target or name)
+  
+    if not player or not player.tokenid or not player.jail then
+      return
+    end
+
+    player.jail = nil
+    logs.add('jail_out', player.name)
+  end,
+  desc = "get someone out of jail",
+  argc_min = 0, argc_max = 1, arg_types = {"player"}
+}
+
 command_list["skip"] = {
   perms = "admins",
   func = function(name)
@@ -718,4 +751,12 @@ command_list["wishmeluck"] = {
   end,
   desc = "restart the game",
   argc_min = 0, argc_max = 0, arg_types = {}
+}
+
+command_list["logs"] = {
+  perms = "everyone",
+  func = function(name)
+    logs.showPage(1, name)
+  end,
+  desc = "browse logs",
 }

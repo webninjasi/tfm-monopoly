@@ -15,6 +15,7 @@ local command_list = pshy.require("pshy.commands.list")
 
 
 -- Game Variables
+local auctioncfg = config.auction
 local scrollPos = config.scrollPos
 local diceArea = config.diceArea
 local mapXML = config.mapXML:gsub("[%s\r\n]+<", "<"):gsub(">[%s\r\n]+", ">")
@@ -24,6 +25,7 @@ local states = {
   ROLLING = 2,
   MOVING = 3,
   PLAYING = 4,
+  AUCTION = 5,
   GAME_OVER = 10,
 }
 local lobbyTurn
@@ -32,6 +34,7 @@ local game = {
   states = states,
   state = states.LOBBY,
 }
+local currentAuction
 
 
 -- Helper Functions
@@ -178,6 +181,12 @@ function eventNewGame()
   votes.reset()
   property.reset()
   tokens.showUI("*")
+end
+
+function eventLoop(elapsed, remaining)
+  if remaining < 1 then
+    eventTimeout()
+  end
 end
 
 function eventNewPlayer(name)
@@ -551,13 +560,81 @@ function eventAuctionCardClick(name)
 
   local player = players.get(name)
 
-  if player ~= whoseTurn then
+  if player ~= whoseTurn or not player.tokenid then
+    return
+  end
+  
+  local card = board.getTokenCell(player.tokenid)
+
+  if card and property.canBuy(card) then
+    game.state = states.AUCTION
+    currentAuction = {
+      bid = 1,
+      bidder = '',
+      card = card,
+      start = os.time(),
+      timer = os.time() + auctioncfg.initialTime,
+    }
+    property.showAuction(card)
+    property.updateAuction(whoseTurn.name, 1, 'BANK')
+    tfm.exec.setGameTime(auctioncfg.initialTime / 1000)
+  end
+end
+
+function eventAuctionBid(name, bid)
+  if game.state ~= states.AUCTION then
     return
   end
 
-  if card and property.canBuy(card) then
-    property.auctionStart(card)
+  local player = players.get(name)
+
+  if not player or not player.tokenid or not currentAuction then
+    return
   end
+
+  property.showAuctionBid(name)
+
+  if not bid or bid > player.money or bid <= currentAuction.bid then
+    return
+  end
+
+  local now = os.time()
+
+  if currentAuction.timer < now then
+    return
+  end
+
+  currentAuction.bid = bid
+  currentAuction.bidder = name
+  property.updateAuction(name, bid, name)
+
+  if currentAuction.timer - now < auctioncfg.bidTime then
+    currentAuction.timer = now + auctioncfg.bidTime
+    tfm.exec.setGameTime(auctioncfg.bidTime / 1000)
+  end
+end
+
+function eventTimeout()
+  if game.state ~= states.AUCTION or not currentAuction then
+    return
+  end
+
+  local player = players.get(currentAuction.bidder)
+
+  if not player then
+    -- TODO log auction ended with no bid
+    return
+  end
+
+  local card = currentAuction.card
+
+  players.add(player.name, 'money', -currentAuction.bid)
+  property.setOwner(card.id, player.name)
+  board.setCellColor(card.id, player.color)
+  logs.add("auction", player.name, card.header_color, card.title)
+  property.hideAuction("*")
+  currentAuction = nil
+  game.state = states.PLAYING
 end
 
 function eventPropertyClicked(name, cell)
@@ -570,6 +647,7 @@ function eventPropertyClicked(name, cell)
     canBuy = card and card.id == cell.id and property.canBuy(cell)
   end
 
+  property.hideCard(name)
   property.showCard(cell, name, canBuy)
 end
 
@@ -732,6 +810,15 @@ command_list["setlang"] = {
   argc_min = 0, argc_max = 1, arg_types = {"string"}
 }
 
+command_list["time"] = {
+  perms = "admins",
+  func = function(name, time)
+    tfm.exec.setGameTime(time or 5)
+  end,
+  desc = "set game time",
+  argc_min = 0, argc_max = 1, arg_types = {"integer"}
+}
+
 command_list["reset"] = {
   perms = "admins",
   func = function(name)
@@ -746,7 +833,7 @@ command_list["wishmeluck"] = {
   func = function(name)
     local player = players.get(name)
   
-    if not player.tokenid then
+    if not player or not player.tokenid then
       return
     end
 
@@ -754,6 +841,25 @@ command_list["wishmeluck"] = {
   end,
   desc = "restart the game",
   argc_min = 0, argc_max = 0, arg_types = {}
+}
+
+command_list["randcard"] = {
+  perms = "admins",
+  func = function(name, type, id)
+    local player = players.get(name)
+  
+    if not player then
+      return
+    end
+
+    if type == 'chance' or type == 'ch' then
+      player.chanceid = id
+    elseif type == 'community' or type == 'cm' then
+      player.communityid = id
+    end
+  end,
+  desc = "set rand card id",
+  argc_min = 1, argc_max = 2, arg_types = {"string", "number"}
 }
 
 command_list["logs"] = {

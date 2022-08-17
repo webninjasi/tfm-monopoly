@@ -2,9 +2,11 @@
 
 local config = pshy.require("monopoly.config")
 local translations = pshy.require("monopoly.translations")
+local players = pshy.require("monopoly.players")
 
 
 -- Variables
+local img = config.images.auction
 local boardCells = config.board.cells
 local positions = config.board.positions
 local cellCount = #positions
@@ -239,8 +241,123 @@ module.calculateRent = function(cell, diceSum)
   return cell.rent
 end
 
-module.auctionStart = function(cell)
+module.showAuctionBid = function(target)
+  ui.addPopup(
+    44, 2,
+    "",
+    target,
+    260, 235,
+    120, true
+  )
+  ui.addImage(
+    "auctionpopup",
+    img.popup,
+    "~110",
+    256, 231,
+    target,
+    1, 1, 0, 1,
+    true
+  )
+end
 
+module.showAuction = function(cell)
+  for player in players.iter do
+    ui.addImage(
+      "auctionui",
+      img.ui,
+      "~100",
+      234, 100,
+      player.name,
+      1, 1, 0, 1,
+      true
+    )
+    ui.addImage(
+      "auctionsep",
+      pixels.black,
+      "~100",
+      400 - 1, 150,
+      player.name,
+      2, 160, 0, 1,
+      true
+    )
+
+    module.showAuctionBid(player.name)
+    module.hideCard(player.name)
+    showPropertyCard(cell, player.name, 75, 110, false)
+
+    ui.addTextArea(
+      "auctiontitle",
+      translations.get("auction_title", player.name),
+      player.name,
+      234, 110,
+      332, nil,
+      0, 0, 0,
+      true
+    )
+    ui.addTextArea(
+      "auctioncard",
+      string.format(
+        '<p align="center"><font size="12" color="#000000"><a href="event:auctioncard_%d">%s',
+        cell.id,
+        translations.get(cell.title_tr, player.name)
+      ),
+      name,
+      260, 150,
+      120, nil,
+      cell.header_color, cell.header_color, 1,
+      true
+    )
+  end
+end
+
+module.hideAuction = function(target)
+  ui.removeTextArea("auctiontitle", target)
+  ui.removeTextArea("auctioncard", target)
+  ui.removeTextArea("auctionhighest", target)
+  ui.removeTextArea("auctionplayers", target)
+  ui.removeImage("auctionpopup", target)
+  ui.removeImage("auctionui", target)
+  ui.removeImage("auctionsep", target)
+  ui.addPopup(
+    44, 2,
+    "",
+    target ~= "*" and target or nil,
+    -5000, -5000,
+    nil, true
+  )
+end
+
+module.updateAuction = function(whoseTurn, highestBid, highestBidder)
+  local list = {}
+
+  for player in players.iter do
+    list[1 + #list] = string.format(
+      '<font color="#%.6x">%s%s',
+      player.color,
+      whoseTurn == player.name and '&gt; ' or '',
+      player.name
+    )
+
+    ui.addTextArea(
+      "auctionhighest",
+      translations.get("auction_highest", player.name, highestBid, highestBidder),
+      player.name,
+      250, 180,
+      140, nil,
+      0, 0, 0,
+      true
+    )
+  end
+
+  ui.addTextArea(
+    "auctionplayers",
+    table.concat(list, '\n'),
+    nil,
+    410, 150,
+    nil, nil,
+    0, 0, 0,
+    true
+  )
 end
 
 
@@ -249,7 +366,17 @@ function eventInit()
   scanBoardCells()
 end
 
--- Events
+function eventPopupAnswer(popupId, name, answer)
+  if popupId == 44 then
+    local bid = tonumber(answer)
+
+    if eventAuctionBid then
+      bid = bid and math.floor(bid)
+      eventAuctionBid(name, bid)
+    end
+  end
+end
+
 function eventTextAreaCallback(id, name, callback)
   if callback == "closecard" then
     module.hideCard(name)
@@ -260,6 +387,14 @@ function eventTextAreaCallback(id, name, callback)
   elseif id == ui.textAreaId("cardbtnauction") then
     if eventAuctionCardClick then
       eventAuctionCardClick(name)
+    end
+  elseif callback:sub(1, 12) == 'auctioncard_' then
+    local id = tonumber(callback:sub(13))
+    local cell = id and boardCells[id]
+
+    if cell then
+      module.hideCard(name)
+      showPropertyCard(cell, name, 75, 110, false)
     end
   elseif callback:sub(1, 10) == 'boardcell_' then
     local id = tonumber(callback:sub(11))

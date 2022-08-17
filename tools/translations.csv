@@ -24,6 +24,8 @@ warn_need_fullset,"<J>Before you can buy a house, you must own all the propertie
 log_card,<V>{player} <ROSE>drew a <J>{type} <ROSE>card: <CH>{$cardtext},<V>{player} <ROSE>bir <J>{type} <ROSE>kartı çekti: <N>{$cardtext}
 community,community,topluluk
 chance,chance,şans
+auction_title,"<font size=""20"" color=""#ffffff""><p align=""center"">Auction","<font size=""20"" color=""#ffffff""><p align=""center"">İhale"
+auction_highest,"<font color=""#000000"">Highest Bid: <VP>${bid}\n<font color=""#000000"">Highest Bidder: <V>{bidder}","<font color=""#000000"">En Yüksek Teklif: <VP>${bid}\n<font color=""#000000"">En Yüksek Teklifi Veren: <V>{bidder}"
 card_1,Go - Collect 200 as you pass,Başlangıç
 card_2,<N>Vanilla Avenue,<N>Vanilla Caddesi
 card_3,Community Chest,Topluluk Sandığı

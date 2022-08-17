@@ -33,15 +33,19 @@ end
 local module = {}
 
 module.community = function(name, player)
-  local id = math.random(communityCount)
-  showCard(name, 'community', id)
-  cardactions.community[id](name, player)
+  local id = player.communityid or math.random(communityCount)
+  if id > 0 and id <= communityCount then
+    showCard(name, 'community', id)
+    cardactions.community[id](name, player)
+  end
 end
 
 module.chance = function(name, player)
-  local id = math.random(chanceCount)
-  showCard(name, 'chance', id)
-  cardactions.chance[id](name, player)
+  local id = player.chanceid or math.random(chanceCount)
+  if id > 0 and id <= chanceCount then
+    showCard(name, 'chance', id)
+    cardactions.chance[id](name, player)
+  end
 end
 
 function eventTextAreaCallback(id, name, callback)

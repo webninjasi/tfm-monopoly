@@ -70,10 +70,18 @@ config.logsUI = {
   lines = 10, -- 2000/10 = ~200 chars per line
 }
 
+config.auction = {
+  initialTime = 60 * 1000,
+  bidTime = 5 * 1000,
+}
+
 config.images = {
   background = "1823c8f747a.png",
   circle = "182144f123d.png",
-  auction = "182a637db2c.png",
+  auction = {
+    ui = "182a637db2c.png",
+    popup = "VnQV5eZ.png",
+  },
   cards = {
     empty = "18220bf6da4.png",
     chance = "18220c02228.png",

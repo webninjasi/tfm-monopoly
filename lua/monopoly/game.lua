@@ -425,6 +425,10 @@ function eventMoneyChanged(name, amount, change)
 
 end
 
+function eventStartMoving()
+  game.state = states.MOVING
+end
+
 function eventTokenMove(tokenId, cellId, passedGo)
   if game.state ~= states.MOVING then
     return
@@ -468,6 +472,9 @@ function eventTokenMove(tokenId, cellId, passedGo)
     if game.state == states.PLAYING then
       whoseTurn.timer = os.time() + gameTime.play * 1000
       tfm.exec.setGameTime(gameTime.play)
+    end
+
+    if game.state == states.PLAYING or game.state == states.PROPERTY then
       actionui.update(whoseTurn.name, "Stop", true)
     end
   end
@@ -535,11 +542,11 @@ function eventActionUIClick(name, action)
     end
   elseif action == "Trade" then
   elseif action == "Stop" then
-    if game.state ~= states.PLAYING then
+    if whoseTurn ~= player then
       return
     end
 
-    if whoseTurn ~= player then
+    if game.state ~= states.PLAYING and game.state ~= states.PROPERTY then
       return
     end
 
@@ -744,8 +751,8 @@ command_list["move"] = {
     end
   
     local prevState = game.state
-    game.state = states.MOVING
     whoseTurn = player
+    eventStartMoving()
     board.moveToken(player.tokenid, cellId, false, true, not doAnim)
     game.state = prevState
   end,

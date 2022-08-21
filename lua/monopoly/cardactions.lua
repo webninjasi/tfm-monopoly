@@ -5,10 +5,12 @@ local players = pshy.require('monopoly.players')
 
 local community = {
   function(name, player)
+    eventStartMoving()
     board.moveToken(player.tokenid, 1, false, true)
   end,
 
   function(name, player)
+    eventStartMoving()
     board.moveToken(player.tokenid, 2, false, true, true)
   end,
 
@@ -68,26 +70,32 @@ local community = {
 
 local chance = {
   function(name, player)
+    eventStartMoving()
     board.moveToken(player.tokenid, 1, false, true)
   end,
 
   function(name, player)
+    eventStartMoving()
     board.moveToken(player.tokenid, 40, false)
   end,
 
   function(name, player)
+    eventStartMoving()
     board.moveToken(player.tokenid, -3, true, true, true)
   end,
 
   function(name, player)
+    eventStartMoving()
     board.moveToken(player.tokenid, 12, false)
   end,
 
   function(name, player)
+    eventStartMoving()
     board.moveToken(player.tokenid, 16, false)
   end,
 
   function(name, player)
+    eventStartMoving()
     board.moveToken(player.tokenid, 25, false)
   end,
 

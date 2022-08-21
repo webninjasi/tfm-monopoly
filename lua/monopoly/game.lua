@@ -699,8 +699,6 @@ function eventTimeout()
     buyProperty(player.name, player.color, card, currentAuction.bid)
     property.hideAuction("*")
     currentAuction = nil
-
-    return
   end
 
   game.state = states.PLAYING

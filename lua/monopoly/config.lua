@@ -79,7 +79,7 @@ config.gameTime = {
 }
 
 config.images = {
-  background = "1823c8f747a.png",
+  background = "182cbf83510.png",
   circle = "182144f123d.png",
   auction = {
     ui = "182a637db2c.png",
@@ -95,7 +95,7 @@ config.images = {
     
     go = "18221958959.png",
     gojail = "1822338d615.png",
-    jail = "1822195d55d.png",
+    jail = "182cbf6aa63.png",
     afkvillage = "18223387796.png",
     chance2 = "18221945952.png",
     community2 = "1822194a55a.png",

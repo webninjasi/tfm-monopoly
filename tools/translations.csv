@@ -8,7 +8,9 @@ purchase,"<V>{player} <J>purchased <font color=""#{propertycolor}"">{purchasepro
 auction,"<V>{player} <J>purchased <font color=""#{propertycolor}"">{auctionproperty} <J>in the auction.","<V>{player} <J>ihaleyle <font color=""#{propertycolor}"">{auctionproperty} <J>arazisini satın aldı."
 pay_rent,<V>{player} <J>payed <VP>${money} <J>in rent to <V>{playerowner}.,<V>{player} <J>kira bedeli olarak <VP>${money} <J>kadar <V>{playerowner} <J>oyuncusuna ödedi.
 jail_in,<V>{player} <R>was sent to jail!,<V>{player} <R>hapise düştü!
-jail_out,<V>{player} <J>did some parkour to escape jail!,<V>{player} <J>hapisten çıktı
+jail_out_money,<V>{player} <J>paid the $50 fine to get out of jail.,<V>{player} <J>hapisten çıktı
+jail_out_dice,<V>{player} <J>rolled doubles to get out of jail.,<V>{player} <J>çift zarla hapisten çıktı.
+jail_out_card,"<V>{player} <J>used a ""Get Out of Jail Free"" card.","<V>{player} <J>""Kefaret Ödemeden Hapisten Çık"" kartını kullandı."
 won,<V>{player} <ROSE>won the game!,<V>{player} <ROSE>oyunu kazandı!
 player_left,<V>{player} <R>left the game!,<V>{player} <R>oyunu terk etti!
 start_roll,<ROSE>Roll the dice to determine start order.,<ROSE>Zar at ve başlangıç sırasını belirle.

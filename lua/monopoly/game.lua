@@ -324,7 +324,7 @@ function eventDiceRoll(dice1, dice2)
           player.jail = nil
 
           logs.add('roll_double', player.name, dice1, dice2, dice1 + dice2)
-          logs.add('jail_out', player.name)
+          logs.add('jail_out_dice', player.name)
 
           board.moveToken(player.tokenid, player.diceSum, true)
           return
@@ -338,7 +338,7 @@ function eventDiceRoll(dice1, dice2)
 
           -- TODO use a different translation
           logs.add('roll_once', player.name, dice1, dice2, dice1 + dice2)
-          logs.add('jail_out', player.name)
+          logs.add('jail_out_money', player.name)
 
           board.moveToken(player.tokenid, player.diceSum, true)
         else
@@ -515,8 +515,7 @@ function eventActionUIClick(name, action)
 
     players.add(player.name, "money", -50)
     player.jail = nil
-    -- TODO log player used jail card
-    logs.add('jail_out', player.name)
+    logs.add('jail_out_money', player.name)
     actionui.update(player.name, "JailCard", false)
     actionui.update(player.name, "JailPay", false)
   elseif action == "JailCard" then
@@ -529,8 +528,7 @@ function eventActionUIClick(name, action)
 
     player.jailcard = nil
     player.jail = nil
-    -- TODO log player used jail card
-    logs.add('jail_out', player.name)
+    logs.add('jail_out_card', player.name)
     actionui.update(player.name, "JailCard", false)
     actionui.update(player.name, "JailPay", false)
   elseif action == "Dice" then
@@ -646,7 +644,7 @@ function eventTimeout()
   local now = os.time()
 
   if game.state == states.WAITING then
-    if not whoseTurn then
+    if not whoseTurn or not whoseTurn.timer then
       return
     end
 
@@ -817,7 +815,7 @@ command_list["unjail"] = {
     end
 
     player.jail = nil
-    logs.add('jail_out', player.name)
+    logs.add('jail_out_card', player.name)
   end,
   desc = "get someone out of jail",
   argc_min = 0, argc_max = 1, arg_types = {"player"}

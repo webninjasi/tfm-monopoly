@@ -325,6 +325,8 @@ function eventDiceRoll(dice1, dice2)
 
           logs.add('roll_double', player.name, dice1, dice2, dice1 + dice2)
           logs.add('jail_out_dice', player.name)
+          actionui.update(player.name, "JailCard", false)
+          actionui.update(player.name, "JailPay", false)
 
           board.moveToken(player.tokenid, player.diceSum, true)
           return
@@ -339,6 +341,8 @@ function eventDiceRoll(dice1, dice2)
           -- TODO use a different translation
           logs.add('roll_once', player.name, dice1, dice2, dice1 + dice2)
           logs.add('jail_out_money', player.name)
+          actionui.update(player.name, "JailCard", false)
+          actionui.update(player.name, "JailPay", false)
 
           board.moveToken(player.tokenid, player.diceSum, true)
         else
@@ -816,6 +820,8 @@ command_list["unjail"] = {
 
     player.jail = nil
     logs.add('jail_out_card', player.name)
+    actionui.update(player.name, "JailCard", false)
+    actionui.update(player.name, "JailPay", false)
   end,
   desc = "get someone out of jail",
   argc_min = 0, argc_max = 1, arg_types = {"player"}

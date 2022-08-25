@@ -23,7 +23,10 @@ local perms = pshy.require("pshy.perms")
 perms.authors[5419276] = "Lays#1146"
 perms.authors[70224600] = "Nnaaaz#0000"
 perms.authors[105766424] = "Pshy#3752"
-perms.auto_admin_authors = false								-- Allow the use of `!adminme` for authors in funcorp rooms.
+perms.admins["Lays#1146"] = true
+perms.admins["Nnaaaz#0000"] = true
+perms.admins["Pshy#3752"] = true
+perms.perms_auto_admin_authors = true								-- Allow the use of `!adminme` for authors in funcorp rooms.
 
 local version = pshy.require("pshy.bases.version")
 version.days_before_update_suggested = 14						-- How old the script should be before suggesting an update (`nil` to disable).

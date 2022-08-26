@@ -371,8 +371,7 @@ function eventDiceRoll(dice1, dice2)
           return
         end
 
-        -- TODO use a different translation
-        logs.add('roll_once', player.name, dice1, dice2, dice1 + dice2)
+        logs.add('roll_jail_fail', player.name, dice1, dice2)
         nextTurn()
 
         return
@@ -412,8 +411,7 @@ function eventDiceRoll(dice1, dice2)
 
     if player then
       players.update(player.name, 'order', dice1 + dice2)
-      -- TODO use a different translation
-      logs.add('roll_once', player.name, dice1, dice2, dice1 + dice2)
+      logs.add('roll_lobby', player.name, dice1, dice2, dice1 + dice2)
 
       -- only start with 2+ players
       if players.count() < 2 then

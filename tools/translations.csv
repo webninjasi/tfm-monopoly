@@ -2,7 +2,9 @@ key,en,tr
 passed_go,<V>{player} <J>passed GO and collected <VP>$200,<V>{player} <J>BAŞLANGIÇ üzerinden geçti ve <VP>$200 <J>kazandı.
 roll_once,<V>{player} <J>rolled a <CH>{dice1} <J>and <CH>{dice2} <J>moved <CH>{dicesum} <J>spaces!,<V>{player} <J>attığı zarlar <CH>{dice1} <J>ile <CH>{dice2} <J>geldi ve <CH>{dicesum} <J>adım ilerledi!
 roll_double,<V>{player} <J>rolled double <VP>{dice1} <J>and <VP>{dice2} <J>moved <VP>{dicesum} <J>spaces!,<V>{player} <J>attığı zarlar çift <VP>{dice1} <J>geldi ve <VP>{dicesum} <J>adım ilerledi!
+roll_lobby,<V>{player} <J>rolled a <CH>{dice1} <J>and <CH>{dice2} <J>which sums up to <CH>{dicesum}.,<V>{player} <J>attığı zarlar toplamı <CH>{dicesum} <J>olan <CH>{dice1} <J>ile <CH>{dice2} <J>geldi.
 roll_jail,<V>{player} <R>rolled a double 3 times and went to jail.,<V>{player} <R>üç defa çift zar attığı için hapise düştü.
+roll_jail_fail,<V>{player} <J>rolled a <CH>{dice1} <J>and <CH>{dice2} <J>and failed to escape from jail!,<V>{player} <J>attığı zarlar <CH>{dice1} <J>ile <CH>{dice2} <J>geldi ve hapisten kaçamadı!
 move,"<V>{player} <J>moved to <font color=""#{propertycolor}"">{movedtoproperty}","<V>{player} <font color=""#{propertycolor}"">{movedtoproperty} <J>arazisinde."
 purchase,"<V>{player} <J>purchased <font color=""#{propertycolor}"">{purchaseproperty}","<V>{player} <font color=""#{propertycolor}"">{purchaseproperty} <J>arazisini satın aldı."
 auction,"<V>{player} <J>purchased <font color=""#{propertycolor}"">{auctionproperty} <J>in the auction.","<V>{player} <J>ihaleyle <font color=""#{propertycolor}"">{auctionproperty} <J>arazisini satın aldı."

@@ -33,15 +33,15 @@ function eventInit()
 
   board.registerCellAction("chance", function(cell)
     return function(name, sum, player)
-      randcard.chance(name, player)
       logs.add('chance_space', name)
+      randcard.chance(name, player)
     end
   end)
 
   board.registerCellAction("chest", function(cell)
     return function(name, sum, player)
-      randcard.community(name, player)
       logs.add('community_chest', name)
+      randcard.community(name, player)
     end
   end)
 

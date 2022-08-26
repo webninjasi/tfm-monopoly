@@ -1,0 +1,26 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "generate-translations",
+      "type": "shell",
+      "command": "python ./generate_translations.py",
+      "options": {
+        "cwd": "${workspaceFolder}/tools"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "build-tfm-script",
+      "type": "shell",
+      "command": "docker-compose up",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}

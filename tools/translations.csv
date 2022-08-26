@@ -8,7 +8,7 @@ purchase,"<V>{player} <J>purchased <font color=""#{propertycolor}"">{purchasepro
 auction,"<V>{player} <J>purchased <font color=""#{propertycolor}"">{auctionproperty} <J>in the auction.","<V>{player} <J>ihaleyle <font color=""#{propertycolor}"">{auctionproperty} <J>arazisini satın aldı."
 pay_rent,<V>{player} <J>payed <VP>${money} <J>in rent to <V>{playerowner}.,<V>{player} <J>kira bedeli olarak <VP>${money} <J>kadar <V>{playerowner} <J>oyuncusuna ödedi.
 jail_in,<V>{player} <R>was sent to jail!,<V>{player} <R>hapise düştü!
-jail_out_money,<V>{player} <J>paid the $50 fine to get out of jail.,<V>{player} <J>hapisten çıktı
+jail_out_money,<V>{player} <J>paid the <VP>$50 <J>fine to get out of jail.,<V>{player} <VP>$50 <J>kefaret ödeyerek hapisten çıktı.
 jail_out_dice,<V>{player} <J>rolled doubles to get out of jail.,<V>{player} <J>çift zarla hapisten çıktı.
 jail_out_card,"<V>{player} <J>used a ""Get Out of Jail Free"" card.","<V>{player} <J>""Kefaret Ödemeden Hapisten Çık"" kartını kullandı."
 won,<V>{player} <ROSE>won the game!,<V>{player} <ROSE>oyunu kazandı!
@@ -23,7 +23,7 @@ luxury_tax,<V>{player} <J>has to pay $100 in luxury tax for being too noob!,<V>{
 bankrupt,<V>{player} <R>went bankrupt and has lost the game! All of their assets will be turned over to <V>{playerowner}.,<V>{player} <R>iflas etti ve oyunu kaybetti! Tüm malvarlığı <V>{playerowner} <R> oyuncusuna devredilecek.
 mortgage_property,"<V>{player} <J>landed on <V>{playerowner}<J>. Property is mortgaged, no rent was collected.",
 warn_need_fullset,"<J>Before you can buy a house, you must own all the properties of a color-group.",<J>Ev satın almadan önce bir renk grubundaki tüm mülkiyetlere sahip olmalısınız.
-log_card,<V>{player} <ROSE>drew a <J>{type} <ROSE>card: <CH>{$cardtext},<V>{player} <ROSE>bir <J>{type} <ROSE>kartı çekti: <N>{$cardtext}
+log_card,<V>{player} <J>drew a <ROSE>{type} <J>card: <CH>{$cardtext},<V>{player} <J>bir <ROSE>{type} <J>kartı çekti: <N>{$cardtext}
 community,community,topluluk
 chance,chance,şans
 auction_title,"<font size=""20"" color=""#ffffff""><p align=""center"">Auction","<font size=""20"" color=""#ffffff""><p align=""center"">İhale"
@@ -32,6 +32,7 @@ ui_house_title,"<font size=""20"" color=""#ffffff""><p align=""center""><a href=
 ui_tokens_title,"<font size=""15"" color=""#ffffff""><b><p align=""center"">Pick Token & Color","<font size=""15"" color=""#ffffff""><b><p align=""center"">Taş & Renk Seç"
 buy_house,"<p align=""center""><b><VP><a href=""event:buy_house"">Buy House","<p align=""center""><b><VP><a href=""event:buy_house"">Ev Satın Al"
 sell_house,"<p align=""center""><b><R><a href=""event:sell_house"">Sell House","<p align=""center""><b><R><a href=""event:sell_house"">Ev Sat"
+auction_no_bid,<R>Auction ended with no bid.,
 card_1,Go - Collect 200 as you pass,Başlangıç
 card_2,<N>Vanilla Avenue,<N>Vanilla Caddesi
 card_3,Community Chest,Topluluk Sandığı

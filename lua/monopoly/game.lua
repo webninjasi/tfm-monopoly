@@ -722,13 +722,13 @@ function eventTimeout()
   local player = players.get(currentAuction.bidder)
 
   if player then
-    local card = currentAuction.card
-
-    -- TODO log auction ended with no bid
-    buyProperty(player.name, player.color, card, currentAuction.bid)
-    property.hideAuction("*")
-    currentAuction = nil
+    buyProperty(player.name, player.color, currentAuction.card, currentAuction.bid)
+  else
+    logs.add('auction_no_bid')
   end
+
+  currentAuction = nil
+  property.hideAuction("*")
 
   game.state = states.PLAYING
   whoseTurn.timer = os.time() + gameTime.play * 1000

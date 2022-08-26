@@ -488,6 +488,7 @@ module.showAuction = function(cell)
 end
 
 module.hideAuction = function(target)
+  module.hideCard(target)
   ui.removeTextArea("auctiontitle", target)
   ui.removeTextArea("auctioncard", target)
   ui.removeTextArea("auctionhighest", target)

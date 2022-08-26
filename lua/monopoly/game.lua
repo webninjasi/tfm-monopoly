@@ -62,7 +62,6 @@ local function showBoard(target)
   ui.addImage("bg", config.images.background, "?1", 0, 20, target)
 end
 
--- TODO auto move on to next turn after a timeout
 local function nextTurn()
   local prev = whoseTurn
 
@@ -262,14 +261,14 @@ function eventPlayersUpdated(name, player)
   votes.unvote('start', name)
 
   if whoseTurn == player then
+    player.double = nil
     nextTurn()
   end
 
   logs.add("player_left", name)
 
-  if players.count() == 1 then
+  if players.count() < 2 then
     if whoseTurn then
-      -- TODO fix wrong player wins the game
       logs.add("won", whoseTurn.name)
     end
 

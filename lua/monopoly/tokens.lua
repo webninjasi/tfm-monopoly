@@ -80,6 +80,7 @@ end
 
 -- Private Functions
 local function showToken(token, clickable, target, ground)
+  local upside_down = token.rotation == math.pi
   ui.addImage(
     "token" .. token.id,
     token.img,
@@ -87,9 +88,9 @@ local function showToken(token, clickable, target, ground)
     ground and 0 or token.x,
     ground and 0 or token.y,
     target,
-    token.scale, token.scale,
-    token.rotation, 1,
-    0.5, 0.5
+    upside_down and -token.scale or token.scale, token.scale,
+    upside_down and 0 or token.rotation, 1,
+    upside_down and -0.5 or 0.5, 0.5
   )
 
   if token.circle then

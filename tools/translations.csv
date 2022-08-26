@@ -22,12 +22,16 @@ income_tax,<V>{player} <J>has to pay $200 in income tax from collecting too much
 luxury_tax,<V>{player} <J>has to pay $100 in luxury tax for being too noob!,<V>{player} <J>fazla noob olduğu için $100 özel tüketim vergisi ödemek zorunda kaldı.
 bankrupt,<V>{player} <R>went bankrupt and has lost the game! All of their assets will be turned over to <V>{playerowner}.,<V>{player} <R>iflas etti ve oyunu kaybetti! Tüm malvarlığı <V>{playerowner} <R> oyuncusuna devredilecek.
 mortgage_property,"<V>{player} <J>landed on <V>{playerowner}<J>. Property is mortgaged, no rent was collected.",
-warn_need_fullset,"<J>Before you can buy a house, you must own all the properties of this color-group.",
+warn_need_fullset,"<J>Before you can buy a house, you must own all the properties of a color-group.",<J>Ev satın almadan önce bir renk grubundaki tüm mülkiyetlere sahip olmalısınız.
 log_card,<V>{player} <ROSE>drew a <J>{type} <ROSE>card: <CH>{$cardtext},<V>{player} <ROSE>bir <J>{type} <ROSE>kartı çekti: <N>{$cardtext}
 community,community,topluluk
 chance,chance,şans
 auction_title,"<font size=""20"" color=""#ffffff""><p align=""center"">Auction","<font size=""20"" color=""#ffffff""><p align=""center"">İhale"
 auction_highest,"<font color=""#000000"">Highest Bid: <VP>${bid}\n<font color=""#000000"">Highest Bidder: <V>{bidder}","<font color=""#000000"">En Yüksek Teklif: <VP>${bid}\n<font color=""#000000"">En Yüksek Teklifi Veren: <V>{bidder}"
+ui_house_title,"<font size=""20"" color=""#ffffff""><p align=""center""><a href=""event:close_house"">Manage Houses","<font size=""20"" color=""#ffffff""><p align=""center""><a href=""event:close_house"">Evleri Yönet"
+ui_tokens_title,"<font size=""15"" color=""#ffffff""><b><p align=""center"">Pick Token & Color","<font size=""15"" color=""#ffffff""><b><p align=""center"">Taş & Renk Seç"
+buy_house,"<p align=""center""><b><VP><a href=""event:buy_house"">Buy House","<p align=""center""><b><VP><a href=""event:buy_house"">Ev Satın Al"
+sell_house,"<p align=""center""><b><R><a href=""event:sell_house"">Sell House","<p align=""center""><b><R><a href=""event:sell_house"">Ev Sat"
 card_1,Go - Collect 200 as you pass,Başlangıç
 card_2,<N>Vanilla Avenue,<N>Vanilla Caddesi
 card_3,Community Chest,Topluluk Sandığı

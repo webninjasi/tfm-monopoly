@@ -55,7 +55,7 @@ config.tokenColors = {
   0xFFA500,
   0xC0C0C0,
   0xA52A2A,
-  0xFFC0CB,
+  0x99737a,
 }
 
 config.playersUI = {
@@ -81,10 +81,13 @@ config.gameTime = {
 config.images = {
   background = "182cbf83510.png",
   circle = "182144f123d.png",
-  auction = {
-    ui = "182a637db2c.png",
-    popup = "VnQV5eZ.png",
-  },
+  house = "181f078a25d.png",
+  hotel = "181f078565c.png",
+  buy_house = "182d6e03a58.png",
+  sell_house = "182d6e09428.png",
+  tokensbg = "182cbf45136.png",
+  ui = "182a637db2c.png",
+  popup = "VnQV5eZ.png",
   cards = {
     empty = "18220bf6da4.png",
     chance = "18220c02228.png",
@@ -116,10 +119,10 @@ config.images = {
     "181d6e1ed5a.png",
   },
   tokens = {
-    {"181f073e25d.png", 60, 28},
+    {"181f074c65c.png", 50, 31},
     {"181f0742e5c.png", 43, 28},
     {"181f0747a5b.png", 46, 28},
-    {"181f074c65c.png", 50, 31},
+    {"181f073e25d.png", 60, 28},
     {"181f075125b.png", 28, 36},
     {"181f0755e5c.png", 50, 34},
     {"182072a2a0a.png", 50, 30},
@@ -159,11 +162,11 @@ config.roll = {
 -- tokens default position
 config.tokens = {
   imgX = 400,
-  imgY = 220,
+  imgY = 215,
   defaultX = 400,
   defaultY = 150,
   rowItems = 5,
-  colorsOffset = 30,
+  colorsOffset = 33,
 }
 
 -- money ui

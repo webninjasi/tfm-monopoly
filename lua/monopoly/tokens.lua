@@ -1,6 +1,7 @@
 --- monopoly.tokens
 
 local config = pshy.require("monopoly.config")
+local translations = pshy.require("monopoly.translations")
 
 
 -- Tokens Variables
@@ -12,7 +13,7 @@ local defaultY = config.tokens.defaultY
 local rowItems = config.tokens.rowItems
 local colorsOffset = config.tokens.colorsOffset
 local images = config.images.tokens
-local blackpx = config.images.pixels.black
+local background = config.images.tokensbg
 local circleImage = config.images.circle
 local tokens = { _len=#images }
 local selectedColors = {}
@@ -156,7 +157,7 @@ local function updateColors(target)
     len = 1 + len
     text[len] = string.format(
       '<font color="#%.6x"><a href="event:color%d">█</a>  ',
-      selectedColors[i] and -1 or tokenColors[i], i
+      selectedColors[i] and 0xFAE1D2 or tokenColors[i], i
     )
 
     if i % rowItems == 0 then
@@ -206,14 +207,38 @@ module.showUI = function(target)
 
   ui.addImage(
     "tokensbg",
-    blackpx,
+    background,
     ":50",
     imgX, imgY,
     target,
-    290, 200, 0, 0.9,
+    1, 1, 0, 1,
     0.5, 0.5
   )
   showColors(target)
+
+  if target == "*" then
+    for name in pairs(tfm.get.room.playerList) do
+      ui.addTextArea(
+        "tokens_title",
+        translations.get("ui_tokens_title", name),
+        name,
+        imgX-166, imgY-105,
+        332, nil,
+        0, 0, 0,
+        true
+      )
+    end
+  else
+    ui.addTextArea(
+      "tokens_title",
+      translations.get("ui_tokens_title", target),
+      target,
+      imgX-166, imgY-105,
+      332, nil,
+      0, 0, 0,
+      true
+    )
+  end
 
   for i=1,tokens._len do
     token = tokens[i]
@@ -228,6 +253,7 @@ module.hideUI = function(target)
   local token
 
   ui.removeImage("tokensbg", target)
+  ui.removeTextArea("tokens_title", target)
   ui.removeTextArea("tokencolors", target)
 
   for i=1,tokens._len do

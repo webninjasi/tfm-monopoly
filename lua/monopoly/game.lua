@@ -570,7 +570,25 @@ function eventActionUIClick(name, action)
       return
     end
 
-    -- TODO auction the property if game.state == states.PROPERTY
+    if game.state == states.PROPERTY then
+      local card = board.getTokenCell(player.tokenid)
+
+      if card and property.canBuy(card) then
+        game.state = states.AUCTION
+        currentAuction = {
+          bid = 1,
+          bidder = '',
+          card = card,
+          start = os.time(),
+          timer = os.time() + gameTime.auction * 1000,
+        }
+        property.showAuction(card)
+        property.updateAuction(whoseTurn.name, 1, 'BANK')
+        tfm.exec.setGameTime(gameTime.auction)
+        return
+      end
+    end
+
     nextTurn()
   end
 end

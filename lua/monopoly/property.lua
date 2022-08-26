@@ -589,10 +589,11 @@ module.showHouses = function(cellId, target)
     x = pos[3] - 5
     y = pos[2]
   elseif direction == 3 then -- top
-    offx = -1
+    offx = 1
     offy = 0
-    x = pos[3] - 5
-    y = pos[4] - 5
+    x = pos[1]
+    y = pos[4] - houseSize - 5
+    rotation = 0
   elseif direction == 4 then -- right
     offx = 0
     offy = -1

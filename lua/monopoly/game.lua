@@ -320,6 +320,22 @@ function eventDiceRoll(dice1, dice2)
       player.diceSum = dice1 + dice2
 
       if player.jail then
+        player.jail = player.jail + 1
+
+        if player.jail == 3 then
+          player.jail = nil
+          players.add(name, 'money', -50)
+
+          logs.add('jail_out_money', player.name)
+          actionui.update(player.name, "JailCard", false)
+          actionui.update(player.name, "JailPay", false)
+
+          game.state = states.ROLLING
+          eventDiceRoll(dice1, dice2)
+
+          return
+        end
+
         if dice1 == dice2 then
           player.jail = nil
 
@@ -332,24 +348,9 @@ function eventDiceRoll(dice1, dice2)
           return
         end
 
-        player.jail = player.jail + 1
-
-        if player.jail == 3 then
-          player.jail = nil
-          players.add(name, 'money', -50)
-
-          -- TODO use a different translation
-          logs.add('roll_once', player.name, dice1, dice2, dice1 + dice2)
-          logs.add('jail_out_money', player.name)
-          actionui.update(player.name, "JailCard", false)
-          actionui.update(player.name, "JailPay", false)
-
-          board.moveToken(player.tokenid, player.diceSum, true)
-        else
-          -- TODO use a different translation
-          logs.add('roll_once', player.name, dice1, dice2, dice1 + dice2)
-          nextTurn()
-        end
+        -- TODO use a different translation
+        logs.add('roll_once', player.name, dice1, dice2, dice1 + dice2)
+        nextTurn()
 
         return
       end

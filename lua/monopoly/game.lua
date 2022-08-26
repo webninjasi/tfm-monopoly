@@ -808,8 +808,7 @@ function eventSellHouseClicked(name)
   end
 
   if not ok then
-    -- TODO add a translation for "You don't have any house to sell"
-    --translations.chatMessage('warn_need_house', name)
+    translations.chatMessage('warn_need_house', name)
   end
 end
 

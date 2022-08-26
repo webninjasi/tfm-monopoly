@@ -570,6 +570,7 @@ function eventActionUIClick(name, action)
       return
     end
 
+    -- TODO auction the property if game.state == states.PROPERTY
     nextTurn()
   end
 end
@@ -953,6 +954,7 @@ command_list["state"] = {
   func = function(name, state)
     if state then
       game.state = state
+      -- TODO implement setGameState and eventGameStateChanged
     else
       tfm.exec.chatMessage("<ROSE>Game State: <V>" .. game.state, name)
     end
@@ -1082,12 +1084,21 @@ command_list["house"] = {
       return
     end
 
-    local increase = count > 0
-    local total = math.abs(count)
+    count = count or 5
 
-    if total == 0 or total > 5 then
+    if count < 0 or count > 5 then
       return
     end
+
+    local current = property.getHouses(cellId)
+
+    if current == count then
+      return
+    end
+
+    local increase = count > current
+    local total = increase and (count - current) or (current - count)
+
 
     for i=1, total do
       if increase then
@@ -1099,7 +1110,7 @@ command_list["house"] = {
   
     property.showHouses(cellId)
   end,
-  desc = "Add/remove house to/from a property",
+  desc = "Set number of houses on a property",
   argc_min = 1, argc_max = 2, arg_types = {"number", "number"}
 }
 

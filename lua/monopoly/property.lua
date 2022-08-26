@@ -243,6 +243,26 @@ module.getHouses = function(cellId)
   return houses[cellId] or 0
 end
 
+module.getOwnerHouses = function(name)
+  local properties = module.getProperties(name)
+  local house_count = 0
+  local hotel_count = 0
+  local house
+
+  for i=1, properties._len do
+    house = houses[properties[i].id] or 0
+
+    if house == 5 then
+      house_count = 4 + house_count
+      hotel_count = 1 + hotel_count
+    else
+      house_count = house + house_count
+    end
+  end
+
+  return house_count, hotel_count
+end
+
 module.addHouse = function(cellId)
   houses[cellId] = 1 + (houses[cellId] or 0)
 end

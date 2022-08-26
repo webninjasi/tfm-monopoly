@@ -1,6 +1,7 @@
 --- monopoly.cardactions
 
 local board = pshy.require('monopoly.board')
+local property = pshy.require('monopoly.property')
 local players = pshy.require('monopoly.players')
 
 local community = {
@@ -108,20 +109,12 @@ local chance = {
   end,
 
   function(name, player)
-    local houses = 0
-    local hotels = 0
-
-    -- TODO fetch house/hotel count
-
+    local houses, hotels = property.getOwnerHouses(name)
     players.add(name, 'money', - 25 * houses - 100 * hotels)
   end,
 
   function(name, player)
-    local houses = 0
-    local hotels = 0
-
-    -- TODO fetch house/hotel count
-
+    local houses, hotels = property.getOwnerHouses(name)
     players.add(name, 'money', - 40 * houses - 115 * hotels)
   end,
 
@@ -143,7 +136,6 @@ local chance = {
 
   function(name, player)
     player.jailcard = true
-    -- TODO allow jail card to be used
   end,
 }
 

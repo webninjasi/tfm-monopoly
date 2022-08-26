@@ -11,6 +11,8 @@ local uiX, uiY = config.randCard.x, config.randCard.y
 local uiW, uiH = config.randCard.width, config.randCard.height
 local communityCount = config.randCard.communityCount
 local chanceCount = config.randCard.chanceCount
+local lastCommunity
+local lastChance
 
 local function showCard(name, type, id)
   local img = type == 'chance' and chanceBg or communityBg
@@ -30,19 +32,35 @@ local function showCard(name, type, id)
   logs.add('log_card', name, type, trkey)
 end
 
+local function randomWithException(count, exception)
+  local rand = math.random(count)
+
+  if exception == rand then
+    if rand == count then
+      rand = rand - 1
+    else
+      rand = rand + 1
+    end
+  end
+
+  return rand
+end
+
 local module = {}
 
 module.community = function(name, player)
-  local id = player.communityid or math.random(communityCount)
+  local id = player.communityid or randomWithException(communityCount, lastCommunity)
   if id > 0 and id <= communityCount then
+    lastCommunity = id
     showCard(name, 'community', id)
     cardactions.community[id](name, player)
   end
 end
 
 module.chance = function(name, player)
-  local id = player.chanceid or math.random(chanceCount)
+  local id = player.chanceid or randomWithException(chanceCount, lastChance)
   if id > 0 and id <= chanceCount then
+    lastChance = id
     showCard(name, 'chance', id)
     cardactions.chance[id](name, player)
   end

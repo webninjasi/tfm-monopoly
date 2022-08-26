@@ -25,11 +25,13 @@ local board = {}
 local tokenCell = {}
 local cellColors = {}
 local movingToken
+local empty_space = string.rep(' ', 30)
 
 
 -- Private Functions
 local function updateCells()
-  for i=1, #boardCells do
+  boardCells._len = #boardCells
+  for i=1, boardCells._len do
     boardCells[i].id = i
     boardCells[i].header_color = boardCells[i].header_color and tonumber(boardCells[i].header_color, 16)
   end
@@ -387,6 +389,64 @@ module.setCellColor = function(cellId, color)
   module.showCellColor(cellId)
 end
 
+module.setCellOverlay = function(cellId, name, color)
+  if not cellId then
+    for i=1, boardCells._len do
+      module.setCellOverlay(i, name, color)
+    end
+
+    return
+  end
+
+  if not color then
+    ui.removeTextArea("celloverlay_" .. cellId, name)
+    return
+  end
+
+  local cell = board.cells[cellId]
+  local pos = positions[cellId]
+
+  if not cell or not pos then
+    return
+  end
+
+  local direction = cellDirection(cellId)
+  local x, y = 0, 0
+  local w, h = 0, 0
+
+  if direction == 1 then -- bottom
+    w = pos[3] - pos[1]
+    h = houseSize
+    x = pos[1]
+    y = pos[2] + 3
+  elseif direction == 2 then -- left
+    w = houseSize
+    h = pos[4] - pos[2]
+    x = pos[3] - 3 - houseSize
+    y = pos[2]
+  elseif direction == 3 then -- top
+    w = pos[3] - pos[1]
+    h = houseSize
+    x = pos[1]
+    y = pos[4] - 3 - houseSize
+  elseif direction == 4 then -- right
+    w = houseSize
+    h = pos[4] - pos[2]
+    x = pos[1] + 3
+    y = pos[2]
+  end
+
+  ui.addTextArea(
+    "celloverlay_" .. cellId,
+    '<font size="70"><a href="event:click_overlay_' .. cellId .. '">' .. empty_space,
+    name,
+    x, y,
+    w, h,
+    color, color, 0.5,
+    false
+  )
+end
+
 
 -- Events
 function eventLoop()
@@ -419,6 +479,16 @@ function eventLoop()
   local rotation = (direction - 1) * math.pi / 2
   tokens.setRotation(movingToken[1], rotation)
   tokens.animate(movingToken[1], originX, originY, targetX, targetY, axis)
+end
+
+function eventTextAreaCallback(id, name, callback)
+  if callback:sub(1, 14) == 'click_overlay_' then
+    local cellId = tonumber(callback:sub(15))
+
+    if cellId then
+      eventCellOverlayClicked(cellId, name)
+    end
+  end
 end
 
 

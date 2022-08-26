@@ -80,6 +80,7 @@ local function nextTurn()
   if whoseTurn then
     if prev ~= whoseTurn then
       if prev then
+        property.hideManageHouses(prev.name)
         actionui.update(prev.name, "Stop", false)
         tokens.circleMode(prev.tokenid, false)
         prev.turn = nil
@@ -160,6 +161,26 @@ local function buyProperty(name, color, card, bid)
   end
 end
 
+local function startGame()
+  whoseTurn = nil
+  game.state = states.WAITING
+  nextTurn()
+  tokens.hideUI("*")
+  logs.add('newgame')
+
+  -- enable actions
+  for player in players.iter do
+    actionui.update(player.name, "Cards", true)
+    actionui.update(player.name, "Build", true)
+    actionui.update(player.name, "Trade", true)
+    actionui.update(player.name, "Stop", false)
+
+    if whoseTurn ~= player then
+      actionui.update(player.name, "Dice", false)
+    end
+  end
+end
+
 
 -- Pshy Events
 function eventInit()
@@ -214,6 +235,7 @@ function eventNewPlayer(name)
   players.showUI()
   tokens.show()
   board.showCellColor(nil, name)
+  property.showHouses(nil, name)
 
   if game.state == states.LOBBY then
     tokens.showUI(name)
@@ -246,6 +268,7 @@ function eventPlayersUpdated(name, player)
 
   if players.count() == 1 then
     if whoseTurn then
+      -- TODO fix wrong player wins the game
       logs.add("won", whoseTurn.name)
     end
 
@@ -405,23 +428,7 @@ function eventDiceRoll(dice1, dice2)
       end
 
       -- everyone is ready, start the game
-      whoseTurn = nil
-      game.state = states.WAITING
-      nextTurn()
-      tokens.hideUI("*")
-      logs.add('newgame')
-
-      -- enable actions
-      for player in players.iter do
-        actionui.update(player.name, "Cards", true)
-        actionui.update(player.name, "Build", true)
-        actionui.update(player.name, "Trade", true)
-        actionui.update(player.name, "Stop", false)
-
-        if whoseTurn ~= player then
-          actionui.update(player.name, "Dice", false)
-        end
-      end
+      startGame()
     end
   end
 end
@@ -540,8 +547,18 @@ function eventActionUIClick(name, action)
     player.allowMouse = true
   elseif action == "Cards" then
   elseif action == "Build" then
-    if game.state ~= states.PLAYING then
+    if game.state ~= states.PLAYING and game.state ~= states.PROPERTY and game.state ~= states.WAITING then
       return
+    end
+
+    if not player.tokenid then
+      return
+    end
+
+    local card = board.getTokenCell(player.tokenid)
+
+    if card then
+      property.showManageHouses(card, player.name)
     end
   elseif action == "Trade" then
   elseif action == "Stop" then
@@ -738,6 +755,99 @@ function eventPropertyClicked(name, cell)
   property.showCard(cell, name, canBuy)
 end
 
+function eventBuyHouseClicked(name)
+  local player = players.get(name)
+
+  if not player or player ~= whoseTurn then
+    return
+  end
+
+  if game.state ~= states.PLAYING then
+    return
+  end
+
+  player.overlay_mode = 'buy'
+
+  local properties = property.getProperties(name)
+  local ok = false
+
+  for i=1, properties._len do
+    -- TODO use property.canBuyHouse
+    if property.getGroupOwner(properties[i].id) == name then
+      board.setCellOverlay(properties[i].id, name, 0x00ff00)
+      ok = true
+    end
+  end
+
+  if not ok then
+    translations.chatMessage('warn_need_fullset', name)
+  end
+end
+
+function eventSellHouseClicked(name)
+  local player = players.get(name)
+
+  if not player or player ~= whoseTurn then
+    return
+  end
+
+  if game.state ~= states.PLAYING then
+    return
+  end
+
+  player.overlay_mode = 'sell'
+
+  local properties = property.getProperties(name)
+  local ok = false
+
+  for i=1, properties._len do
+    -- TODO use property.canSellHouse
+    if property.getHouses(properties[i].id) > 0 then
+      board.setCellOverlay(properties[i].id, name, 0xff0000)
+      ok = true
+    end
+  end
+
+  if not ok then
+    -- TODO add a translation for "You don't have any house to sell"
+    --translations.chatMessage('warn_need_house', name)
+  end
+end
+
+function eventCellOverlayClicked(cellId, name)
+  local player = players.get(name)
+
+  if not player or player ~= whoseTurn then
+    return
+  end
+
+  if game.state ~= states.PLAYING then
+    return
+  end
+
+  board.setCellOverlay(nil, name, nil)
+
+  if property.getOwner(cellId) ~= name then
+    return
+  end
+
+  if player.overlay_mode == 'sell' then
+    if property.getHouses(cellId) < 1 then
+      return
+    end
+
+    property.removeHouse(cellId)
+  elseif player.overlay_mode == 'buy' then
+    if property.getGroupOwner(cellId) ~= name then
+      return
+    end
+
+    property.addHouse(cellId)
+  end
+
+  property.showHouses(cellId)
+end
+
 
 -- Commands
 command_list["move"] = {
@@ -753,11 +863,9 @@ command_list["move"] = {
       return
     end
   
-    local prevState = game.state
     whoseTurn = player
     eventStartMoving()
     board.moveToken(player.tokenid, cellId, false, true, not doAnim)
-    game.state = prevState
   end,
   desc = "move players' token",
   argc_min = 1, argc_max = 2, arg_types = {"number", "boolean"}
@@ -905,7 +1013,7 @@ command_list["time"] = {
     tfm.exec.setGameTime(time or 5)
   end,
   desc = "set game time",
-  argc_min = 0, argc_max = 1, arg_types = {"integer"}
+  argc_min = 0, argc_max = 1, arg_types = {"number"}
 }
 
 command_list["reset"] = {
@@ -949,6 +1057,58 @@ command_list["randcard"] = {
   end,
   desc = "set rand card id",
   argc_min = 1, argc_max = 2, arg_types = {"string", "number"}
+}
+
+command_list["own"] = {
+  perms = "admins",
+  func = function(name, id)
+    local player = players.get(name)
+  
+    if not player or not player.color then
+      return
+    end
+
+    property.setOwner(id, name)
+    board.setCellColor(id, player.color)
+  end,
+  desc = "Own specified property",
+  argc_min = 1, argc_max = 1, arg_types = {"number"}
+}
+
+command_list["house"] = {
+  perms = "admins",
+  func = function(name, cellId, count)
+    if cellId < 1 or cellId > 40 then
+      return
+    end
+
+    local increase = count > 0
+    local total = math.abs(count)
+
+    if total == 0 or total > 5 then
+      return
+    end
+
+    for i=1, total do
+      if increase then
+        property.addHouse(cellId)
+      else
+        property.removeHouse(cellId)
+      end
+    end
+  
+    property.showHouses(cellId)
+  end,
+  desc = "Add/remove house to/from a property",
+  argc_min = 1, argc_max = 2, arg_types = {"number", "number"}
+}
+
+command_list["startgame"] = {
+  perms = "admins",
+  func = function(name)
+    startGame()
+  end,
+  desc = "force start the game",
 }
 
 command_list["logs"] = {

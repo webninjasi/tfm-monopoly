@@ -6,8 +6,9 @@ local players = pshy.require("monopoly.players")
 
 
 -- Variables
-local img = config.images.auction
+local img = config.images
 local boardCells = config.board.cells
+local houseSize = config.board.houseSize
 local positions = config.board.positions
 local cellCount = #positions
 local cardImages = config.images.cards
@@ -19,11 +20,19 @@ for _, rows in pairs(cardRowsByType) do
 end
 
 local owners = {}
+local houses = {}
+local ownedByColor = {}
+local groupCount = {}
 local cellsByType = {}
 local separator = '<p align="center">' .. string.rep('━', 12) .. '</p>'
+local empty_space = string.rep(' ', 30)
 
 
 -- Private Functions
+local function cellDirection(cellId)
+  return math.ceil(cellId / 10)
+end
+
 local function scanBoardCells()
   local list, cell
 
@@ -34,6 +43,10 @@ local function scanBoardCells()
     if not list then
       list = { _len = 0 }
       cellsByType[cell.type] = list
+    end
+
+    if cell.header_color then
+      groupCount[cell.header_color] = 1 + (groupCount[cell.header_color] or 0)
     end
 
     cell.card_image = cardImages[cell.card_image or 'empty']
@@ -59,6 +72,14 @@ local function scanBoardCells()
 
     list._len = 1 + list._len
     list[list._len] = cell
+  end
+
+  for i=1, #boardCells do
+    cell = boardCells[i]
+
+    if groupCount[cell.header_color] then
+      cell.group_count = groupCount[cell.header_color]
+    end
   end
 end
 
@@ -163,6 +184,8 @@ local module = {}
 
 module.reset = function()
   owners = {}
+  houses = {}
+  ownedByColor = {}
 end
 
 module.showButtons = function(target)
@@ -183,13 +206,64 @@ module.showButtons = function(target)
   end
 end
 
+module.getGroupOwner = function(cellId)
+  local cell = cellId and boardCells[cellId]
+  local color = cell and cell.header_color
+  local owner = cellId and owners[cellId]
+  return owner and color and ownedByColor[owner][color] == cell.group_count and owner
+end
+
+module.getProperties = function(owner)
+  local list = { _len = 0 }
+
+  for cellId, name in pairs(owners) do
+    if name == owner then
+      list._len = 1 + list._len
+      list[list._len] = boardCells[cellId]
+    end
+  end
+
+  return list
+end
+
+module.getHouses = function(cellId)
+  return houses[cellId] or 0
+end
+
+module.addHouse = function(cellId)
+  houses[cellId] = 1 + (houses[cellId] or 0)
+end
+
+module.removeHouse = function(cellId)
+  houses[cellId] = -1 + (houses[cellId] or 0)
+end
+
 module.getOwner = function(key)
   return key and owners[key]
 end
 
-module.setOwner = function(key, owner)
-  if key then
-    owners[key] = owner
+module.setOwner = function(cellId, owner)
+  local cell = cellId and boardCells[cellId]
+
+  if cell then
+    local prev_owner = owners[cellId]
+    local color = cell.header_color
+
+    owners[cellId] = owner
+
+    if color then
+      if prev_owner then
+        ownedByColor[prev_owner] = ownedByColor[prev_owner] or {}
+        ownedByColor[prev_owner][color] = ownedByColor[prev_owner][color] - 1
+
+        if ownedByColor[prev_owner][color] < 1 then
+          ownedByColor[prev_owner][color] = nil
+        end
+      end
+
+      ownedByColor[owner] = ownedByColor[owner] or {}
+      ownedByColor[owner][color] = 1 + (ownedByColor[owner][color] or 0)
+    end
   end
 end
 
@@ -200,6 +274,33 @@ module.canBuy = function(card)
       or card.type == 'utility'
       or card.type == 'station'
     )
+end
+
+module.canBuyHouse = function(card)
+  -- TODO check all properties in the group to evenly distribute houses
+end
+
+module.canSellHouse = function(card)
+  -- TODO check all properties in the group to evenly distribute houses
+end
+
+module.housePrice = function(cellId)
+  local cell = boardCells[cellId]
+  local house_count = houses[cellId] or 0
+
+  if cell then
+    if house_count == 0 then
+      return cell.house
+    elseif house_count == 1 then
+      return cell.house2
+    elseif house_count == 2 then
+      return cell.house3
+    elseif house_count == 3 then
+      return cell.house4
+    elseif house_count == 4 then
+      return cell.hotel
+    end
+  end
 end
 
 module.hideCard = function(name)
@@ -360,6 +461,168 @@ module.updateAuction = function(whoseTurn, highestBid, highestBidder)
   )
 end
 
+module.showManageHouses = function(cell, name)
+  ui.addImage(
+    "houseui",
+    img.ui,
+    "~100",
+    234, 100,
+    name,
+    1, 1, 0, 1,
+    true
+  )
+  ui.addImage(
+    "housesep",
+    pixels.black,
+    "~100",
+    400 - 1, 150,
+    name,
+    2, 160, 0, 1,
+    true
+  )
+  ui.addTextArea(
+    "housetitle",
+    translations.get("ui_house_title", name),
+    name,
+    234, 110,
+    332, nil,
+    0, 0, 0,
+    true
+  )
+
+  ui.addImage(
+    "buy_house",
+    img.buy_house,
+    "~100",
+    270, 160,
+    name,
+    1, 1, 0, 1,
+    true
+  )
+  ui.addTextArea(
+    "buy_house",
+    translations.get("buy_house", name),
+    name,
+    250, 260,
+    140, nil,
+    0, 0, 0,
+    true
+  )
+  ui.addTextArea(
+    "buy_house_click",
+    '<font size="100"><a href="event:buy_house">' .. empty_space,
+    name,
+    270-5, 160-5,
+    100, 100,
+    0, 0, 0,
+    true
+  )
+
+  ui.addImage(
+    "sell_house",
+    img.sell_house,
+    "~100",
+    430, 160,
+    name,
+    1, 1, 0, 1,
+    true
+  )
+  ui.addTextArea(
+    "sell_house",
+    translations.get("sell_house", name),
+    name,
+    410, 260,
+    140, nil,
+    0, 0, 0,
+    true
+  )
+  ui.addTextArea(
+    "sell_house_click",
+    '<font size="100"><a href="event:sell_house">' .. empty_space,
+    name,
+    430-5, 160-5,
+    100, 100,
+    0, 0, 0,
+    true
+  )
+end
+
+module.hideManageHouses = function(name)
+  ui.removeImage("houseui", name)
+  ui.removeImage("housesep", name)
+  ui.removeTextArea("housetitle", name)
+  ui.removeImage("buy_house", name)
+  ui.removeTextArea("buy_house", name)
+  ui.removeTextArea("buy_house_click", name)
+  ui.removeImage("sell_house", name)
+  ui.removeTextArea("sell_house", name)
+  ui.removeTextArea("sell_house_click", name)
+end
+
+module.showHouses = function(cellId, target)
+  if not cellId then
+    for i=1, boardCells._len do
+      module.showHouses(i, target)
+    end
+
+    return
+  end
+
+  local pos = positions[cellId]
+  local house_count = houses[cellId] or 0
+  local is_hotel = false
+  local has_hotel = house_count == 5
+
+  local direction = cellDirection(cellId)
+  local x, y = 0, 0
+  local offx, offy = 0, 0
+  local rotation = (direction - 1) * math.pi / 2
+
+  if direction == 1 then -- bottom
+    offx = 1
+    offy = 0
+    x = pos[1]
+    y = pos[2] + 5
+  elseif direction == 2 then -- left
+    offx = 0
+    offy = 1
+    x = pos[3] - 5
+    y = pos[2]
+  elseif direction == 3 then -- top
+    offx = -1
+    offy = 0
+    x = pos[3] - 5
+    y = pos[4] - 5
+  elseif direction == 4 then -- right
+    offx = 0
+    offy = -1
+    x = pos[1] + 5
+    y = pos[4]
+  end
+
+  local d1, d2
+
+  for i=1, house_count + 1 do
+    if i == house_count + 1 then
+      ui.removeImage("house_" .. cellId .. "_" .. (house_count + 1), target)
+    else
+      is_hotel = i == 1 and house_count == 5
+      d1 = ((has_hotel and not is_hotel and 5 or 0) + 12 * (i - 1))
+      d2 = (is_hotel and 0 or 3)
+
+      ui.addImage(
+        "house_" .. cellId .. "_" .. i,
+        is_hotel and img.hotel or img.house,
+        "!200",
+        x + offx * d1 + -offy * d2, y + offy * d1 + offx * d2,
+        target,
+        1, 1, rotation, 1,
+        true
+      )
+    end
+  end
+end
+
 
 -- Events
 function eventInit()
@@ -403,6 +666,14 @@ function eventTextAreaCallback(id, name, callback)
     if cell and eventPropertyClicked then
       eventPropertyClicked(name, cell)
     end
+  elseif callback == "close_house" then
+    module.hideManageHouses(name)
+  elseif callback == "buy_house" then
+    module.hideManageHouses(name)
+    eventBuyHouseClicked(name)
+  elseif callback == "sell_house" then
+    module.hideManageHouses(name)
+    eventSellHouseClicked(name)
   end
 end
 

@@ -21,8 +21,7 @@ end
 
 local owners = {}
 local houses = {}
-local ownedByColor = {}
-local groupCount = {}
+local cellsByGroup = {}
 local cellsByType = {}
 local separator = '<p align="center">' .. string.rep('━', 12) .. '</p>'
 local empty_space = string.rep(' ', 30)
@@ -34,7 +33,7 @@ local function cellDirection(cellId)
 end
 
 local function scanBoardCells()
-  local list, cell
+  local list, cell, group
 
   for i=1, #boardCells do
     cell = boardCells[i]
@@ -46,7 +45,14 @@ local function scanBoardCells()
     end
 
     if cell.header_color then
-      groupCount[cell.header_color] = 1 + (groupCount[cell.header_color] or 0)
+      group = cellsByGroup[cell.header_color]
+
+      if group then
+        group._len = 1 + group._len
+        group[group._len] = cell
+      else
+        cellsByGroup[cell.header_color] = { cell, _len = 1 }
+      end
     end
 
     cell.card_image = cardImages[cell.card_image or 'empty']
@@ -72,14 +78,6 @@ local function scanBoardCells()
 
     list._len = 1 + list._len
     list[list._len] = cell
-  end
-
-  for i=1, #boardCells do
-    cell = boardCells[i]
-
-    if groupCount[cell.header_color] then
-      cell.group_count = groupCount[cell.header_color]
-    end
   end
 end
 
@@ -185,7 +183,6 @@ local module = {}
 module.reset = function()
   owners = {}
   houses = {}
-  ownedByColor = {}
 end
 
 module.showButtons = function(target)
@@ -208,9 +205,25 @@ end
 
 module.getGroupOwner = function(cellId)
   local cell = cellId and boardCells[cellId]
-  local color = cell and cell.header_color
   local owner = cellId and owners[cellId]
-  return owner and color and ownedByColor[owner][color] == cell.group_count and owner
+
+  if not cell or cell.header_color or owner then
+    return
+  end
+
+  local group = cellsByGroup[cell.header_color]
+
+  if not group then
+    return
+  end
+
+  for i=1, group._len do
+    if owners[group[i].id] ~= owner then
+      return
+    end
+  end
+
+  return owner
 end
 
 module.getProperties = function(owner)
@@ -246,25 +259,13 @@ module.setOwner = function(cellId, owner)
   local cell = cellId and boardCells[cellId]
 
   if cell then
-    local prev_owner = owners[cellId]
-    local color = cell.header_color
-
     owners[cellId] = owner
-
-    if color then
-      if prev_owner then
-        ownedByColor[prev_owner] = ownedByColor[prev_owner] or {}
-        ownedByColor[prev_owner][color] = ownedByColor[prev_owner][color] - 1
-
-        if ownedByColor[prev_owner][color] < 1 then
-          ownedByColor[prev_owner][color] = nil
-        end
-      end
-
-      ownedByColor[owner] = ownedByColor[owner] or {}
-      ownedByColor[owner][color] = 1 + (ownedByColor[owner][color] or 0)
-    end
   end
+end
+
+module.housePrice = function(cellId)
+  local cell = cellId and boardCells[cellId]
+  return cell and cell.house_hotel or 0
 end
 
 module.canBuy = function(card)
@@ -276,31 +277,74 @@ module.canBuy = function(card)
     )
 end
 
-module.canBuyHouse = function(card)
-  -- TODO check all properties in the group to evenly distribute houses
-end
+module.canBuyHouse = function(cellId)
+  local house = houses[cellId] or 0
 
-module.canSellHouse = function(card)
-  -- TODO check all properties in the group to evenly distribute houses
-end
+  if house == 5 then
+    return
+  end
 
-module.housePrice = function(cellId)
-  local cell = boardCells[cellId]
-  local house_count = houses[cellId] or 0
+  local cell = cellId and boardCells[cellId]
+  local owner = cellId and owners[cellId]
 
-  if cell then
-    if house_count == 0 then
-      return cell.house
-    elseif house_count == 1 then
-      return cell.house2
-    elseif house_count == 2 then
-      return cell.house3
-    elseif house_count == 3 then
-      return cell.house4
-    elseif house_count == 4 then
-      return cell.hotel
+  if not cell or not cell.header_color or not owner then
+    return
+  end
+
+  local group = cellsByGroup[cell.header_color]
+
+  if not group then
+    return
+  end
+
+  for i=1, group._len do
+    -- Must own all properties in the color-group
+    if owners[group[i].id] ~= owner then
+      return
+    end
+
+    -- Evenly distribute
+    if module.getHouses(group[i].id) < house then
+      return
     end
   end
+
+  return true
+end
+
+module.canSellHouse = function(cellId)
+  local house = houses[cellId] or 0
+
+  if house == 0 then
+    return
+  end
+
+  local cell = cellId and boardCells[cellId]
+  local owner = cellId and owners[cellId]
+
+  if not cell or not cell.header_color or not owner then
+    return
+  end
+
+  local group = cellsByGroup[cell.header_color]
+
+  if not group then
+    return
+  end
+
+  for i=1, group._len do
+    -- Must own all properties in the color-group
+    if owners[group[i].id] ~= owner then
+      return
+    end
+
+    -- Evenly distribute
+    if module.getHouses(group[i].id) > house then
+      return
+    end
+  end
+
+  return true
 end
 
 module.hideCard = function(name)
@@ -337,7 +381,19 @@ module.calculateRent = function(cell, diceSum)
     return 25 * math.pow(2, count - 1) -- station rent
   end
 
-  -- TODO house/hotel rents
+  local house_count = houses[cell.id] or 0
+
+  if house_count == 1 then
+    return cell.house
+  elseif house_count == 2 then
+    return cell.house2
+  elseif house_count == 3 then
+    return cell.house3
+  elseif house_count == 4 then
+    return cell.house4
+  elseif house_count == 5 then
+    return cell.hotel
+  end
 
   return cell.rent
 end

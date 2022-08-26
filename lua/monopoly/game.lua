@@ -220,6 +220,7 @@ function eventNewGame()
   property.reset()
   tokens.showUI("*")
   actionui.hide("*")
+  property.showHouses(nil, "*")
 end
 
 function eventLoop(elapsed, remaining)
@@ -773,8 +774,7 @@ function eventBuyHouseClicked(name)
   local ok = false
 
   for i=1, properties._len do
-    -- TODO use property.canBuyHouse
-    if property.getGroupOwner(properties[i].id) == name then
+    if property.canBuyHouse(properties[i].id) then
       board.setCellOverlay(properties[i].id, name, 0x00ff00)
       ok = true
     end
@@ -802,8 +802,7 @@ function eventSellHouseClicked(name)
   local ok = false
 
   for i=1, properties._len do
-    -- TODO use property.canSellHouse
-    if property.getHouses(properties[i].id) > 0 then
+    if property.canSellHouse(properties[i].id) then
       board.setCellOverlay(properties[i].id, name, 0xff0000)
       ok = true
     end
@@ -833,16 +832,18 @@ function eventCellOverlayClicked(cellId, name)
   end
 
   if player.overlay_mode == 'sell' then
-    if property.getHouses(cellId) < 1 then
+    if not property.canSellHouse(cellId) then
       return
     end
 
+    players.add(name, 'money', property.housePrice(cellId) / 2)
     property.removeHouse(cellId)
   elseif player.overlay_mode == 'buy' then
-    if property.getGroupOwner(cellId) ~= name then
+    if not property.canBuyHouse(cellId) then
       return
     end
 
+    players.add(name, 'money', -property.housePrice(cellId))
     property.addHouse(cellId)
   end
 

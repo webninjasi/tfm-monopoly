@@ -49,21 +49,31 @@ local function updateUI()
   local list = {'<p align="right"><font size="15">'}
   local listShadow = {'<p align="right"><font size="15" color="#000000">'}
   local i = #list
+  local money_diff
 
   while player do
     i = 1 + i
+    money_diff = player.money_diff or 0
     listShadow[i] = string.format(
-      '<b>%s%s</b>\n$%s',
+      '<b>%s%s</b>\n' ..
+      '$%s (%s$%s)',
       player.turn and "• " or "",
       player.name,
-      player.money or 0
+      player.money or 0,
+      money_diff < 0 and '-' or '+',
+      math.abs(money_diff)
     )
     list[i] = string.format(
-      '<font color="#%.6x"><b>%s%s</b>\n<VP>$%s',
+      '<font color="#%.6x"><b>%s<a href="event:trade_%s">%s</a></b>\n' ..
+      '<VP>$%s <BL>(<%s>%s$%s<BL>)',
       player.color or 0,
       player.turn and "• " or "",
       player.name,
-      player.money or 0
+      player.name,
+      player.money or 0,
+      money_diff < 0 and 'R' or 'VP',
+      money_diff < 0 and '-' or '+',
+      math.abs(money_diff)
     )
     player = player.next
   end
@@ -174,6 +184,10 @@ module.update = function(name, key, value)
   local player = players[name]
 
   if player then
+    if key == 'money' then
+      player.money_diff = value - (player.money or 0)
+    end
+
     player[key] = value
 
     if key == 'order' then
@@ -220,6 +234,14 @@ end
 -- Events
 function eventPlayerLeft(name)
   module.remove(name)
+end
+
+function eventTextAreaCallback(id, name, callback)
+  if callback:sub(1, 6) == 'trade_' then
+    local target = callback:sub(7)
+
+    eventTradeRequest(name, target)
+  end
 end
 
 return module

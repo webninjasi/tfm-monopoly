@@ -114,7 +114,7 @@ local function createPlayer(name, coloridx, color, tokenid)
   if not player then
     players.create({
       name = name,
-      money = 1500,
+      money = 0,
     })
     player = players.get(name)
   end
@@ -153,6 +153,10 @@ local function buyProperty(name, color, card, bid)
 end
 
 local function startGame()
+  for player in players.iter do
+    players.add(player.name, 'money', 1500)
+  end
+
   whoseTurn = nil
   nextTurn()
 end
@@ -874,6 +878,28 @@ function eventGameStateChanged(newState, oldState)
     end
 
   end
+end
+
+function eventTradeRequest(from_name, to_name)
+  local from_player = players.get(from_name)
+  local to_player = players.get(to_name)
+
+  if not from_player or not to_player then
+    return
+  end
+
+  -- TODO show trade request on target player
+end
+
+function eventTradeRequestAccepted(from_name, to_name)
+  local from_player = players.get(from_name)
+  local to_player = players.get(to_name)
+
+  if not from_player or not to_player then
+    return
+  end
+
+  -- TODO show trade interface
 end
 
 

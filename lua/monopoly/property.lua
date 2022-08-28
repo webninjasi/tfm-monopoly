@@ -438,6 +438,10 @@ module.showAuctionBid = function(target)
 end
 
 module.showAuction = function(cell)
+  -- TODO show auction screen to everyone in the room
+  -- TODO add a button to fold
+  -- TODO auto-fold if player cannot bid
+
   for player in players.iter do
     ui.addImage(
       "auctionui",

@@ -575,16 +575,16 @@ module.showManageHouses = function(cell, name)
     "buy_house",
     img.buy_house,
     "~100",
-    270, 160,
+    295, 160,
     name,
-    1, 1, 0, 1,
+    0.5, 0.5, 0, 1,
     true
   )
   ui.addTextArea(
     "buy_house",
     translations.get("buy_house", name),
     name,
-    250, 260,
+    250, 160+50,
     140, nil,
     0, 0, 0,
     true
@@ -593,8 +593,8 @@ module.showManageHouses = function(cell, name)
     "buy_house_click",
     '<font size="100"><a href="event:buy_house">' .. empty_space,
     name,
-    270-5, 160-5,
-    100, 100,
+    295-5, 160-5,
+    50, 50,
     0, 0, 0,
     true
   )
@@ -603,16 +603,15 @@ module.showManageHouses = function(cell, name)
     "sell_house",
     img.sell_house,
     "~100",
-    430, 160,
+    295, 240,
     name,
-    1, 1, 0, 1,
-    true
+    0.5, 0.5, 0, 1
   )
   ui.addTextArea(
     "sell_house",
     translations.get("sell_house", name),
     name,
-    410, 260,
+    250, 240+50,
     140, nil,
     0, 0, 0,
     true
@@ -621,8 +620,62 @@ module.showManageHouses = function(cell, name)
     "sell_house_click",
     '<font size="100"><a href="event:sell_house">' .. empty_space,
     name,
-    430-5, 160-5,
-    100, 100,
+    295-5, 240-5,
+    50, 50,
+    0, 0, 0,
+    true
+  )
+
+  ui.addImage(
+    "unmortgage",
+    img.unmortgage,
+    "~100",
+    455, 160,
+    name,
+    0.5, 0.5, 0, 1
+  )
+  ui.addTextArea(
+    "unmortgage",
+    translations.get("unmortgage", name),
+    name,
+    410, 160+50,
+    140, nil,
+    0, 0, 0,
+    true
+  )
+  ui.addTextArea(
+    "unmortgage_click",
+    '<font size="100"><a href="event:unmortgage">' .. empty_space,
+    name,
+    455-5, 160-5,
+    50, 50,
+    0, 0, 0,
+    true
+  )
+
+  ui.addImage(
+    "mortgage",
+    img.mortgage,
+    "~100",
+    455, 240,
+    name,
+    0.5, 0.5, 0, 1
+  )
+  ui.addTextArea(
+    "mortgage",
+    translations.get("mortgage", name),
+    name,
+    410, 240+50,
+    140, nil,
+    0, 0, 0,
+    true
+  )
+  ui.addTextArea(
+    "mortgage_click",
+    '<font size="100"><a href="event:mortgage">' .. empty_space,
+    name,
+    455-5, 240-5,
+    50, 50,
     0, 0, 0,
     true
   )
@@ -638,6 +691,12 @@ module.hideManageHouses = function(name)
   ui.removeImage("sell_house", name)
   ui.removeTextArea("sell_house", name)
   ui.removeTextArea("sell_house_click", name)
+  ui.removeImage("mortgage", name)
+  ui.removeTextArea("mortgage", name)
+  ui.removeTextArea("mortgage_click", name)
+  ui.removeImage("unmortgage", name)
+  ui.removeTextArea("unmortgage", name)
+  ui.removeTextArea("unmortgage_click", name)
 end
 
 module.showHouses = function(cellId, target)

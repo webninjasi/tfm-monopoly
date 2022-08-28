@@ -31,16 +31,18 @@ community,community,topluluk
 chance,chance,şans
 auction_title,"<font size=""20"" color=""#ffffff""><p align=""center"">Auction","<font size=""20"" color=""#ffffff""><p align=""center"">İhale"
 auction_highest,"<font color=""#000000"">Highest Bid: <VP>${bid}\n<font color=""#000000"">Highest Bidder: <V>{bidder}","<font color=""#000000"">En Yüksek Teklif: <VP>${bid}\n<font color=""#000000"">En Yüksek Teklifi Veren: <V>{bidder}"
-ui_house_title,"<font size=""20"" color=""#ffffff""><p align=""center""><a href=""event:close_house"">Manage Houses","<font size=""20"" color=""#ffffff""><p align=""center""><a href=""event:close_house"">Evleri Yönet"
+ui_house_title,"<font size=""19"" color=""#ffffff""><p align=""center""><a href=""event:close_house"">Manage Properties","<font size=""19"" color=""#ffffff""><p align=""center""><a href=""event:close_house"">Mülkleri Yönet"
 ui_tokens_title,"<font size=""15"" color=""#ffffff""><b><p align=""center"">Pick Token & Color","<font size=""15"" color=""#ffffff""><b><p align=""center"">Taş & Renk Seç"
 buy_house,"<p align=""center""><b><VP><a href=""event:buy_house"">Buy House","<p align=""center""><b><VP><a href=""event:buy_house"">Ev Satın Al"
 sell_house,"<p align=""center""><b><R><a href=""event:sell_house"">Sell House","<p align=""center""><b><R><a href=""event:sell_house"">Ev Sat"
-auction_no_bid,<R>Auction ended with no bid.,
+auction_no_bid,<R>Auction ended with no bid.,<R>İhale teklifsiz sona erdi.
+mortgage,"<p align=""center""><b><R><a href=""event:mortgage"">Mortgage","<p align=""center""><b><R><a href=""event:mortgage"">İpotek"
+unmortgage,"<p align=""center""><b><VP><a href=""event:unmortgage"">Unmortgage","<p align=""center""><b><VP><a href=""event:unmortgage"">İpotek Kaldır"
 card_1,Go - Collect 200 as you pass,Başlangıç
 card_2,<N>Vanilla Avenue,<N>Vanilla Caddesi
 card_3,Community Chest,Topluluk Sandığı
 card_4,<N>Defilante Street,<N>Defilante Sokak
-card_5,Tax,Vergi
+card_5,Income Tax,Gelir Vergisi
 card_6,Deathmatch Station,Deathmatch İstasyonu
 card_7,Parkour Street,Parkour Sokak
 card_8,Chance,Şans
@@ -74,7 +76,7 @@ card_35,Divinity Avenue,Divinity Caddesi
 card_36,Cannonup Station,Cannonup İstasyonu
 card_37,Chance,Şans
 card_38,<N>Records Plaza,<N>Records Plaza
-card_39,Tax,Vergi
+card_39,Luxury Tax,Özel Tüketim Vergisi
 card_40,"<N><font size=""12"">Bootcamp Avenue","<N><font size=""12"">Bootcamp Caddesi"
 community_1,Advance to Go\nCollect $200,Başlangıça ilerle\n$200 al
 community_2,Go back to Vanilla Avenue,Vanilla Caddesine geri dön

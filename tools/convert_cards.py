@@ -2,6 +2,20 @@
 
 import csv
 import re
+import requests
+
+SHEET_LINK = 'https://docs.google.com/spreadsheets/d/1Phsnvq1xxomWa2HczMHFQZFKJmTKcUxro_WYmSAH5k4/export?format=csv'
+
+print("Downloading cards...")
+
+with requests.get(SHEET_LINK) as response:
+  if response.status_code == 200:
+    with open('cards.csv', 'wb') as f:
+      f.write(response.content)
+    print("Downloaded cards successfully!")
+  else:
+    print("Couldn't download cards sheet: ", response.status_code)
+
 
 head = []
 cards = []

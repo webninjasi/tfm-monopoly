@@ -46,6 +46,7 @@ return {
     title = 'Tax',
     price = 200,
     mortgage = 100,
+    card_image = 'income_tax',
   },
   {
     type = 'station',
@@ -413,6 +414,7 @@ return {
     type = 'lose',
     title = 'Tax',
     price = 100,
+    card_image = 'luxury_tax',
   },
   {
     type = 'property',

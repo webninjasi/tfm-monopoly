@@ -3,7 +3,7 @@ win,Go - Collect 200 as you pass,200,,,,,,,,,,go
 property,<N>Vanilla Avenue,60,2,10,30,90,160,250,50,30,590c38,
 chest,Community Chest,0,,,,,,,,,,community2
 property,<N>Defilante Street,60,4,20,60,180,320,450,50,30,590c38,
-lose,Tax,200,,,,,,,,100,,
+lose,Tax,200,,,,,,,,100,,income_tax
 station,Deathmatch Station,200,,,,,,,,100,,train
 property,Parkour Street,100,6,30,90,270,400,550,50,50,87a5d6,
 chance,Chance,0,,,,,,,,,,chance2
@@ -37,5 +37,5 @@ property,Divinity Avenue,320,28,150,450,1000,1200,1400,200,160,13a55b,
 station,Cannonup Station,200,,,,,,,,100,,train
 chance,Chance,0,,,,,,,,,,chance2
 property,<N>Records Plaza,350,35,175,500,1100,1300,1500,200,175,274ea1,
-lose,Tax,100,,,,,,,,,,
+lose,Tax,100,,,,,,,,,,luxury_tax
 property,"<N><font size=""12"">Bootcamp Avenue",400,50,200,600,1400,1700,2000,200,200,274ea1,

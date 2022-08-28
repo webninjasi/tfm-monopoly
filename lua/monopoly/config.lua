@@ -83,6 +83,8 @@ config.images = {
   circle = "182144f123d.png",
   house = "182dbcf91cb.png",
   hotel = "182dbcfe6ab.png",
+  mortgage = "182e69f4a5a.png",
+  unmortgage = "182e69f9dc1.png",
   buy_house = "182d6e03a58.png",
   sell_house = "182d6e09428.png",
   tokensbg = "182cbf45136.png",
@@ -102,6 +104,9 @@ config.images = {
     afkvillage = "18223387796.png",
     chance2 = "18221945952.png",
     community2 = "1822194a55a.png",
+
+    luxury_tax = "182e5ffae83.png",
+    income_tax = "182e60000d3.png",
   },
   pixels = {
     red = "17948d9ecc2.png",

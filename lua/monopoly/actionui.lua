@@ -23,8 +23,7 @@ do
       img = img[2],
       x = x, y = y,
       alpha = images.alpha,
-      enabled = img[3],
-      invisible = img[3] == nil,
+      invisible = img[3],
 
       text = ('<font size="72"><a href="event:actionui %s">%s'):format(img[1], spaces),
       tx = tx, ty = ty,
@@ -74,8 +73,8 @@ local module = {}
 
 module.show = function(name)
   for _, btn in pairs(buttons) do
-    if btn.enabled or not btn.invisible then
-      updateButton(btn, name, btn.enabled)
+    if not btn.invisible then
+      updateButton(btn, name, false)
     end
   end
 end
@@ -83,6 +82,16 @@ end
 module.hide = function(name)
   for _, btn in pairs(buttons) do
     hideButton(btn, name)
+  end
+end
+
+module.reset = function(name)
+  for _, btn in pairs(buttons) do
+    if not btn.invisible then
+      updateButton(btn, name, false)
+    else
+      hideButton(btn, name)
+    end
   end
 end
 

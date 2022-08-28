@@ -136,17 +136,17 @@ config.images = {
     sep = 10,
     taw = 40, tah = 40,
 
-    {"JailCard", "182a6388113.png"},
-    {"JailPay", "182a6382f66.png"},
-    {"Dice", "181f077be5d.png", true},
-    {"Cards", "181f076da5c.png", false},
-    {"Build", "181f077265d.png", false},
-    {"Trade", "181f0780a5c.png", false},
-    {"Stop", "181f077725b.png", false},
+    {"JailCard", "182a6388113.png", true},
+    {"JailPay", "182a6382f66.png", true},
+    {"Dice", "181f077be5d.png"},
+    {"Cards", "181f076da5c.png"},
+    {"Build", "181f077265d.png"},
+    {"Trade", "181f0780a5c.png"},
+    {"Stop", "181f077725b.png"},
   },
 }
 
--- spawn locations when rolling the dices
+-- dice spawn offsets
 config.dice1 = { x = -40, y = 0 }
 config.dice2 = { x = 40, y = 0 }
 

@@ -3,7 +3,6 @@
 local config = pshy.require("monopoly.config")
 local tokens = pshy.require("monopoly.tokens")
 local board = pshy.require("monopoly.board")
-local votes = pshy.require("monopoly.votes")
 local dice = pshy.require("monopoly.dice")
 local actionui = pshy.require("monopoly.actionui")
 local cellactions = pshy.require("monopoly.cellactions")
@@ -31,11 +30,9 @@ local states = {
 }
 local lobbyTurn
 local whoseTurn
-local game = {
-  states = states,
-  state = states.LOBBY,
-}
+local gameState = states.LOBBY
 local currentAuction
+local currentTimer
 
 
 -- Helper Functions
@@ -58,6 +55,15 @@ end
 
 
 -- Game Functions
+local function setGameState(newState)
+  local oldState = gameState
+  gameState = newState
+
+  if newState ~= oldState then
+    eventGameStateChanged(newState, oldState)
+  end
+end
+
 local function showBoard(target)
   ui.addImage("bg", config.images.background, "?1", 0, 20, target)
 end
@@ -80,32 +86,17 @@ local function nextTurn()
     if prev ~= whoseTurn then
       if prev then
         property.hideManageHouses(prev.name)
-        actionui.update(prev.name, "Stop", false)
+        actionui.reset(prev.name)
         tokens.circleMode(prev.tokenid, false)
         prev.turn = nil
       end
 
-      tokens.circleMode(whoseTurn.tokenid, true)
       logs.add('player_turn', whoseTurn.name)
       players.update(whoseTurn.name, "turn", true)
     end
-
-    if whoseTurn.jail then
-      actionui.update(whoseTurn.name, "JailPay", true)
-
-      if whoseTurn.jailcard then
-        actionui.update(whoseTurn.name, "JailCard", true)
-      end
-    end
-
-    actionui.update(whoseTurn.name, "Dice", true)
-    tfm.exec.playSound('transformice/son/chamane', 100, nil, nil, whoseTurn.name)
-
-    whoseTurn.timer = os.time() + gameTime.dice * 1000
   end
 
-  tfm.exec.setGameTime(gameTime.dice)
-  game.state = states.WAITING
+  setGameState(states.WAITING)
 end
 
 local function createPlayer(name, coloridx, color, tokenid)
@@ -142,6 +133,7 @@ local function createPlayer(name, coloridx, color, tokenid)
   if player.color and player.tokenid then
     tokens.hideUI(name)
     actionui.show(name)
+    actionui.update(name, "Dice", true)
 
     translations.chatMessage('start_roll', name)
   end
@@ -162,22 +154,45 @@ end
 
 local function startGame()
   whoseTurn = nil
-  game.state = states.WAITING
   nextTurn()
-  tokens.hideUI("*")
-  logs.add('newgame')
+end
 
-  -- enable actions
-  for player in players.iter do
-    actionui.update(player.name, "Cards", true)
-    actionui.update(player.name, "Build", true)
-    actionui.update(player.name, "Trade", true)
-    actionui.update(player.name, "Stop", false)
+local function jailPlayer(player, jail_type)
+  player.jail = 0
 
-    if whoseTurn ~= player then
-      actionui.update(player.name, "Dice", false)
-    end
+  logs.add(jail_type, player.name)
+  board.moveToken(player.tokenid, 11, nil, nil, true)
+
+  if whoseTurn == player then
+    nextTurn()
   end
+end
+
+local function unjail(player, unjail_type)
+  player.jail = nil
+  logs.add(unjail_type, player.name)
+
+  if whoseTurn == player then
+    actionui.update(whoseTurn.name, "JailPay", false)
+    actionui.update(whoseTurn.name, "JailCard", false)
+  end
+end
+
+local function setTimer(time)
+  currentTimer = os.time() + time * 1000
+  tfm.exec.setGameTime(time)
+end
+
+local function startAuction(card)
+  setGameState(states.AUCTION)
+  currentAuction = {
+    bid = 1,
+    bidder = '',
+    card = card,
+    start = os.time(),
+  }
+  property.showAuction(card)
+  property.updateAuction(whoseTurn.name, 1, 'BANK')
 end
 
 
@@ -206,19 +221,19 @@ function eventNewGame()
     eventInitPlayer(name)
   end
 
-  game.state = states.LOBBY
+  setGameState(states.LOBBY)
 
   showBoard()
   property.showButtons()
 
+  currentTimer = nil
+  currentAuction = nil
   lobbyTurn = nil
   players.reset()
   board.reset()
   tokens.reset()
-  votes.reset()
   property.reset()
   tokens.showUI("*")
-  actionui.hide("*")
   property.showHouses(nil, "*")
 end
 
@@ -237,7 +252,7 @@ function eventNewPlayer(name)
   board.showCellColor(nil, name)
   property.showHouses(nil, name)
 
-  if game.state == states.LOBBY then
+  if gameState == states.LOBBY then
     tokens.showUI(name)
   end
 
@@ -253,12 +268,11 @@ function eventInitPlayer(name)
 end
 
 function eventPlayersUpdated(name, player)
-  if game.state == states.GAME_OVER then
+  if gameState == states.GAME_OVER then
     return
   end
 
   board.removeToken(player.tokenid)
-  votes.unvote('start', name)
 
   if whoseTurn == player then
     player.double = nil
@@ -272,7 +286,7 @@ function eventPlayersUpdated(name, player)
       logs.add("won", whoseTurn.name)
     end
 
-    game.state = states.GAME_OVER
+    setGameState(states.GAME_OVER)
     tfm.exec.newGame(mapXML)
   end
 end
@@ -303,38 +317,33 @@ function eventMouse(name, x, y)
 
   player.allowMouse = false
 
-  if game.state == states.LOBBY then
+  if gameState == states.LOBBY then
     -- play order is already decided or being decided right now
     if player.order or lobbyTurn then
       return
     end
 
-    local count = votes.vote('start', name)
-
-    if count then
-      lobbyTurn = player
-      dice.roll(x, y)
-      actionui.update(name, "Dice", false)
-    end
-  elseif game.state == states.WAITING then
+    lobbyTurn = player
+    dice.roll(x, y)
+    actionui.update(name, "Dice", false)
+  elseif gameState == states.WAITING then
     if whoseTurn ~= player then
       return
     end
 
-    game.state = states.ROLLING
+    setGameState(states.ROLLING)
     dice.roll(x, y)
-    actionui.update(name, "Dice", false)
   end
 end
 
 
 -- Monopoly Events
 function eventDiceRoll(dice1, dice2)
-  if game.state == states.ROLLING then
+  if gameState == states.ROLLING then
     local player = whoseTurn
 
     if player then
-      game.state = states.MOVING
+      setGameState(states.MOVING)
 
       if player.luck then
         dice2 = dice1
@@ -348,12 +357,9 @@ function eventDiceRoll(dice1, dice2)
         if player.jail == 3 then
           player.jail = nil
           players.add(name, 'money', -50)
-
           logs.add('jail_out_money', player.name)
-          actionui.update(player.name, "JailCard", false)
-          actionui.update(player.name, "JailPay", false)
 
-          game.state = states.ROLLING
+          setGameState(states.ROLLING)
           eventDiceRoll(dice1, dice2)
 
           return
@@ -364,8 +370,6 @@ function eventDiceRoll(dice1, dice2)
 
           logs.add('roll_double', player.name, dice1, dice2, dice1 + dice2)
           logs.add('jail_out_dice', player.name)
-          actionui.update(player.name, "JailCard", false)
-          actionui.update(player.name, "JailPay", false)
 
           board.moveToken(player.tokenid, player.diceSum, true)
           return
@@ -380,12 +384,8 @@ function eventDiceRoll(dice1, dice2)
       if dice1 == dice2 then
         if player.double and player.double > 1 then
           player.double = nil
-          player.jail = 0
-
           logs.add('roll_double', player.name, dice1, dice2, dice1 + dice2)
-          logs.add('roll_jail', player.name)
-          board.moveToken(player.tokenid, 11, nil, nil, true)
-          nextTurn()
+          jailPlayer(player, 'roll_jail')
 
           return
         end
@@ -403,7 +403,7 @@ function eventDiceRoll(dice1, dice2)
       logs.add('roll_once', player.name, dice1, dice2, dice1 + dice2)
       board.moveToken(player.tokenid, player.diceSum, true)
     end
-  elseif game.state == states.LOBBY then
+  elseif gameState == states.LOBBY then
     local player = lobbyTurn
     local name = player and player.name
 
@@ -436,11 +436,11 @@ function eventMoneyChanged(name, amount, change)
 end
 
 function eventStartMoving()
-  game.state = states.MOVING
+  setGameState(states.MOVING)
 end
 
 function eventTokenMove(tokenId, cellId, passedGo)
-  if game.state ~= states.MOVING then
+  if gameState ~= states.MOVING then
     return
   end
 
@@ -465,7 +465,7 @@ function eventTokenMove(tokenId, cellId, passedGo)
 
     local action = board.cellAction(cellId)
 
-    game.state = states.PLAYING
+    setGameState(states.PLAYING)
 
     if action then
       -- diceSum can be nil if !move is used
@@ -473,25 +473,15 @@ function eventTokenMove(tokenId, cellId, passedGo)
 
       if player.jail then
         player.double = nil
-        board.moveToken(player.tokenid, 11, nil, nil, true)
-        logs.add('jail_in', name)
+        jailPlayer(player, 'jail_in')
         return
       end
-    end
-
-    if game.state == states.PLAYING then
-      whoseTurn.timer = os.time() + gameTime.play * 1000
-      tfm.exec.setGameTime(gameTime.play)
-    end
-
-    if game.state == states.PLAYING or game.state == states.PROPERTY then
-      actionui.update(whoseTurn.name, "Stop", true)
     end
   end
 end
 
 function eventColorSelected(name, index, color)
-  if game.state ~= states.LOBBY then
+  if gameState ~= states.LOBBY then
     return
   end
 
@@ -499,7 +489,7 @@ function eventColorSelected(name, index, color)
 end
 
 function eventTokenClicked(name, tokenid)
-  if game.state == states.LOBBY then
+  if gameState == states.LOBBY then
     if board.hasToken(tokenid) then
       return
     end
@@ -519,33 +509,31 @@ function eventActionUIClick(name, action)
     if not player.jail or whoseTurn ~= player then
       return
     end
-    if game.state ~= states.WAITING or player.money < 50 then
+    if gameState ~= states.WAITING or player.money < 50 then
       return
     end
 
     players.add(player.name, "money", -50)
-    player.jail = nil
-    logs.add('jail_out_money', player.name)
-    actionui.update(player.name, "JailCard", false)
-    actionui.update(player.name, "JailPay", false)
+    unjail(player, 'jail_out_money')
   elseif action == "JailCard" then
     if not player.jail or whoseTurn ~= player then
       return
     end
-    if not player.jailcard or game.state ~= states.WAITING then
+    if not player.jailcard or gameState ~= states.WAITING then
       return
     end
 
     player.jailcard = nil
-    player.jail = nil
-    logs.add('jail_out_card', player.name)
-    actionui.update(player.name, "JailCard", false)
-    actionui.update(player.name, "JailPay", false)
+    unjail(player, 'jail_out_card')
   elseif action == "Dice" then
     player.allowMouse = true
   elseif action == "Cards" then
   elseif action == "Build" then
-    if game.state ~= states.PLAYING and game.state ~= states.PROPERTY and game.state ~= states.WAITING then
+    if whoseTurn ~= player then
+      return
+    end
+
+    if gameState ~= states.PLAYING and gameState ~= states.PROPERTY and gameState ~= states.WAITING then
       return
     end
 
@@ -564,25 +552,15 @@ function eventActionUIClick(name, action)
       return
     end
 
-    if game.state ~= states.PLAYING and game.state ~= states.PROPERTY then
+    if gameState ~= states.PLAYING and gameState ~= states.PROPERTY then
       return
     end
 
-    if game.state == states.PROPERTY then
-      local card = board.getTokenCell(player.tokenid)
+    if gameState == states.PROPERTY then
+      local card = board.getTokenCell(whoseTurn.tokenid)
 
       if card and property.canBuy(card) then
-        game.state = states.AUCTION
-        currentAuction = {
-          bid = 1,
-          bidder = '',
-          card = card,
-          start = os.time(),
-          timer = os.time() + gameTime.auction * 1000,
-        }
-        property.showAuction(card)
-        property.updateAuction(whoseTurn.name, 1, 'BANK')
-        tfm.exec.setGameTime(gameTime.auction)
+        startAuction(card)
         return
       end
     end
@@ -592,7 +570,7 @@ function eventActionUIClick(name, action)
 end
 
 function eventBuyCardClick(name)
-  if game.state ~= states.PROPERTY then
+  if gameState ~= states.PROPERTY then
     return
   end
 
@@ -612,14 +590,11 @@ function eventBuyCardClick(name)
     buyProperty(name, player.color, card)
   end
 
-  game.state = states.PLAYING
-  whoseTurn.timer = os.time() + gameTime.play * 1000
-  tfm.exec.setGameTime(gameTime.play)
-  actionui.update(whoseTurn.name, "Stop", true)
+  setGameState(states.PLAYING)
 end
 
 function eventAuctionCardClick(name)
-  if game.state ~= states.PROPERTY then
+  if gameState ~= states.PROPERTY then
     return
   end
 
@@ -632,22 +607,12 @@ function eventAuctionCardClick(name)
   local card = board.getTokenCell(player.tokenid)
 
   if card and property.canBuy(card) then
-    game.state = states.AUCTION
-    currentAuction = {
-      bid = 1,
-      bidder = '',
-      card = card,
-      start = os.time(),
-      timer = os.time() + gameTime.auction * 1000,
-    }
-    property.showAuction(card)
-    property.updateAuction(whoseTurn.name, 1, 'BANK')
-    tfm.exec.setGameTime(gameTime.auction)
+    startAuction(card)
   end
 end
 
 function eventAuctionBid(name, bid)
-  if game.state ~= states.AUCTION then
+  if gameState ~= states.AUCTION then
     return
   end
 
@@ -663,9 +628,13 @@ function eventAuctionBid(name, bid)
     return
   end
 
-  local now = os.time()
+  if not currentTimer then
+    return
+  end
 
-  if currentAuction.timer < now then
+  local remaining = currentTimer - os.time()
+
+  if remaining < 0 then
     return
   end
 
@@ -673,35 +642,33 @@ function eventAuctionBid(name, bid)
   currentAuction.bidder = name
   property.updateAuction(name, bid, name)
 
-  if currentAuction.timer - now < gameTime.auctionBid * 1000 then
-    currentAuction.timer = now + gameTime.auctionBid * 1000
-    tfm.exec.setGameTime(gameTime.auctionBid)
+  if remaining < gameTime.auctionBid * 1000 then
+    setTimer(gameTime.auctionBid)
   end
 end
 
 function eventTimeout()
+  if not currentTimer then
+    return
+  end
+
   local now = os.time()
 
-  if game.state == states.WAITING then
-    if not whoseTurn or not whoseTurn.timer then
-      return
-    end
-
-    if whoseTurn.timer > now then
-      return
-    end
-
-    whoseTurn.allowMouse = true
-    actionui.update(whoseTurn.name, "Dice", false)
-    eventMouse(whoseTurn.name, 400, 400)
-
+  if currentTimer > now then
     return
-  elseif game.state == states.PROPERTY then
+  end
+
+  if gameState == states.WAITING then
     if not whoseTurn then
       return
     end
 
-    if whoseTurn.timer > now then
+    whoseTurn.allowMouse = true
+    eventMouse(whoseTurn.name, 400, 400)
+
+    return
+  elseif gameState == states.PROPERTY then
+    if not whoseTurn then
       return
     end
 
@@ -716,46 +683,30 @@ function eventTimeout()
     end
 
     return
-  elseif game.state == states.PLAYING then
-    if whoseTurn and whoseTurn.timer > now then
-      return
-    end
-
+  elseif gameState == states.PLAYING then
     nextTurn()
 
     return
+  elseif gameState == states.AUCTION then
+    if not currentAuction then
+      return
+    end
+
+    local player = players.get(currentAuction.bidder)
+
+    if player then
+      buyProperty(player.name, player.color, currentAuction.card, currentAuction.bid)
+    else
+      logs.add('auction_no_bid')
+    end
+
+    setGameState(states.PLAYING)
   end
-
-  if game.state ~= states.AUCTION or not currentAuction then
-    return
-  end
-
-  if currentAuction.timer > now then
-    return
-  end
-
-  local player = players.get(currentAuction.bidder)
-
-  if player then
-    buyProperty(player.name, player.color, currentAuction.card, currentAuction.bid)
-  else
-    logs.add('auction_no_bid')
-  end
-
-  currentAuction = nil
-  property.hideAuction("*")
-
-  game.state = states.PLAYING
-  whoseTurn.timer = os.time() + gameTime.play * 1000
-  tfm.exec.setGameTime(gameTime.play)
-  actionui.update(whoseTurn.name, "Stop", true)
 end
 
 function eventEmptyProperty(name, cell)
   property.showCard(cell, name, true)
-  whoseTurn.timer = os.time() + gameTime.property * 1000
-  tfm.exec.setGameTime(gameTime.property)
-  game.state = states.PROPERTY
+  setGameState(states.PROPERTY)
 end
 
 function eventPropertyClicked(name, cell)
@@ -779,7 +730,7 @@ function eventBuyHouseClicked(name)
     return
   end
 
-  if game.state ~= states.PLAYING then
+  if gameState ~= states.PLAYING then
     return
   end
 
@@ -807,7 +758,7 @@ function eventSellHouseClicked(name)
     return
   end
 
-  if game.state ~= states.PLAYING then
+  if gameState ~= states.PLAYING then
     return
   end
 
@@ -835,7 +786,7 @@ function eventCellOverlayClicked(cellId, name)
     return
   end
 
-  if game.state ~= states.PLAYING then
+  if gameState ~= states.PLAYING then
     return
   end
 
@@ -864,6 +815,67 @@ function eventCellOverlayClicked(cellId, name)
   property.showHouses(cellId)
 end
 
+function eventGameStateChanged(newState, oldState)
+  if whoseTurn then
+    actionui.reset(whoseTurn.name)
+  end
+
+  if oldState == states.AUCTION then
+    currentAuction = nil
+    property.hideAuction("*")
+  elseif oldState == states.LOBBY then
+    tokens.hideUI("*")
+  end
+
+  if newState == states.LOBBY then
+    if newState ~= states.GAME_OVER then
+      actionui.hide("*")
+    end
+
+  elseif newState == states.WAITING then
+    if oldState == states.LOBBY then
+      logs.add('newgame')
+    end
+
+    if whoseTurn then
+      actionui.update(whoseTurn.name, "JailPay", whoseTurn.jail and true)
+      actionui.update(whoseTurn.name, "JailCard", whoseTurn.jail and whoseTurn.jailcard and true)
+      actionui.update(whoseTurn.name, "Dice", true)
+
+      tokens.circleMode(whoseTurn.tokenid, true)
+      tfm.exec.playSound('transformice/son/chamane', 100, nil, nil, whoseTurn.name)
+    end
+
+    setTimer(gameTime.dice)
+
+  elseif newState == states.ROLLING then
+  elseif newState == states.MOVING then
+  elseif newState == states.PROPERTY then
+    if whoseTurn then
+      actionui.update(whoseTurn.name, "Stop", true)
+    end
+
+    setTimer(gameTime.property)
+
+  elseif newState == states.PLAYING then
+    if whoseTurn then
+      actionui.update(whoseTurn.name, "Build", true)
+      actionui.update(whoseTurn.name, "Stop", true)
+    end
+
+    setTimer(gameTime.play)
+
+  elseif newState == states.AUCTION then
+    setTimer(gameTime.auction)
+
+  elseif newState == states.GAME_OVER then
+    if newState ~= states.LOBBY then
+      actionui.hide("*")
+    end
+
+  end
+end
+
 
 -- Commands
 command_list["move"] = {
@@ -890,13 +902,13 @@ command_list["move"] = {
 command_list["roll"] = {
   perms = "admins",
   func = function(name, dice1, dice2)
-    if game.state ~= states.WAITING then
+    if gameState ~= states.WAITING then
       return
     end
 
     dice1 = dice1 or 6
     dice2 = dice2 or dice1
-    game.state = states.ROLLING
+    setGameState(states.ROLLING)
     eventDiceRoll(dice1, dice2)
   end,
   desc = "simulate dice roll",
@@ -926,9 +938,7 @@ command_list["jail"] = {
       return
     end
 
-    player.jail = 0
-    logs.add('jail_in', player.name)
-    board.moveToken(player.tokenid, 11, nil, nil, true)
+    jailPlayer(player, 'jail_in')
   end,
   desc = "put someone into jail",
   argc_min = 0, argc_max = 1, arg_types = {"player"}
@@ -943,10 +953,7 @@ command_list["unjail"] = {
       return
     end
 
-    player.jail = nil
-    logs.add('jail_out_card', player.name)
-    actionui.update(player.name, "JailCard", false)
-    actionui.update(player.name, "JailPay", false)
+    unjail(player, 'jail_out_card')
   end,
   desc = "get someone out of jail",
   argc_min = 0, argc_max = 1, arg_types = {"player"}
@@ -968,10 +975,9 @@ command_list["state"] = {
   perms = "admins",
   func = function(name, state)
     if state then
-      game.state = state
-      -- TODO implement setGameState and eventGameStateChanged
+      setGameState(state)
     else
-      tfm.exec.chatMessage("<ROSE>Game State: <V>" .. game.state, name)
+      tfm.exec.chatMessage("<ROSE>Game State: <V>" .. gameState, name)
     end
   end,
   desc = "set game state",
@@ -992,7 +998,7 @@ command_list["money"] = {
   func = function(name, money, target)
     players.add(target or name, 'money', money)
   end,
-  desc = "set game state",
+  desc = "give money",
   argc_min = 1, argc_max = 2, arg_types = {"number", "player"}
 }
 
@@ -1027,7 +1033,7 @@ command_list["setlang"] = {
 command_list["time"] = {
   perms = "admins",
   func = function(name, time)
-    tfm.exec.setGameTime(time or 5)
+    setTimer(time or 5)
   end,
   desc = "set game time",
   argc_min = 0, argc_max = 1, arg_types = {"number"}

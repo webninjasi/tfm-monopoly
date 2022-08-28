@@ -33,7 +33,7 @@ local function updateCells()
   boardCells._len = #boardCells
   for i=1, boardCells._len do
     boardCells[i].id = i
-    boardCells[i].header_color = boardCells[i].header_color and tonumber(boardCells[i].header_color, 16)
+    boardCells[i].header_color_int = boardCells[i].header_color and tonumber(boardCells[i].header_color, 16) or 0
   end
 end
 

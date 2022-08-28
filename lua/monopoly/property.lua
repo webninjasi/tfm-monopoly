@@ -95,7 +95,7 @@ local function showPropertyCard(cell, name, x, y, canBuy)
       name,
       x + 10, y + 15,
       w - 20, 50,
-      cell.header_color, cell.header_color, 1,
+      cell.header_color_int, cell.header_color_int, 1,
       true
     )
   end
@@ -481,7 +481,7 @@ module.showAuction = function(cell)
       name,
       260, 150,
       120, nil,
-      cell.header_color, cell.header_color, 1,
+      cell.header_color_int, cell.header_color_int, 1,
       true
     )
   end

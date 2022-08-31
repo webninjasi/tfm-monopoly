@@ -6,9 +6,9 @@ roll_lobby,<V>{player} <J>rolled a <CH>{dice1} <J>and <CH>{dice2} <J>which sums 
 roll_jail,<V>{player} <R>rolled a double 3 times and went to jail.,<V>{player} <R>üç defa çift zar attığı için hapise düştü.
 roll_jail_fail,<V>{player} <J>rolled a <CH>{dice1} <J>and <CH>{dice2} <J>and failed to escape from jail!,<V>{player} <J>attığı zarlar <CH>{dice1} <J>ile <CH>{dice2} <J>geldi ve hapisten kaçamadı!
 move,"<V>{player} <J>moved to <font color=""#{propertycolor}"">{movedtoproperty}","<V>{player} <font color=""#{propertycolor}"">{movedtoproperty} <J>arazisinde."
-purchase,"<V>{player} <J>purchased <font color=""#{propertycolor}"">{purchaseproperty}","<V>{player} <font color=""#{propertycolor}"">{purchaseproperty} <J>arazisini satın aldı."
-auction,"<V>{player} <J>purchased <font color=""#{propertycolor}"">{auctionproperty} <J>in the auction.","<V>{player} <J>ihaleyle <font color=""#{propertycolor}"">{auctionproperty} <J>arazisini satın aldı."
-pay_rent,<V>{player} <J>payed <VP>${money} <J>in rent to <V>{playerowner}.,<V>{player} <J>kira bedeli olarak <VP>${money} <J>kadar <V>{playerowner} <J>oyuncusuna ödedi.
+purchase,"<V>{player} <J>purchased <font color=""#{propertycolor}"">{purchaseproperty} <J>for <VP>${price}","<V>{player} <font color=""#{propertycolor}"">{purchaseproperty} <J>arazisini <VP>${price} <J>ödeyerek satın aldı."
+auction,"<V>{player} <J>purchased <font color=""#{propertycolor}"">{auctionproperty} <J>for <VP>${price} <J>in the auction.","<V>{player} <J>ihaleyle <font color=""#{propertycolor}"">{auctionproperty} <VP>${price} <J>ödeyerek arazisini satın aldı."
+pay_rent,<V>{player} <J>paid <VP>${money} <J>in rent to <V>{playerowner}.,<V>{player} <J>kira bedeli olarak <VP>${money} <J>kadar <V>{playerowner} <J>oyuncusuna ödedi.
 jail_in,<V>{player} <R>was sent to jail!,<V>{player} <R>hapise düştü!
 jail_out_money,<V>{player} <J>paid the <VP>$50 <J>fine to get out of jail.,<V>{player} <VP>$50 <J>kefaret ödeyerek hapisten çıktı.
 jail_out_dice,<V>{player} <J>rolled doubles to get out of jail.,<V>{player} <J>çift zarla hapisten çıktı.

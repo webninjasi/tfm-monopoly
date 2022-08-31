@@ -145,10 +145,11 @@ local function buyProperty(name, color, card, bid)
   board.setCellColor(card.id, color)
   property.hideCard(name)
 
+  -- TODO use translations
   if bid then
-    logs.add("auction", name, card.header_color, card.title)
+    logs.add("auction", name, card.header_color, card.title, bid)
   else
-    logs.add("purchase", name, card.header_color, card.title)
+    logs.add("purchase", name, card.header_color, card.title, card.price)
   end
 end
 
@@ -161,6 +162,7 @@ local function startGame()
   nextTurn()
 end
 
+-- TODO go to jail animation
 local function jailPlayer(player, jail_type)
   player.jail = 0
 
@@ -187,16 +189,47 @@ local function setTimer(time)
   tfm.exec.setGameTime(time)
 end
 
+local function checkAuctionPlayers()
+  local count = 0
+
+  if currentAuction then
+    for player in players.iter do
+      if not currentAuction.fold[player.name] then
+        count = 1 + count
+      end
+    end
+  end
+
+  if count < 2 then
+    setTimer(5)
+    return true
+  end
+end
+
+local function auctionFilter()
+  if currentAuction then
+    for player in players.iter do
+      if player.money <= currentAuction.bid and currentAuction.bidder ~= player.name then
+        currentAuction.fold[player.name] = true
+      end
+    end
+  end
+end
+
 local function startAuction(card)
   setGameState(states.AUCTION)
   currentAuction = {
     bid = 1,
-    bidder = '',
+    bidder = 'BANK',
+    fold = {},
     card = card,
     start = os.time(),
   }
-  property.showAuction(card)
-  property.updateAuction(whoseTurn.name, 1, 'BANK')
+  auctionFilter()
+  property.showAuction(card, currentAuction.fold)
+  property.updateAuction(whoseTurn.name, 1, 'BANK', currentAuction.fold)
+
+  checkAuctionPlayers()
 end
 
 
@@ -360,7 +393,7 @@ function eventDiceRoll(dice1, dice2)
 
         if player.jail == 3 then
           player.jail = nil
-          players.add(name, 'money', -50)
+          players.add(player.name, 'money', -50)
           logs.add('jail_out_money', player.name)
 
           setGameState(states.ROLLING)
@@ -644,10 +677,48 @@ function eventAuctionBid(name, bid)
 
   currentAuction.bid = bid
   currentAuction.bidder = name
-  property.updateAuction(name, bid, name)
+  auctionFilter()
+  property.updateAuction(name, bid, name, currentAuction.fold)
+
+  if remaining > 5000 and checkAuctionPlayers() then
+    return
+  end
 
   if remaining < gameTime.auctionBid * 1000 then
     setTimer(gameTime.auctionBid)
+  end
+end
+
+function eventAuctionFold(name)
+  if gameState ~= states.AUCTION then
+    return
+  end
+
+  local player = players.get(name)
+
+  if not player or not player.tokenid or not currentAuction then
+    return
+  end
+
+  local bid = currentAuction.bid
+  local bidder = currentAuction.bidder
+
+  -- Current bidder cannot fold
+  if bidder == name then
+    return
+  end
+
+  local remaining = currentTimer - os.time()
+
+  if remaining < 0 then
+    return
+  end
+
+  currentAuction.fold[name] = true
+  property.updateAuction(bidder, bid, bidder, currentAuction.fold)
+
+  if remaining > 5000 then
+    checkAuctionPlayers()
   end
 end
 
@@ -800,19 +871,25 @@ function eventCellOverlayClicked(cellId, name)
     return
   end
 
+  local price = property.housePrice(cellId)
+
   if player.overlay_mode == 'sell' then
     if not property.canSellHouse(cellId) then
       return
     end
 
-    players.add(name, 'money', property.housePrice(cellId) / 2)
+    players.add(name, 'money', price / 2)
     property.removeHouse(cellId)
   elseif player.overlay_mode == 'buy' then
     if not property.canBuyHouse(cellId) then
       return
     end
 
-    players.add(name, 'money', -property.housePrice(cellId))
+    if player.money < price then
+      return
+    end
+
+    players.add(name, 'money', -price)
     property.addHouse(cellId)
   end
 

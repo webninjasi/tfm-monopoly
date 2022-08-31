@@ -89,7 +89,7 @@ config.images = {
   sell_house = "182d6e09428.png",
   tokensbg = "182cbf45136.png",
   ui = "182a637db2c.png",
-  popup = "VnQV5eZ.png",
+  popup = "182ec0c077f.png",
   cards = {
     empty = "18220bf6da4.png",
     chance = "18220c02228.png",
@@ -243,7 +243,14 @@ config.board.positions = {
 }
 
 -- cell rows on card
+-- TODO move rows to translations
 config.cardRows = {}
+config.cardRows.lose = {
+  {
+    key = "price",
+    title = "Pay",
+  },
+}
 config.cardRows.property = {
   {
     key = "price",

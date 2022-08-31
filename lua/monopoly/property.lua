@@ -117,6 +117,7 @@ local function showPropertyCard(cell, name, x, y, canBuy)
     )
   end
 
+  -- TODO move rows to translations
   if cardRows then
     for i=1, cardRows._len do
       card = cardRows[i]
@@ -145,6 +146,7 @@ local function showPropertyCard(cell, name, x, y, canBuy)
   if canBuy then
     ui.addImage("cardbtnbuy", pixels.black, "~160", x, y + 205, name, 70, 20, 0, 0.8)
     ui.addImage("cardbtnauction", pixels.black, "~160", x + 80, y + 205, name, 70, 20, 0, 0.8)
+    -- TODO use translations
     ui.addTextArea(
       "cardbtnbuy",
       '<VP><b><p align="center"><a href="event:buy">BUY</a>',
@@ -435,20 +437,47 @@ module.showAuctionBid = function(target)
     1, 1, 0, 1,
     true
   )
+  ui.addImage(
+    "auctionfold",
+    pixels.red,
+    "~110",
+    415, 280,
+    target,
+    120, 20, 0, 1,
+    true
+  )
+  ui.addTextArea(
+    "auctionfold",
+    '<p align="center"><a href="event:auction_fold"><b><font size="12" color="#ffffff">FOLD',
+    target,
+    415, 280,
+    120, 20,
+    0, 0, 0,
+    true
+  )
 end
 
-module.showAuction = function(cell)
-  -- TODO show auction screen to everyone in the room
-  -- TODO add a button to fold
-  -- TODO auto-fold if player cannot bid
+module.hideAuctionBid = function(target)
+  ui.removeTextArea("auctionfold", target)
+  ui.removeImage("auctionfold", target)
+  ui.removeImage("auctionpopup", target)
+  ui.addPopup(
+    44, 2,
+    "",
+    target ~= "*" and target or nil,
+    -5000, -5000,
+    nil, true
+  )
+end
 
-  for player in players.iter do
+module.showAuction = function(cell, fold)
+  for name in pairs(tfm.get.room.playerList) do
     ui.addImage(
       "auctionui",
       img.ui,
       "~100",
       234, 100,
-      player.name,
+      name,
       1, 1, 0, 1,
       true
     )
@@ -457,19 +486,18 @@ module.showAuction = function(cell)
       pixels.black,
       "~100",
       400 - 1, 150,
-      player.name,
+      name,
       2, 160, 0, 1,
       true
     )
 
-    module.showAuctionBid(player.name)
-    module.hideCard(player.name)
-    showPropertyCard(cell, player.name, 75, 110, false)
+    module.hideCard(name)
+    showPropertyCard(cell, name, 75, 110, false)
 
     ui.addTextArea(
       "auctiontitle",
-      translations.get("auction_title", player.name),
-      player.name,
+      translations.get("auction_title", name),
+      name,
       234, 110,
       332, nil,
       0, 0, 0,
@@ -480,7 +508,7 @@ module.showAuction = function(cell)
       string.format(
         '<p align="center"><font size="12" color="#000000"><a href="event:auctioncard_%d">%s',
         cell.id,
-        translations.get(cell.title_tr, player.name)
+        translations.get(cell.title_tr, name)
       ),
       name,
       260, 150,
@@ -489,41 +517,46 @@ module.showAuction = function(cell)
       true
     )
   end
+
+  for player in players.iter do
+    if not fold[player.name] then
+      module.showAuctionBid(player.name)
+    end
+  end
 end
 
 module.hideAuction = function(target)
   module.hideCard(target)
+  module.hideAuctionBid(target)
   ui.removeTextArea("auctiontitle", target)
   ui.removeTextArea("auctioncard", target)
   ui.removeTextArea("auctionhighest", target)
   ui.removeTextArea("auctionplayers", target)
-  ui.removeImage("auctionpopup", target)
   ui.removeImage("auctionui", target)
   ui.removeImage("auctionsep", target)
-  ui.addPopup(
-    44, 2,
-    "",
-    target ~= "*" and target or nil,
-    -5000, -5000,
-    nil, true
-  )
 end
 
-module.updateAuction = function(whoseTurn, highestBid, highestBidder)
+module.updateAuction = function(whoseTurn, highestBid, highestBidder, fold)
   local list = {}
 
   for player in players.iter do
     list[1 + #list] = string.format(
       '<font color="#%.6x">%s%s',
       player.color,
-      whoseTurn == player.name and '&gt; ' or '',
+      fold[player.name] and '\\o ' or (whoseTurn == player.name and '&gt; ' or ''),
       player.name
     )
 
+    if fold[player.name] then
+      module.hideAuctionBid(player.name)
+    end
+  end
+
+  for name in pairs(tfm.get.room.playerList) do
     ui.addTextArea(
       "auctionhighest",
-      translations.get("auction_highest", player.name, highestBid, highestBidder),
-      player.name,
+      translations.get("auction_highest", name, highestBid, highestBidder),
+      name,
       250, 180,
       140, nil,
       0, 0, 0,
@@ -792,6 +825,8 @@ function eventTextAreaCallback(id, name, callback)
     if eventAuctionCardClick then
       eventAuctionCardClick(name)
     end
+  elseif callback == 'auction_fold' then
+    eventAuctionFold(name)
   elseif callback:sub(1, 12) == 'auctioncard_' then
     local id = tonumber(callback:sub(13))
     local cell = id and boardCells[id]

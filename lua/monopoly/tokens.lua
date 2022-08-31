@@ -203,6 +203,27 @@ module.reset = function()
   selectedColors = {}
 end
 
+module.remove = function(tokenid, coloridx)
+  local token = tokenid and tokens[tokenid]
+
+  if token then
+    token.x = token.defaultX
+    token.y = token.defaultY
+    token.scale = 1
+    token.rotation = 0
+    token.active = false
+    hideToken(tokenid, "*")
+  end
+
+  if coloridx then
+    selectedColors[coloridx] = nil
+  end
+end
+
+module.getToken = function(tokenid)
+  return tokenid and tokens[tokenid]
+end
+
 module.showUI = function(target)
   local token
 

@@ -237,10 +237,10 @@ module.removeToken = function(tokenId)
 
   if token.cell then
     removeFromCell(token.cell, tokenId)
+    updateTokens(token.cell)
   end
 
   board.tokens[tokenId] = nil
-  board.cells[tokenId] = nil
 end
 
 -- TODO implement counter-clockwise animation

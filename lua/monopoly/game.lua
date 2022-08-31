@@ -121,12 +121,14 @@ local function createPlayer(name, coloridx, color, tokenid)
   end
 
   if not player.color and color then
+    player.coloridx = coloridx
     players.update(player.name, "color", color)
     tokens.selectColor(coloridx)
   end
 
   if not player.tokenid and tokenid then
     player.tokenid = tokenid
+    players.update(player.name, "token", tokens.getToken(tokenid))
     board.addToken(player.tokenid)
     board.moveToken(player.tokenid, 1)
   end
@@ -319,6 +321,7 @@ function eventPlayersUpdated(name, player)
   end
 
   board.removeToken(player.tokenid)
+  tokens.remove(player.tokenid, player.coloridx)
 
   if whoseTurn == player then
     player.double = nil
@@ -1390,6 +1393,27 @@ command_list["startgame"] = {
     startGame()
   end,
   desc = "force start the game",
+}
+
+command_list["join"] = {
+  perms = "admins",
+  func = function(name, target)
+    if not target then
+      for target in pairs(tfm.get.room.playerList) do
+        for i=1, #config.images.tokens do
+          eventTokenClicked(target, i)
+        end
+      end
+
+      return
+    end
+
+    for i=1, #config.images.tokens do
+      eventTokenClicked(target, i)
+    end
+  end,
+  desc = "force join people",
+  argc_min = 0, argc_max = 1, arg_types = {"player"}
 }
 
 command_list["logs"] = {

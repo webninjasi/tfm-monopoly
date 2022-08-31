@@ -3,6 +3,7 @@
 -- Config
 local cfg = pshy.require('monopoly.config').playersUI
 local uiX, uiY = cfg.x, cfg.y
+local initY, offX, offY = cfg.inity, cfg.offx, cfg.offy
 
 
 -- Variables
@@ -46,8 +47,8 @@ end
 
 local function updateUI()
   local player = first
-  local list = {'<p align="right"><font size="15">'}
-  local listShadow = {'<p align="right"><font size="15" color="#000000">'}
+  local list = {'<font size="15">'}
+  local listShadow = {'<font size="15" color="#000000">'}
   local i = #list
   local money_diff
 
@@ -98,15 +99,47 @@ local function showUI(target)
     uiText,
     target,
     uiX, uiY,
-    245, nil,
+    nil, nil,
     0, 0, 0,
     false
   )
+
+  local player = first
+  local y = uiY + initY
+  local scale
+
+  while player do
+    if player.tokenid and player.token then
+      scale = math.min(1, offY / player.token.h)
+      ui.addImage(
+        "playerlist_token_" .. player.tokenid,
+        player.token.img,
+        "!1",
+        uiX + offX - player.token.w / 2 * scale, y + player.token.h / 2 * scale,
+        target,
+        scale, scale, 0, 1,
+        0.5, 0.5
+      )
+    end
+
+    y = offY + y
+    player = player.next
+  end
 end
 
 local function hideUI()
   ui.removeTextArea("playerlistshadow")
   ui.removeTextArea("playerlist")
+
+  local player = first
+
+  while player do
+    if player.tokenid then
+      ui.removeImage("playerlist_token_" .. player.tokenid)
+    end
+
+    player = player.next
+  end
 end
 
 local function reset()
@@ -137,6 +170,10 @@ local function remove(name)
 
     if player == last then
       last = player.prev
+    end
+
+    if player.tokenid then
+      ui.removeImage("playerlist_token_" .. player.tokenid)
     end
 
     players[name] = nil

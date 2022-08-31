@@ -378,8 +378,15 @@ module.showMortgage = function(cellId, target)
   local x, y = (pos[1] + pos[3]) / 2, (pos[2] + pos[4]) / 2
   local rotation = (direction - 1) * math.pi / 2
 
-  if direction == 3 then -- top
+  if direction == 1 then -- bottom
+    y = y + houseSize / 2
+  elseif direction == 2 then -- left
+    x = x - houseSize / 2
+  elseif direction == 3 then -- top
+    y = y - houseSize / 2
     rotation = 0
+  elseif direction == 4 then -- right
+    x = x + houseSize / 2
   end
 
   ui.addImage(

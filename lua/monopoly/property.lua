@@ -885,6 +885,10 @@ module.showHouses = function(cellId, target)
   end
 end
 
+module.getPositions = function(cellId)
+  return cellId and positions[cellId]
+end
+
 
 -- Events
 function eventInit()

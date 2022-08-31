@@ -26,6 +26,7 @@ local states = {
   PROPERTY = 4,
   PLAYING = 5,
   AUCTION = 6,
+  JAIL_ANIM = 7,
   GAME_OVER = 10,
 }
 local lobbyTurn
@@ -162,15 +163,15 @@ local function startGame()
   nextTurn()
 end
 
--- TODO go to jail animation
 local function jailPlayer(player, jail_type)
   player.jail = 0
 
   logs.add(jail_type, player.name)
-  board.moveToken(player.tokenid, 11, nil, nil, true)
 
   if whoseTurn == player then
-    nextTurn()
+    setGameState(states.JAIL_ANIM)
+  else
+    board.moveToken(player.tokenid, 11, nil, nil, true)
   end
 end
 
@@ -784,6 +785,13 @@ function eventTimeout()
     end
 
     setGameState(states.PLAYING)
+  elseif gameState == states.JAIL_ANIM then
+    if whoseTurn then
+      setGameState(states.MOVING)
+      board.moveToken(whoseTurn.tokenid, 11, nil, nil, true)
+    end
+
+    nextTurn()
   end
 end
 
@@ -991,8 +999,13 @@ function eventGameStateChanged(newState, oldState)
   if oldState == states.AUCTION then
     currentAuction = nil
     property.hideAuction("*")
+
   elseif oldState == states.LOBBY then
     tokens.hideUI("*")
+
+  elseif oldState == states.JAIL_ANIM then
+    tfm.exec.removePhysicObject(202)
+    tfm.exec.removePhysicObject(203)
   end
 
   if newState == states.LOBBY then
@@ -1035,6 +1048,52 @@ function eventGameStateChanged(newState, oldState)
 
   elseif newState == states.AUCTION then
     setTimer(gameTime.auction)
+
+  elseif newState == states.JAIL_ANIM then
+    setTimer(5)
+
+    if whoseTurn then
+      local card = board.getTokenCell(whoseTurn.tokenid)
+      local player_pos = card and property.getPositions(card.id)
+      local jail_pos = property.getPositions(11)
+
+      if player_pos and jail_pos then
+        local x = (player_pos[3] + jail_pos[3]) / 2
+        local y = (player_pos[4] + jail_pos[4]) / 2
+        local w = (player_pos[3] - jail_pos[3])
+        local h = (jail_pos[4] - player_pos[4])
+        local r = -math.atan(h / w)
+
+        dice.hide()
+        tfm.exec.addPhysicObject(202, x, y, {
+          type = 14,
+          width = 1500,
+          height = 10,
+          angle = math.deg(r),
+          color = 0xffffff,
+          friction = 0.1,
+        })
+
+        local x2 = (player_pos[1] + player_pos[3]) / 2
+        local y2 = (player_pos[2] + player_pos[4]) / 2
+        local powerx = -math.max(10, math.ceil((x2 - jail_pos[3]) / 10))
+        local powery = -math.max(10, math.ceil((y2 - jail_pos[4]) / 10))
+
+        tfm.exec.addPhysicObject(203, x2, y2, {
+          dynamic = true,
+          fixedRotation = false,
+          angle = 0,
+          type = 13,
+          width = 30,
+          height = 30,
+          color = 0xffffff,
+          friction = 0.1,
+        })
+        tfm.exec.movePhysicObject(203, 0, 0, true, powerx, powery, false, math.random(360), false)
+        tokens.setRotation(whoseTurn.tokenid, 0)
+        tokens.attachGround(whoseTurn.tokenid, 203)
+      end
+    end
 
   elseif newState == states.GAME_OVER then
     if newState ~= states.LOBBY then

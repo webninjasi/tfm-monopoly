@@ -79,14 +79,14 @@ do
 end
 
 -- Private Functions
-local function showToken(token, clickable, target, ground)
+local function showToken(token, clickable, target, groundId)
   local upside_down = token.rotation == math.pi
   ui.addImage(
     "token" .. token.id,
     token.img,
-    ground and '+77' or (clickable and ':70' or '!70'),
-    ground and 0 or token.x,
-    ground and 0 or token.y,
+    groundId and ('+' .. groundId) or (clickable and ':70' or '!70'),
+    groundId and 0 or token.x,
+    groundId and 0 or token.y,
     target,
     upside_down and -token.scale or token.scale, token.scale,
     upside_down and 0 or token.rotation, 1,
@@ -94,7 +94,7 @@ local function showToken(token, clickable, target, ground)
   )
 
   if token.circle then
-    if ground then
+    if groundId then
       ui.removeImage("token_circle", target)
     else
       tfm.exec.addPhysicObject(43, token.x, token.y, {
@@ -283,6 +283,16 @@ module.selectColor = function(id)
   updateColors()
 end
 
+module.attachGround = function(tokenId, groundId)
+  local token = tokens[tokenId]
+
+  if not token then
+    return
+  end
+
+  showToken(token, false, nil, groundId)
+end
+
 module.animate = function(tokenId, x1, y1, x2, y2, axis)
   local token = tokens[tokenId]
 
@@ -311,7 +321,7 @@ module.animate = function(tokenId, x1, y1, x2, y2, axis)
     forceMotor = 100,
     limit2 = limit,
   })
-  showToken(token, false, nil, true)
+  showToken(token, false, nil, 77)
 end
 
 module.setRotation = function(tokenId, rotation)

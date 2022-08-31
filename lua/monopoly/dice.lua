@@ -63,6 +63,15 @@ module.roll = function(x, y)
   tfm.exec.movePhysicObject(2, 0, 0, true, math.random(-100, 100), math.random(-100, 100), false, 1, true)
 end
 
+module.hide = function()
+  tfm.exec.removePhysicObject(1)
+  tfm.exec.removePhysicObject(2)
+
+  for i=1, #cage do
+    tfm.exec.removePhysicObject(2+i)
+  end
+end
+
 
 -- Events
 function eventLoop(elapsed, remaining)

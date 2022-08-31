@@ -23,9 +23,11 @@ community_chest,<V>{player} <J>landed on community chest!,<V>{player} <J>toplulu
 income_tax,<V>{player} <J>has to pay $200 in income tax from collecting too much cheese!,<V>{player} <J>çok fazla peynir topladığı için $200 gelir vergisi ödemek zorunda kaldı.
 luxury_tax,<V>{player} <J>has to pay $100 in luxury tax for being too noob!,<V>{player} <J>fazla noob olduğu için $100 özel tüketim vergisi ödemek zorunda kaldı.
 bankrupt,<V>{player} <R>went bankrupt and has lost the game! All of their assets will be turned over to <V>{playerowner}.,<V>{player} <R>iflas etti ve oyunu kaybetti! Tüm malvarlığı <V>{playerowner} <R> oyuncusuna devredilecek.
-mortgage_property,"<V>{player} <J>landed on <V>{playerowner}<J>. Property is mortgaged, no rent was collected.",
+mortgage_property,"<V>{player} <J>landed on <font color=""#{propertycolor}"">{movedtoproperty} <J>owned by <V>{playerowner}<J>. Property is mortgaged, no rent was collected.","<V>{player}<J>, sahibi <V>{playerowner} <J>olan <font color=""#{propertycolor}"">{movedtoproperty} <J>mülkünün üzerinde. Mülk ipotek edildiği için, kira ödenmedi."
 warn_need_fullset,"<J>Before you can buy a house, you must own all the properties of a color-group.",<J>Ev satın almadan önce bir renk grubundaki tüm mülkiyetlere sahip olmalısınız.
 warn_need_house,<J>You don't have any house to sell.,<J>Satabileceğin bir evin bulunmamakta.
+warn_need_house2,<J>You don't have any house to mortgage.,<J>İpotekleyebileceğin bir evin bulunmamakta.
+warn_need_house3,<J>You don't have any house to unmortgage.,<J>İpotekeğini kaldırabileceğin bir evin bulunmamakta.
 log_card,<V>{player} <J>drew a <ROSE>{type} <J>card: <CH>{$cardtext},<V>{player} <J>bir <ROSE>{type} <J>kartı çekti: <N>{$cardtext}
 community,community,topluluk
 chance,chance,şans

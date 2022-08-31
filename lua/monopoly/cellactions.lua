@@ -58,9 +58,15 @@ function eventInit()
       if owner then
         if owner ~= name then
           local rent = property.calculateRent(cell, diceSum)
-          players.add(name, 'money', -rent)
-          players.add(owner, 'money', rent)
-          logs.add('pay_rent', name, rent, owner)
+
+          if rent == 0 then
+            -- TODO translate card title
+            logs.add('mortgage_property', name, cell.header_color, cell.title, owner)
+          else
+            players.add(name, 'money', -rent)
+            players.add(owner, 'money', rent)
+            logs.add('pay_rent', name, rent, owner)
+          end
         end
       elseif eventEmptyProperty then
         eventEmptyProperty(name, cell)

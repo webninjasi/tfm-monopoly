@@ -63,6 +63,7 @@ config.playersUI = {
   y = 130,
 }
 
+-- TODO move logs somewhere else that allows no-wrap?
 config.logsUI = {
   x = 125,
   y = 145,
@@ -83,6 +84,7 @@ config.images = {
   circle = "182144f123d.png",
   house = "182dbcf91cb.png",
   hotel = "182dbcfe6ab.png",
+  mortgaged = "18227e5d7b4.png",
   mortgage = "182e69f4a5a.png",
   unmortgage = "182e69f9dc1.png",
   buy_house = "182d6e03a58.png",

@@ -21,6 +21,8 @@ end
 
 local owners = {}
 local houses = {}
+local mortgage = {}
+
 local cellsByGroup = {}
 local cellsByType = {}
 local separator = '<p align="center">' .. string.rep('━', 12) .. '</p>'
@@ -189,6 +191,7 @@ local module = {}
 module.reset = function()
   owners = {}
   houses = {}
+  mortgage = {}
 end
 
 module.showButtons = function(target)
@@ -294,6 +297,11 @@ module.housePrice = function(cellId)
   return cell and cell.house_hotel or 0
 end
 
+module.mortgagePrice = function(cellId)
+  local cell = cellId and boardCells[cellId]
+  return cell and cell.mortgage or 0
+end
+
 module.canBuy = function(card)
   return not module.getOwner(card.id)
     and (
@@ -336,6 +344,53 @@ module.canBuyHouse = function(cellId)
   end
 
   return true
+end
+
+module.canMortgage = function(cellId)
+  return cellId and not mortgage[cellId]
+end
+
+module.canUnmortgage = function(cellId)
+  return cellId and mortgage[cellId]
+end
+
+module.mortgage = function(cellId, state)
+  mortgage[cellId] = state
+end
+
+module.showMortgage = function(cellId, target)
+  if not cellId then
+    for i=1, boardCells._len do
+      module.showMortgage(i, target)
+    end
+
+    return
+  end
+
+  if not mortgage[cellId] then
+    ui.removeImage("cell_mortgaged_" .. cellId, target)
+    return
+  end
+
+  local pos = positions[cellId]
+
+  local direction = cellDirection(cellId)
+  local x, y = (pos[1] + pos[3]) / 2, (pos[2] + pos[4]) / 2
+  local rotation = (direction - 1) * math.pi / 2
+
+  if direction == 3 then -- top
+    rotation = 0
+  end
+
+  ui.addImage(
+    "cell_mortgaged_" .. cellId,
+    img.mortgaged,
+    "_60",
+    x, y,
+    target,
+    1, 1, rotation, 1,
+    0.5, 0.5
+  )
 end
 
 module.canSellHouse = function(cellId)
@@ -388,6 +443,10 @@ module.showCard = function(cell, name, canBuy)
 end
 
 module.calculateRent = function(cell, diceSum)
+  if mortgage[cell.id] then
+    return 0
+  end
+
   if cell.type == 'utility' or cell.type == 'station' then
     local list = cellsByType[cell.type]
     local owner = owners[cell.id]
@@ -879,6 +938,12 @@ function eventTextAreaCallback(id, name, callback)
   elseif callback == "sell_house" then
     module.hideManageHouses(name)
     eventSellHouseClicked(name)
+  elseif callback == "mortgage" then
+    module.hideManageHouses(name)
+    eventMortgageClicked(name)
+  elseif callback == "unmortgage" then
+    module.hideManageHouses(name)
+    eventUnmortgageClicked(name)
   end
 end
 

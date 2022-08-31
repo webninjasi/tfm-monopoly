@@ -295,6 +295,7 @@ function eventNewPlayer(name)
   tokens.show()
   board.showCellColor(nil, name)
   property.showHouses(nil, name)
+  property.showMortgage(nil, name)
 
   if gameState == states.LOBBY then
     tokens.showUI(name)
@@ -861,6 +862,62 @@ function eventSellHouseClicked(name)
   end
 end
 
+function eventMortgageClicked(name)
+  local player = players.get(name)
+
+  if not player or player ~= whoseTurn then
+    return
+  end
+
+  if gameState ~= states.PLAYING then
+    return
+  end
+
+  player.overlay_mode = 'mortgage'
+
+  local properties = property.getProperties(name)
+  local ok = false
+
+  for i=1, properties._len do
+    if property.canMortgage(properties[i].id) then
+      board.setCellOverlay(properties[i].id, name, 0x00ff00)
+      ok = true
+    end
+  end
+
+  if not ok then
+    translations.chatMessage('warn_need_house2', name)
+  end
+end
+
+function eventUnmortgageClicked(name)
+  local player = players.get(name)
+
+  if not player or player ~= whoseTurn then
+    return
+  end
+
+  if gameState ~= states.PLAYING then
+    return
+  end
+
+  player.overlay_mode = 'unmortgage'
+
+  local properties = property.getProperties(name)
+  local ok = false
+
+  for i=1, properties._len do
+    if property.canUnmortgage(properties[i].id) then
+      board.setCellOverlay(properties[i].id, name, 0xff0000)
+      ok = true
+    end
+  end
+
+  if not ok then
+    translations.chatMessage('warn_need_house3', name)
+  end
+end
+
 function eventCellOverlayClicked(cellId, name)
   local player = players.get(name)
 
@@ -879,6 +936,9 @@ function eventCellOverlayClicked(cellId, name)
   end
 
   local price = property.housePrice(cellId)
+  local mortage_price = property.mortgagePrice(cellId) 
+
+  -- TODO add logs for these actions
 
   if player.overlay_mode == 'sell' then
     if not property.canSellHouse(cellId) then
@@ -887,6 +947,7 @@ function eventCellOverlayClicked(cellId, name)
 
     players.add(name, 'money', price / 2)
     property.removeHouse(cellId)
+    property.showHouses(cellId)
   elseif player.overlay_mode == 'buy' then
     if not property.canBuyHouse(cellId) then
       return
@@ -898,9 +959,28 @@ function eventCellOverlayClicked(cellId, name)
 
     players.add(name, 'money', -price)
     property.addHouse(cellId)
-  end
+    property.showHouses(cellId)
+  elseif player.overlay_mode == 'mortgage' then
+    if not property.canMortgage(cellId) then
+      return
+    end
 
-  property.showHouses(cellId)
+    players.add(name, 'money', mortage_price)
+    property.mortgage(cellId, true)
+    property.showMortgage(cellId, "*")
+  elseif player.overlay_mode == 'unmortgage' then
+    if not property.canUnmortgage(cellId) then
+      return
+    end
+
+    if player.money < mortage_price then
+      return
+    end
+
+    players.add(name, 'money', -mortage_price)
+    property.mortgage(cellId, nil)
+    property.showMortgage(cellId, "*")
+  end
 end
 
 function eventGameStateChanged(newState, oldState)

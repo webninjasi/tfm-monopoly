@@ -84,7 +84,7 @@ local function showToken(token, clickable, target, ground)
   ui.addImage(
     "token" .. token.id,
     token.img,
-    ground and '+77' or (clickable and ':1' or '!1'),
+    ground and '+77' or (clickable and ':70' or '!70'),
     ground and 0 or token.x,
     ground and 0 or token.y,
     target,

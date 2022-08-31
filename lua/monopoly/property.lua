@@ -26,6 +26,10 @@ local cellsByType = {}
 local separator = '<p align="center">' .. string.rep('━', 12) .. '</p>'
 local empty_space = string.rep(' ', 30)
 
+local battery_cap = 10
+local battery = string.rep('█', battery_cap)
+local battery_cell_size = #battery / battery_cap
+
 
 -- Private Functions
 local function cellDirection(cellId)
@@ -471,6 +475,16 @@ module.hideAuctionBid = function(target)
 end
 
 module.showAuction = function(cell, fold)
+  ui.addTextArea(
+    "auctiontimer",
+    '',
+    nil,
+    490, 120,
+    70, 30,
+    0, 0, 0,
+    true
+  )
+
   for name in pairs(tfm.get.room.playerList) do
     ui.addImage(
       "auctionui",
@@ -528,12 +542,27 @@ end
 module.hideAuction = function(target)
   module.hideCard(target)
   module.hideAuctionBid(target)
+  ui.removeTextArea("auctiontimer", target)
   ui.removeTextArea("auctiontitle", target)
   ui.removeTextArea("auctioncard", target)
   ui.removeTextArea("auctionhighest", target)
   ui.removeTextArea("auctionplayers", target)
   ui.removeImage("auctionui", target)
   ui.removeImage("auctionsep", target)
+end
+
+module.updateAuctionTimer = function(remaining, total)
+  local index = math.ceil(remaining / total * 10)
+
+  ui.updateTextArea(
+    "auctiontimer",
+    string.format(
+      '<font size="6" face="Verdana">%s%s<font color="#000000">%s',
+      remaining <= 5 and '<R>' or '<V>',
+      battery:sub(1, index * battery_cell_size),
+      battery:sub(index * battery_cell_size + 1)
+    )
+  )
 end
 
 module.updateAuction = function(whoseTurn, highestBid, highestBidder, fold)

@@ -275,6 +275,13 @@ function eventNewGame()
 end
 
 function eventLoop(elapsed, remaining)
+  if gameState == states.AUCTION and currentAuction then
+    local totalSeconds = math.max(0, math.ceil((currentTimer - currentAuction.start) / 1000))
+    local remainingSeconds = math.max(0, math.ceil((currentTimer - os.time()) / 1000))
+
+    property.updateAuctionTimer(remainingSeconds, totalSeconds)
+  end
+
   if remaining < 1 then
     eventTimeout()
   end

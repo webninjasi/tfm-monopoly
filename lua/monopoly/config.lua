@@ -64,8 +64,8 @@ config.playersUI = {
 }
 
 config.logsUI = {
-  x = 125,
-  y = 145 + 420,
+  x = 125 + 5,
+  y = 145 + 400,
   width = 550,
   lines = 10, -- 2000/10 = ~200 chars per line
 }

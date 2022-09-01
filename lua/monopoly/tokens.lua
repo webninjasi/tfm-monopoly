@@ -198,6 +198,7 @@ module.reset = function()
     tokens[i].scale = 1
     tokens[i].rotation = 0
     tokens[i].active = false
+    tokens[i].circle = false
   end
 
   selectedColors = {}
@@ -212,6 +213,7 @@ module.remove = function(tokenid, coloridx)
     token.scale = 1
     token.rotation = 0
     token.active = false
+    token.circle = false
     hideToken(tokenid, "*")
   end
 

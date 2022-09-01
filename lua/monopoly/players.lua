@@ -51,28 +51,34 @@ local function updateUI()
   local listShadow = {'<font size="15" color="#000000">'}
   local i = #list
   local money_diff
+  local money
 
   while player do
     i = 1 + i
     money_diff = player.money_diff or 0
+    money = player.money or 0
+
     listShadow[i] = string.format(
       '<b>%s%s</b>\n' ..
-      '$%s (%s$%s)',
+      '%s$%s (%s$%s)',
       player.turn and "• " or "",
       player.name,
-      player.money or 0,
+      money < 0 and "-" or "",
+      math.abs(money),
       money_diff < 0 and '-' or '+',
       math.abs(money_diff)
     )
     list[i] = string.format(
       '<font color="#%.6x"><b>%s<a href="event:trade_%s">%s</a></b>\n' ..
-      '<VP>$%s <BL>(<%s>%s$%s<BL>)',
+      '%s%s$%s <BL>(%s%s$%s<BL>)',
       player.color or 0,
       player.turn and "• " or "",
       player.name,
       player.name,
-      player.money or 0,
-      money_diff < 0 and 'R' or 'VP',
+      money < 0 and '<R>' or '<VP>',
+      money < 0 and '-' or '',
+      math.abs(money),
+      money_diff < 0 and '<R>' or '<VP>',
       money_diff < 0 and '-' or '+',
       math.abs(money_diff)
     )

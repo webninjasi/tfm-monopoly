@@ -350,7 +350,8 @@ module.canBuyHouse = function(cellId)
 end
 
 module.canMortgage = function(cellId)
-  return cellId and not mortgage[cellId]
+  local cell = cellId and boardCells[cellId]
+  return cell and not mortgage[cellId] and not houses[cellId] and cell.type ~= 'utility'
 end
 
 module.canUnmortgage = function(cellId)

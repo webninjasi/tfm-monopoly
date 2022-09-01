@@ -83,15 +83,16 @@ local function nextTurn()
     end
   end
 
-  if whoseTurn then
-    if prev ~= whoseTurn then
-      if prev then
-        property.hideManageHouses(prev.name)
-        actionui.reset(prev.name)
-        tokens.circleMode(prev.tokenid, false)
-        prev.turn = nil
-      end
+  if prev ~= whoseTurn then
+    if prev then
+      board.setCellOverlay(nil, prev.name, nil)
+      property.hideManageHouses(prev.name)
+      actionui.reset(prev.name)
+      tokens.circleMode(prev.tokenid, false)
+      prev.turn = nil
+    end
 
+    if whoseTurn then
       logs.add('player_turn', whoseTurn.name)
       players.update(whoseTurn.name, "turn", true)
     end
@@ -600,11 +601,8 @@ function eventActionUIClick(name, action)
       return
     end
 
-    local card = board.getTokenCell(player.tokenid)
-
-    if card then
-      property.showManageHouses(card, player.name)
-    end
+    board.setCellOverlay(nil, player.name, nil)
+    property.showManageHouses(player.name)
   elseif action == "Trade" then
   elseif action == "Stop" then
     if whoseTurn ~= player then

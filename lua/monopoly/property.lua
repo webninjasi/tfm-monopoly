@@ -315,6 +315,10 @@ module.canBuy = function(card)
 end
 
 module.canBuyHouse = function(cellId)
+  if mortgage[cellId] then
+    return
+  end
+
   local house = houses[cellId] or 0
 
   if house == 5 then
@@ -340,6 +344,10 @@ module.canBuyHouse = function(cellId)
       return
     end
 
+    if mortgage[group[i].id] then
+      return
+    end
+
     -- Evenly distribute
     if module.getHouses(group[i].id) < house then
       return
@@ -351,7 +359,28 @@ end
 
 module.canMortgage = function(cellId)
   local cell = cellId and boardCells[cellId]
-  return cell and not mortgage[cellId] and not houses[cellId] and cell.type ~= 'utility'
+
+  if not cell then
+    return
+  end
+
+  if mortgage[cellId] or houses[cellId] or cell.type == 'utility' then
+    return
+  end
+
+  local group = cellsByGroup[cell.header_color]
+
+  if not group then
+    return
+  end
+
+  for i=1, group._len do
+    if module.getHouses(group[i].id) ~= 0 then
+      return
+    end
+  end
+
+  return true
 end
 
 module.canUnmortgage = function(cellId)
@@ -674,7 +703,7 @@ module.updateAuction = function(whoseTurn, highestBid, highestBidder, fold)
   )
 end
 
-module.showManageHouses = function(cell, name)
+module.showManageHouses = function(name)
   ui.addImage(
     "houseui",
     img.ui,

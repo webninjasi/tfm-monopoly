@@ -56,7 +56,6 @@ config.tokenColors = {
 }
 
 config.playersUI = {
-  --x = 430,
   x = 220,
   y = 130,
   offx = -10,
@@ -64,7 +63,6 @@ config.playersUI = {
   inity = 27,
 }
 
--- TODO move logs somewhere else that allows no-wrap?
 config.logsUI = {
   x = 125,
   y = 145 + 420,

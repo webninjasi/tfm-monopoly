@@ -192,6 +192,7 @@ module.reset = function()
   owners = {}
   houses = {}
   mortgage = {}
+  module.hideCard("*")
 end
 
 module.showButtons = function(target)

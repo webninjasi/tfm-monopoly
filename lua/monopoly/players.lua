@@ -83,7 +83,6 @@ local function updateUI()
   uiTextShadow = table.concat(listShadow, '\n')
 end
 
--- TODO show token image next to player name
 local function showUI(target)
   ui.addTextArea(
     "playerlistshadow",

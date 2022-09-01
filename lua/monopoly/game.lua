@@ -790,7 +790,6 @@ function eventTimeout()
     setGameState(states.PLAYING)
   elseif gameState == states.JAIL_ANIM then
     if whoseTurn then
-      setGameState(states.MOVING)
       board.moveToken(whoseTurn.tokenid, 11, nil, nil, true)
     end
 

@@ -274,6 +274,7 @@ function eventNewGame()
   tokens.reset()
   property.reset()
   tokens.showUI("*")
+  property.showHouses()
   property.showHouses(nil, "*")
 end
 
@@ -323,12 +324,21 @@ function eventPlayersUpdated(name, player)
   board.removeToken(player.tokenid)
   tokens.remove(player.tokenid, player.coloridx)
 
+  local houses = property.getProperties(player.name)
+
+  for i=1, houses._len do
+    property.setOwner(houses[i].id, nil)
+    board.setCellColor(houses[i].id, nil)
+    property.showHouses(houses[i].id)
+    property.showMortgage(houses[i].id)
+  end
+
+  logs.add("player_left", name)
+
   if whoseTurn == player then
     player.double = nil
     nextTurn()
   end
-
-  logs.add("player_left", name)
 
   if players.count() < 2 then
     if whoseTurn then
@@ -977,7 +987,7 @@ function eventCellOverlayClicked(cellId, name)
 
     players.add(name, 'money', mortage_price)
     property.mortgage(cellId, true)
-    property.showMortgage(cellId, "*")
+    property.showMortgage(cellId)
   elseif player.overlay_mode == 'unmortgage' then
     if not property.canUnmortgage(cellId) then
       return
@@ -989,7 +999,7 @@ function eventCellOverlayClicked(cellId, name)
 
     players.add(name, 'money', -mortage_price)
     property.mortgage(cellId, nil)
-    property.showMortgage(cellId, "*")
+    property.showMortgage(cellId)
   end
 end
 
@@ -1335,18 +1345,39 @@ command_list["randcard"] = {
 
 command_list["own"] = {
   perms = "admins",
-  func = function(name, id)
-    local player = players.get(name)
+  func = function(name, id, target)
+    local player = players.get(target or name)
   
     if not player or not player.color then
       return
     end
 
-    property.setOwner(id, name)
+    property.setOwner(id, player.name)
     board.setCellColor(id, player.color)
   end,
   desc = "Own specified property",
+  argc_min = 1, argc_max = 2, arg_types = {"number", "player"}
+}
+
+command_list["disown"] = {
+  perms = "admins",
+  func = function(name, id)
+    property.setOwner(id, nil)
+    board.setCellColor(id, nil)
+    property.showHouses(id)
+    property.showMortgage(id)
+  end,
+  desc = "Disown specified property",
   argc_min = 1, argc_max = 1, arg_types = {"number"}
+}
+
+command_list["kick"] = {
+  perms = "admins",
+  func = function(name, target)
+    players.remove(target)
+  end,
+  desc = "Kick a player out of the game",
+  argc_min = 1, argc_max = 1, arg_types = {"player"}
 }
 
 command_list["house"] = {
@@ -1369,7 +1400,7 @@ command_list["house"] = {
     end
 
     local increase = count > current
-    local total = increase and (count - current) or (current - count)
+    local total = math.abs(current - count)
 
 
     for i=1, total do
@@ -1379,7 +1410,7 @@ command_list["house"] = {
         property.removeHouse(cellId)
       end
     end
-  
+
     property.showHouses(cellId)
   end,
   desc = "Set number of houses on a property",

@@ -289,6 +289,8 @@ module.setOwner = function(cellId, owner)
   local cell = cellId and boardCells[cellId]
 
   if cell then
+    houses[cellId] = nil
+    mortgage[cellId] = nil
     owners[cellId] = owner
   end
 end
@@ -872,9 +874,9 @@ module.showHouses = function(cellId, target)
 
   local d1, d2
 
-  for i=1, house_count + 1 do
-    if i == house_count + 1 then
-      ui.removeImage("house_" .. cellId .. "_" .. (house_count + 1), target)
+  for i=1, 5 do
+    if i > house_count then
+      ui.removeImage("house_" .. cellId .. "_" .. i, target)
     else
       is_hotel = i == 1 and house_count == 5
       d1 = ((has_hotel and not is_hotel and 5 or 0) + 12 * (i - 1))

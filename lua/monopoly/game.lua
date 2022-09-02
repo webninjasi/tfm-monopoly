@@ -92,9 +92,15 @@ local function nextTurn()
       prev.turn = nil
     end
 
+    for playerit in players.iter do
+      playerit.tradeMode = nil
+    end
+
     if whoseTurn then
       logs.add('player_turn', whoseTurn.name)
       players.update(whoseTurn.name, "turn", true)
+    else
+      players.update()
     end
   end
 
@@ -603,6 +609,13 @@ function eventActionUIClick(name, action)
     board.setCellOverlay(nil, player.name, nil)
     property.showManageHouses(player.name)
   elseif action == "Trade" then
+    if not whoseTurn or whoseTurn == player or player.tradeMode then
+      return
+    end
+
+    players.update(player.name, "tradeMode", true)
+    tfm.exec.playSound("cite18/baguette2", 100, nil, nil, whoseTurn.name)
+
   elseif action == "Stop" then
     if whoseTurn ~= player then
       return
@@ -1114,6 +1127,10 @@ function eventGameStateChanged(newState, oldState)
 end
 
 function eventTradeRequest(from_name, to_name)
+  if from_name == to_name then
+    return
+  end
+
   local from_player = players.get(from_name)
   local to_player = players.get(to_name)
 
@@ -1121,20 +1138,17 @@ function eventTradeRequest(from_name, to_name)
     return
   end
 
-  -- TODO show trade request on target player
-end
-
-function eventTradeRequestAccepted(from_name, to_name)
-  local from_player = players.get(from_name)
-  local to_player = players.get(to_name)
-
-  if not from_player or not to_player then
+  if whoseTurn ~= from_player or gameState ~= states.PLAYING then
     return
   end
 
-  -- TODO show trade interface
-end
+  if whoseTurn.tradeMode or not to_player.tradeMode then
+    return
+  end
 
+  whoseTurn.tradeMode = true
+  tfm.exec.playSound("cite18/baguette2", 100, nil, nil, to_name)
+end
 
 -- Commands
 command_list["move"] = {

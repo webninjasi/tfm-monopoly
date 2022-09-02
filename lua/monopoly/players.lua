@@ -60,21 +60,21 @@ local function updateUI()
 
     listShadow[i] = string.format(
       '<b>%s%s</b>\n' ..
-      '%s$%s (%s$%s)%s',
+      '%s$%s (%s$%s)%s%s',
       player.turn and "• " or "",
       player.name,
       money < 0 and "-" or "",
       math.abs(money),
       money_diff < 0 and '-' or '+',
       math.abs(money_diff),
-      player.jailcard and ' - ☔' or ''
+      player.jailcard and ' - ☔' or '',
+      player.tradeMode and ' - ☎' or ''
     )
     list[i] = string.format(
-      '<font color="#%.6x"><b>%s<a href="event:trade_%s">%s</a></b>\n' ..
-      '%s%s$%s <BL>(%s%s$%s<BL>)%s',
+      '<font color="#%.6x"><b>%s%s</b>\n' ..
+      '%s%s$%s <BL>(%s%s$%s<BL>)%s%s',
       player.color or 0,
       player.turn and "• " or "",
-      player.name,
       player.name,
       money < 0 and '<R>' or '<VP>',
       money < 0 and '-' or '',
@@ -82,7 +82,11 @@ local function updateUI()
       money_diff < 0 and '<R>' or '<VP>',
       money_diff < 0 and '-' or '+',
       math.abs(money_diff),
-      player.jailcard and ' <G>- <FC>☔' or ''
+      player.jailcard and ' <G>- <FC>☔' or '',
+      player.tradeMode and string.format(
+        ' <G>- <N><a href="event:trade_%s">☎</a>',
+        player.name
+      ) or ''
     )
     player = player.next
   end
@@ -226,17 +230,19 @@ module.get = function(name, key)
 end
 
 module.update = function(name, key, value)
-  local player = players[name]
+  if name then
+    local player = players[name]
 
-  if player then
-    if key == 'money' then
-      player.money_diff = value - (player.money or 0)
-    end
+    if player then
+      if key == 'money' then
+        player.money_diff = value - (player.money or 0)
+      end
 
-    player[key] = value
+      player[key] = value
 
-    if key == 'order' then
-      reorder(player)
+      if key == 'order' then
+        reorder(player)
+      end
     end
   end
 

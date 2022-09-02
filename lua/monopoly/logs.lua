@@ -81,7 +81,7 @@ module.showPage = function(pageNum, target)
       ),
       target,
       centerX, 50, uiW, 300,
-      0xA2BAB4, 1, 0.9, true
+      0x495451, 1, 0.9, true
     )
   end
 end

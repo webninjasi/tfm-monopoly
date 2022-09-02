@@ -583,7 +583,7 @@ function eventActionUIClick(name, action)
       return
     end
 
-    player.jailcard = nil
+    players.update(player.name, "jailcard", nil)
     unjail(player, 'jail_out_card')
   elseif action == "Dice" then
     player.allowMouse = true
@@ -1183,7 +1183,7 @@ command_list["jailcard"] = {
       return
     end
 
-    player.jailcard = true
+    players.update(player.name, "jailcard", true)
   end,
   desc = "receive a free get out of jail card",
 }
@@ -1225,6 +1225,7 @@ command_list["skip"] = {
       whoseTurn.double = nil
     end
 
+    setGameState(states.PLAYING)
     nextTurn()
   end,
   desc = "skip turn",

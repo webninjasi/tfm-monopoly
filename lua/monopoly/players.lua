@@ -47,8 +47,8 @@ end
 
 local function updateUI()
   local player = first
-  local list = {'<font size="15">'}
-  local listShadow = {'<font size="15" color="#000000">'}
+  local list = {'<font size="15" face="Verdana">'}
+  local listShadow = {'<font size="15" face="Verdana" color="#000000">'}
   local i = #list
   local money_diff
   local money
@@ -60,17 +60,18 @@ local function updateUI()
 
     listShadow[i] = string.format(
       '<b>%s%s</b>\n' ..
-      '%s$%s (%s$%s)',
+      '%s$%s (%s$%s)%s',
       player.turn and "• " or "",
       player.name,
       money < 0 and "-" or "",
       math.abs(money),
       money_diff < 0 and '-' or '+',
-      math.abs(money_diff)
+      math.abs(money_diff),
+      player.jailcard and ' - ☔' or ''
     )
     list[i] = string.format(
       '<font color="#%.6x"><b>%s<a href="event:trade_%s">%s</a></b>\n' ..
-      '%s%s$%s <BL>(%s%s$%s<BL>)',
+      '%s%s$%s <BL>(%s%s$%s<BL>)%s',
       player.color or 0,
       player.turn and "• " or "",
       player.name,
@@ -80,7 +81,8 @@ local function updateUI()
       math.abs(money),
       money_diff < 0 and '<R>' or '<VP>',
       money_diff < 0 and '-' or '+',
-      math.abs(money_diff)
+      math.abs(money_diff),
+      player.jailcard and ' <G>- <FC>☔' or ''
     )
     player = player.next
   end

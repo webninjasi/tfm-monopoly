@@ -298,6 +298,7 @@ module.moveToken = function(tokenId, cellId, relative, ignoreGo, noanim)
     os.time() + getMoveDuration(originX, originY, targetX, targetY) / speed,
     speed,
   }
+  tokens.setScale(tokenId, 1)
   tokens.animate(tokenId, originX, originY, targetX, targetY, getMoveAxis(prevCellId, targetCellId), speed)
 end
 

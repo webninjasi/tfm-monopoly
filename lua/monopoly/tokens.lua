@@ -347,6 +347,16 @@ module.animate = function(tokenId, x1, y1, x2, y2, axis, speed)
   showToken(token, false, nil, 77)
 end
 
+module.setScale = function(tokenId, scale)
+  local token = tokens[tokenId]
+
+  if not token then
+    return
+  end
+
+  token.scale = scale
+end
+
 module.setRotation = function(tokenId, rotation)
   local token = tokens[tokenId]
 

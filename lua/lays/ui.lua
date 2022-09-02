@@ -24,17 +24,14 @@ do
   local updateTextArea = ui.updateTextArea
 
   ui.addTextArea = function(key, text, target, ...)
-    target = target ~= "*" and target or nil
     addTextArea(getId(key), text, target, ...)
   end
 
   ui.removeTextArea = function(key, target, ...)
-    target = target ~= "*" and target or nil
     removeTextArea(getId(key), target, ...)
   end
 
   ui.updateTextArea = function(key, text, target, ...)
-    target = target ~= "*" and target or nil
     updateTextArea(getId(key), text, target, ...)
   end
 
@@ -42,20 +39,19 @@ do
 end
 
 do
-  local keyToId = {}
-  local keyToIdPlayer = {}
+  local imageIds = {}
 
   local addImage = tfm.exec.addImage
   local removeImage = tfm.exec.removeImage
-    
+
   ui._imageCleanup = function(name)
-    if keyToIdPlayer[name] then
-        keyToIdPlayer[name] = nil
+    if imageIds[name] then
+      imageIds[name] = nil
     end
   end
 
   ui.addImage = function(key, imageId, target, x, y, name, ...)
-    if name == "*" then
+    if not name then
       for pname in pairs(tfm.get.room.playerList) do
         ui.addImage(key, imageId, target, x, y, pname, ...)
       end
@@ -67,27 +63,20 @@ do
 
     if id then
       if name then
-        keyToIdPlayer[name] = keyToIdPlayer[name] or {}
+        imageIds[name] = imageIds[name] or {}
 
         -- Removes previous image
-        if keyToIdPlayer[name][key] then
-          removeImage(keyToIdPlayer[name][key])
+        if imageIds[name][key] then
+          removeImage(imageIds[name][key])
         end
 
-        keyToIdPlayer[name][key] = id
-      else
-        -- Removes previous image
-        if keyToId[key] then
-          removeImage(keyToId[key])
-        end
-
-        keyToId[key] = id
+        imageIds[name][key] = id
       end
     end
   end
 
   ui.removeImage = function(key, name, ...)
-    if name == "*" then
+    if not name then
       for pname in pairs(tfm.get.room.playerList) do
         ui.removeImage(key, pname, ...)
       end
@@ -95,21 +84,13 @@ do
       return
     end
 
-    local id
-
-    if name then
-      id = keyToIdPlayer[name] and keyToIdPlayer[name][key]
-    else
-      id = keyToId[key]
-    end
+    local id = imageIds[name] and imageIds[name][key]
 
     if id then
       removeImage(id, ...)
 
       if name then
-        keyToIdPlayer[name][key] = nil
-      else
-        keyToId[key] = nil
+        imageIds[name][key] = nil
       end
     end
   end

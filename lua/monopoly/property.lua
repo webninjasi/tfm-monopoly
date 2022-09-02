@@ -192,7 +192,7 @@ module.reset = function()
   owners = {}
   houses = {}
   mortgage = {}
-  module.hideCard("*")
+  module.hideCard()
 end
 
 module.showButtons = function(target)
@@ -567,7 +567,7 @@ module.hideAuctionBid = function(target)
   ui.addPopup(
     44, 2,
     "",
-    target ~= "*" and target or nil,
+    target,
     -5000, -5000,
     nil, true
   )

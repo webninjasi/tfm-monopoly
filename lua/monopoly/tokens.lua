@@ -214,7 +214,7 @@ module.remove = function(tokenid, coloridx)
     token.rotation = 0
     token.active = false
     token.circle = false
-    hideToken(tokenid, "*")
+    hideToken(tokenid)
   end
 
   if coloridx then
@@ -240,7 +240,7 @@ module.showUI = function(target)
   )
   showColors(target)
 
-  if target == "*" then
+  if not target then
     for name in pairs(tfm.get.room.playerList) do
       ui.addTextArea(
         "tokens_title",
@@ -289,14 +289,14 @@ module.hideUI = function(target)
   end
 end
 
-module.show = function()
+module.show = function(target)
   local token
 
   for i=1,tokens._len do
     token = tokens[i]
 
     if token.active then
-      showToken(token, false)
+      showToken(token, false, target)
     end
   end
 end
@@ -385,7 +385,7 @@ module.update = function(tokenId, x, y, scale, rotation)
 
   if not token.active then
     token.active = true
-    hideToken(token.id, "*")
+    hideToken(token.id)
   end
 
   showToken(token, false)

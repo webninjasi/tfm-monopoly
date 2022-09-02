@@ -274,9 +274,8 @@ function eventNewGame()
   board.reset()
   tokens.reset()
   property.reset()
-  tokens.showUI("*")
+  tokens.showUI()
   property.showHouses()
-  property.showHouses(nil, "*")
 end
 
 function eventLoop(elapsed, remaining)
@@ -296,8 +295,8 @@ function eventNewPlayer(name)
   ui.setBackgroundColor(config.bgcolor)
   showBoard(name)
   property.showButtons(name)
-  players.showUI()
-  tokens.show()
+  players.showUI(name)
+  tokens.show(name)
   board.showCellColor(nil, name)
   property.showHouses(nil, name)
   property.showMortgage(nil, name)
@@ -1008,10 +1007,10 @@ function eventGameStateChanged(newState, oldState)
 
   if oldState == states.AUCTION then
     currentAuction = nil
-    property.hideAuction("*")
+    property.hideAuction()
 
   elseif oldState == states.LOBBY then
-    tokens.hideUI("*")
+    tokens.hideUI()
 
   elseif oldState == states.JAIL_ANIM then
     tfm.exec.removePhysicObject(202)
@@ -1020,7 +1019,7 @@ function eventGameStateChanged(newState, oldState)
 
   if newState == states.LOBBY then
     if newState ~= states.GAME_OVER then
-      actionui.hide("*")
+      actionui.hide()
     end
 
   elseif newState == states.WAITING then
@@ -1051,6 +1050,7 @@ function eventGameStateChanged(newState, oldState)
   elseif newState == states.PLAYING then
     if whoseTurn then
       actionui.update(whoseTurn.name, "Build", true)
+      actionui.update(nil, "Trade", true)
       actionui.update(whoseTurn.name, "Stop", true)
     end
 
@@ -1107,7 +1107,7 @@ function eventGameStateChanged(newState, oldState)
 
   elseif newState == states.GAME_OVER then
     if newState ~= states.LOBBY then
-      actionui.hide("*")
+      actionui.hide()
     end
 
   end

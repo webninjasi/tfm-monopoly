@@ -316,7 +316,7 @@ module.attachGround = function(tokenId, groundId)
   showToken(token, false, nil, groundId)
 end
 
-module.animate = function(tokenId, x1, y1, x2, y2, axis)
+module.animate = function(tokenId, x1, y1, x2, y2, axis, speed)
   local token = tokens[tokenId]
 
   if not token then
@@ -340,7 +340,7 @@ module.animate = function(tokenId, x1, y1, x2, y2, axis)
   tfm.exec.addJoint(75, 76, 77, {
     type = 1,
     axis = axis,
-    speedMotor = 2,
+    speedMotor = speed,
     forceMotor = 100,
     limit2 = limit,
   })

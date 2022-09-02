@@ -188,7 +188,7 @@ local function getMoveAxis(cellId1, cellId2)
 end
 
 local function getMoveDuration(x1, y1, x2, y2)
-  return math.sqrt(math.pow(x1 - x2, 2) + math.pow(y1 - y2, 2)) * 50 / 3
+  return math.sqrt(math.pow(x1 - x2, 2) + math.pow(y1 - y2, 2)) * 100 / 3
 end
 
 
@@ -288,15 +288,17 @@ module.moveToken = function(tokenId, cellId, relative, ignoreGo, noanim)
   local targetCellId = getMoveTarget(prevCellId, cellId)
   local originX, originY = cellCenter(prevCellId)
   local targetX, targetY = cellCenter(targetCellId)
+  local speed = math.max(2, math.abs(cellId - prevCellId) / 2)
 
   movingToken = {
     tokenId,
     cellId,
     passedGo,
     targetCellId,
-    os.time() + getMoveDuration(originX, originY, targetX, targetY)
+    os.time() + getMoveDuration(originX, originY, targetX, targetY) / speed,
+    speed,
   }
-  tokens.animate(tokenId, originX, originY, targetX, targetY, getMoveAxis(prevCellId, targetCellId))
+  tokens.animate(tokenId, originX, originY, targetX, targetY, getMoveAxis(prevCellId, targetCellId), speed)
 end
 
 module.getTokenCell = function(tokenId)
@@ -472,13 +474,14 @@ function eventLoop()
   local originX, originY = cellCenter(movingToken[4])
   local targetX, targetY = cellCenter(targetCellId)
   local axis = getMoveAxis(movingToken[4], targetCellId)
+  local speed = movingToken[6]
 
   movingToken[4] = targetCellId
-  movingToken[5] = os.time() + getMoveDuration(originX, originY, targetX, targetY)
+  movingToken[5] = os.time() + getMoveDuration(originX, originY, targetX, targetY) / speed
 
   local rotation = (direction - 1) * math.pi / 2
   tokens.setRotation(movingToken[1], rotation)
-  tokens.animate(movingToken[1], originX, originY, targetX, targetY, axis)
+  tokens.animate(movingToken[1], originX, originY, targetX, targetY, axis, speed)
 end
 
 function eventTextAreaCallback(id, name, callback)

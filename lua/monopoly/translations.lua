@@ -107,6 +107,28 @@ module.chatMessage = function(key, target, ...)
   chatMessage(module.get(key, target, ...), target)
 end
 
+module.addTextArea = function(id, key, args, target, ...)
+  if not target then
+    local cacheEnabled = cache[key]
+    
+    if not cacheEnabled then
+      module.cacheEnable(key)
+    end
+
+    for name in pairs(tfm.get.room.playerList) do
+      module.addTextArea(id, key, args, name, ...)
+    end
+
+    if not cacheEnabled then
+      module.cacheDisable(key)
+    end
+
+    return
+  end
+
+  ui.addTextArea(id, module.get(key, target, table.unpack(args or {})), target, ...)
+end
+
 
 -- Events
 function eventInit()

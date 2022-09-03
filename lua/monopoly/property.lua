@@ -236,6 +236,10 @@ module.getGroupOwner = function(cellId)
   return owner
 end
 
+module.get = function(cellId)
+  return cellId and boardCells[cellId]
+end
+
 module.getProperties = function(owner)
   local list = { _len = 0 }
 
@@ -381,6 +385,10 @@ module.canMortgage = function(cellId)
   end
 
   return true
+end
+
+module.canTrade = function(cellId)
+  return cellId and not mortgage[cellId] and module.getHouses(cellId) == 0
 end
 
 module.canUnmortgage = function(cellId)
@@ -537,8 +545,7 @@ module.showAuctionBid = function(target)
     "~110",
     256, 231,
     target,
-    1, 1, 0, 1,
-    true
+    1, 1, 0, 1
   )
   ui.addImage(
     "auctionfold",
@@ -546,8 +553,7 @@ module.showAuctionBid = function(target)
     "~110",
     415, 280,
     target,
-    120, 20, 0, 1,
-    true
+    120, 20, 0, 1
   )
   ui.addTextArea(
     "auctionfold",
@@ -591,8 +597,7 @@ module.showAuction = function(cell, fold)
       "~100",
       234, 100,
       name,
-      1, 1, 0, 1,
-      true
+      1, 1, 0, 1
     )
     ui.addImage(
       "auctionsep",
@@ -600,8 +605,7 @@ module.showAuction = function(cell, fold)
       "~100",
       400 - 1, 150,
       name,
-      2, 160, 0, 1,
-      true
+      2, 160, 0, 1
     )
 
     module.hideCard(name)
@@ -710,8 +714,7 @@ module.showManageHouses = function(name)
     "~100",
     234, 100,
     name,
-    1, 1, 0, 1,
-    true
+    1, 1, 0, 1
   )
   ui.addImage(
     "housesep",
@@ -719,8 +722,7 @@ module.showManageHouses = function(name)
     "~100",
     400 - 1, 150,
     name,
-    2, 160, 0, 1,
-    true
+    2, 160, 0, 1
   )
   ui.addTextArea(
     "housetitle",
@@ -738,8 +740,7 @@ module.showManageHouses = function(name)
     "~100",
     295, 160,
     name,
-    0.5, 0.5, 0, 1,
-    true
+    0.5, 0.5, 0, 1
   )
   ui.addTextArea(
     "buy_house",
@@ -918,8 +919,7 @@ module.showHouses = function(cellId, target)
         "!200",
         x + offx * d1 + -offy * d2, y + offy * d1 + offx * d2,
         target,
-        1, 1, rotation, 1,
-        true
+        1, 1, rotation, 1
       )
     end
   end

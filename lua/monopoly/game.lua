@@ -10,6 +10,7 @@ local property = pshy.require("monopoly.property")
 local players = pshy.require("monopoly.players")
 local translations = pshy.require('monopoly.translations')
 local logs = pshy.require('monopoly.logs')
+local trade = pshy.require("monopoly.trade")
 local command_list = pshy.require("pshy.commands.list")
 
 
@@ -309,6 +310,11 @@ function eventNewPlayer(name)
 
   if gameState == states.LOBBY then
     tokens.showUI(name)
+  elseif gameState == states.PLAYING then
+    if whoseTurn and whoseTurn.tradeMode then
+      trade.showUI(name)
+      trade.updateUI(name)
+    end
   end
 
   tfm.exec.respawnPlayer(name)
@@ -344,6 +350,10 @@ function eventPlayersUpdated(name, player)
   if whoseTurn == player then
     player.double = nil
     nextTurn()
+  end
+
+  if player.tradeMode then
+    trade.cancelTrade()
   end
 
   if players.count() < 2 then
@@ -602,7 +612,7 @@ function eventActionUIClick(name, action)
       return
     end
 
-    if not player.tokenid then
+    if not player.tokenid and not player.tradeMode then
       return
     end
 
@@ -951,7 +961,7 @@ end
 function eventCellOverlayClicked(cellId, name)
   local player = players.get(name)
 
-  if not player or player ~= whoseTurn then
+  if not player then
     return
   end
 
@@ -959,7 +969,9 @@ function eventCellOverlayClicked(cellId, name)
     return
   end
 
-  board.setCellOverlay(nil, name, nil)
+  if player.overlay_mode ~= 'trade' then
+    board.setCellOverlay(nil, name, nil)
+  end
 
   if property.getOwner(cellId) ~= name then
     return
@@ -971,7 +983,7 @@ function eventCellOverlayClicked(cellId, name)
   -- TODO add logs for these actions
 
   if player.overlay_mode == 'sell' then
-    if not property.canSellHouse(cellId) then
+    if player ~= whoseTurn or not property.canSellHouse(cellId) then
       return
     end
 
@@ -979,7 +991,7 @@ function eventCellOverlayClicked(cellId, name)
     property.removeHouse(cellId)
     property.showHouses(cellId)
   elseif player.overlay_mode == 'buy' then
-    if not property.canBuyHouse(cellId) then
+    if player ~= whoseTurn or not property.canBuyHouse(cellId) then
       return
     end
 
@@ -991,7 +1003,7 @@ function eventCellOverlayClicked(cellId, name)
     property.addHouse(cellId)
     property.showHouses(cellId)
   elseif player.overlay_mode == 'mortgage' then
-    if not property.canMortgage(cellId) then
+    if player ~= whoseTurn or not property.canMortgage(cellId) then
       return
     end
 
@@ -999,7 +1011,7 @@ function eventCellOverlayClicked(cellId, name)
     property.mortgage(cellId, true)
     property.showMortgage(cellId)
   elseif player.overlay_mode == 'unmortgage' then
-    if not property.canUnmortgage(cellId) then
+    if player ~= whoseTurn or not property.canUnmortgage(cellId) then
       return
     end
 
@@ -1010,6 +1022,12 @@ function eventCellOverlayClicked(cellId, name)
     players.add(name, 'money', -mortage_price)
     property.mortgage(cellId, nil)
     property.showMortgage(cellId)
+  elseif player.overlay_mode == 'trade' then
+    if player.tradeMode and property.canTrade(cellId) then
+      local state = trade.toggleCard(name, property.get(cellId))
+      board.setCellOverlay(cellId, name, state and 0xff0000 or 0x0000ff)
+      trade.updateUI()
+    end
   end
 end
 
@@ -1028,6 +1046,10 @@ function eventGameStateChanged(newState, oldState)
   elseif oldState == states.JAIL_ANIM then
     tfm.exec.removePhysicObject(202)
     tfm.exec.removePhysicObject(203)
+  
+  elseif oldState == states.PLAYING then
+    trade.cancelTrade()
+
   end
 
   if newState == states.LOBBY then
@@ -1062,8 +1084,9 @@ function eventGameStateChanged(newState, oldState)
 
   elseif newState == states.PLAYING then
     if whoseTurn then
-      actionui.update(whoseTurn.name, "Build", true)
       actionui.update(nil, "Trade", true)
+      actionui.update(whoseTurn.name, "Trade", false)
+      actionui.update(whoseTurn.name, "Build", true)
       actionui.update(whoseTurn.name, "Stop", true)
     end
 
@@ -1148,6 +1171,130 @@ function eventTradeRequest(from_name, to_name)
 
   whoseTurn.tradeMode = true
   tfm.exec.playSound("cite18/baguette2", 100, nil, nil, to_name)
+  trade.showUI()
+  trade.startTrade(from_name, to_name)
+  trade.updateUI()
+
+  from_player.overlay_mode = 'trade'
+  board.setCellOverlay(nil, from_name, nil)
+
+  local cards = property.getProperties(from_name)
+  for i=1, cards._len do
+    if property.canTrade(cards[i].id) then
+      board.setCellOverlay(cards[i].id, from_name, 0x0000ff)
+    end
+  end
+
+  to_player.overlay_mode = 'trade'
+  board.setCellOverlay(nil, to_name, nil)
+
+  local cards = property.getProperties(to_name)
+  for i=1, cards._len do
+    if property.canTrade(cards[i].id) then
+      board.setCellOverlay(cards[i].id, to_name, 0x0000ff)
+    end
+  end
+end
+
+function eventTradeCallback(name, callback)
+  local player = players.get(name)
+
+  if not player or not player.tradeMode then
+    return
+  end
+
+  if callback == 'money' then
+    trade.setLock(name, false)
+    trade.updateUI()
+    trade.showPopup(name)
+
+  elseif callback == 'jailcard' then
+    if not player.jailcard then
+      return
+    end
+
+    trade.setLock(name, false)
+    trade.toggleJailCard(name)
+    trade.updateUI()
+
+  elseif callback == 'confirm' then
+    trade.setLock(name, true)
+    trade.updateUI()
+
+  elseif callback == 'cancel' then
+    trade.cancelTrade()
+
+  end
+end
+
+function eventTradeSetMoney(name, amount)
+  local player = players.get(name)
+
+  if not player or not player.tradeMode then
+    return
+  end
+
+  if player.money < amount then
+    return
+  end
+
+  trade.setLock(name, false)
+  trade.setMoney(name, amount)
+  trade.updateUI()
+end
+
+function eventTradeEnded(tradeData)
+  trade.hideUI()
+  board.setCellOverlay()
+
+  local player1 = players.get(tradeData.left.name)
+  local player2 = players.get(tradeData.right.name)
+
+  if player1 then
+    player1.tradeMode = nil
+  end
+
+  if player2 then
+    player2.tradeMode = nil
+  end
+
+  if tradeData.canceled then
+    return
+  end
+
+  if tradeData.left.money > 0 then
+    players.add(player1.name, 'money', -tradeData.left.money)
+    players.add(player2.name, 'money', tradeData.left.money)
+  end
+
+  if tradeData.right.money > 0 then
+    players.add(player2.name, 'money', -tradeData.right.money)
+    players.add(player1.name, 'money', tradeData.right.money)
+  end
+
+  if tradeData.left.jailcard then
+    player1.jailcard = nil
+    player2.jailcard = true
+  end
+
+  if tradeData.right.jailcard then
+    player1.jailcard = true
+    player2.jailcard = nil
+  end
+
+  for _, card in pairs(tradeData.left.cards) do
+    property.setOwner(card.id, player2.name)
+    board.setCellColor(card.id, player2.color)
+  end
+
+  for _, card in pairs(tradeData.right.cards) do
+    property.setOwner(card.id, player1.name)
+    board.setCellColor(card.id, player1.color)
+  end
+
+  players.update()
+
+  -- TODO log traded items
 end
 
 -- Commands

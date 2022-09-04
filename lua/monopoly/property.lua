@@ -368,7 +368,7 @@ module.canMortgage = function(cellId)
     return
   end
 
-  if mortgage[cellId] or houses[cellId] or cell.type == 'utility' then
+  if mortgage[cellId] or houses[cellId] then
     return
   end
 

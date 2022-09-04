@@ -288,7 +288,7 @@ module.moveToken = function(tokenId, cellId, relative, ignoreGo, noanim)
   local targetCellId = getMoveTarget(prevCellId, cellId)
   local originX, originY = cellCenter(prevCellId)
   local targetX, targetY = cellCenter(targetCellId)
-  local speed = math.max(2, (cellId > prevCellId and (cellId - prevCellId) or (cellId - boardCells._len + prevCellId)) / 2)
+  local speed = math.max(2, (cellId > prevCellId and (cellId - prevCellId) or (boardCells._len - prevCellId + cellId)) / 2)
 
   movingToken = {
     tokenId,

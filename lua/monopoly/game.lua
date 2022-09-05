@@ -28,6 +28,7 @@ local states = {
   PLAYING = 5,
   AUCTION = 6,
   JAIL_ANIM = 7,
+  TRADING = 8,
   GAME_OVER = 10,
 }
 local lobbyTurn
@@ -310,11 +311,9 @@ function eventNewPlayer(name)
 
   if gameState == states.LOBBY then
     tokens.showUI(name)
-  elseif gameState == states.PLAYING then
-    if whoseTurn and whoseTurn.tradeMode then
-      trade.showUI(name)
-      trade.updateUI(name)
-    end
+  elseif gameState == states.TRADING then
+    trade.showUI(name)
+    trade.updateUI(name)
   end
 
   tfm.exec.respawnPlayer(name)
@@ -347,13 +346,13 @@ function eventPlayersUpdated(name, player)
 
   logs.add("player_left", name)
 
+  if player.tradeMode then
+    trade.cancelTrade()
+  end
+
   if whoseTurn == player then
     player.double = nil
     nextTurn()
-  end
-
-  if player.tradeMode then
-    trade.cancelTrade()
   end
 
   if players.count() < 2 then
@@ -824,6 +823,8 @@ function eventTimeout()
     end
 
     nextTurn()
+  elseif gameState == states.TRADING then
+    trade.cancelTrade()
   end
 end
 
@@ -965,12 +966,16 @@ function eventCellOverlayClicked(cellId, name)
     return
   end
 
-  if gameState ~= states.PLAYING then
-    return
-  end
-
   if player.overlay_mode ~= 'trade' then
+    if gameState ~= states.PLAYING then
+      return
+    end
+
     board.setCellOverlay(nil, name, nil)
+  else
+    if gameState ~= states.TRADING then
+      return
+    end
   end
 
   if property.getOwner(cellId) ~= name then
@@ -1024,6 +1029,7 @@ function eventCellOverlayClicked(cellId, name)
     property.showMortgage(cellId)
   elseif player.overlay_mode == 'trade' then
     if player.tradeMode and property.canTrade(cellId) then
+      trade.setLock(name, false)
       local state = trade.toggleCard(name, property.get(cellId))
       board.setCellOverlay(cellId, name, state and 0xff0000 or 0x0000ff)
       trade.updateUI()
@@ -1036,6 +1042,8 @@ function eventGameStateChanged(newState, oldState)
     actionui.reset(whoseTurn.name)
   end
 
+  actionui.update(nil, "Trade", true)
+
   if oldState == states.AUCTION then
     currentAuction = nil
     property.hideAuction()
@@ -1047,7 +1055,7 @@ function eventGameStateChanged(newState, oldState)
     tfm.exec.removePhysicObject(202)
     tfm.exec.removePhysicObject(203)
   
-  elseif oldState == states.PLAYING then
+  elseif oldState == states.TRADING then
     trade.cancelTrade()
 
   end
@@ -1084,8 +1092,6 @@ function eventGameStateChanged(newState, oldState)
 
   elseif newState == states.PLAYING then
     if whoseTurn then
-      actionui.update(nil, "Trade", true)
-      actionui.update(whoseTurn.name, "Trade", false)
       actionui.update(whoseTurn.name, "Build", true)
       actionui.update(whoseTurn.name, "Stop", true)
     end
@@ -1140,6 +1146,10 @@ function eventGameStateChanged(newState, oldState)
         tokens.attachGround(whoseTurn.tokenid, 203)
       end
     end
+  
+  elseif newState == states.TRADING then
+    setTimer(gameTime.trading)
+    trade.showUI()
 
   elseif newState == states.GAME_OVER then
     if newState ~= states.LOBBY then
@@ -1149,7 +1159,7 @@ function eventGameStateChanged(newState, oldState)
   end
 end
 
-function eventTradeRequest(from_name, to_name)
+function eventTradeRequest(to_name, from_name)
   if from_name == to_name then
     return
   end
@@ -1161,18 +1171,37 @@ function eventTradeRequest(from_name, to_name)
     return
   end
 
-  if whoseTurn ~= from_player or gameState ~= states.PLAYING then
+  if whoseTurn ~= from_player and whoseTurn ~= to_player then
     return
   end
 
-  if whoseTurn.tradeMode or not to_player.tradeMode then
+  if gameState ~= states.PLAYING and gameState ~= states.WAITING then
+    return
+  end
+
+  if whoseTurn.tradeMode or not from_player.tradeMode then
     return
   end
 
   whoseTurn.tradeMode = true
-  tfm.exec.playSound("cite18/baguette2", 100, nil, nil, to_name)
-  trade.showUI()
-  trade.startTrade(from_name, to_name)
+  tfm.exec.playSound("cite18/baguette2", 100, nil, nil, from_name)
+
+  trade.startTrade(from_name, to_name, {
+    prev_state = gameState,
+    remaining = currentTimer and math.ceil((currentTimer - os.time()) / 1000) or 5,
+  })
+  setGameState(states.TRADING)
+  trade.showButtons(from_name)
+  trade.showButtons(to_name)
+
+  if from_player.jailcard then
+    trade.allowJailCard(from_name)
+  end
+
+  if to_player.jailcard then
+    trade.allowJailCard(to_name)
+  end
+
   trade.updateUI()
 
   from_player.overlay_mode = 'trade'
@@ -1199,12 +1228,13 @@ end
 function eventTradeCallback(name, callback)
   local player = players.get(name)
 
-  if not player or not player.tradeMode then
+  if not player or not player.tradeMode or gameState ~= states.TRADING then
     return
   end
 
   if callback == 'money' then
     trade.setLock(name, false)
+    trade.setMoney(name, 0)
     trade.updateUI()
     trade.showPopup(name)
 
@@ -1218,10 +1248,19 @@ function eventTradeCallback(name, callback)
     trade.updateUI()
 
   elseif callback == 'confirm' then
+    if player.tradeConfirmTime and player.tradeConfirmTime > os.time() then
+      return
+    end
+
     trade.setLock(name, true)
     trade.updateUI()
 
   elseif callback == 'cancel' then
+    player.tradeConfirmTime = os.time() + 1000
+    trade.setLock(name, false, true)
+    trade.updateUI()
+
+  elseif callback == 'close' then
     trade.cancelTrade()
 
   end
@@ -1230,7 +1269,7 @@ end
 function eventTradeSetMoney(name, amount)
   local player = players.get(name)
 
-  if not player or not player.tradeMode then
+  if not player or not player.tradeMode or gameState ~= states.TRADING then
     return
   end
 
@@ -1256,6 +1295,11 @@ function eventTradeEnded(tradeData)
 
   if player2 then
     player2.tradeMode = nil
+  end
+
+  if gameState == states.TRADING then
+    setGameState(tradeData.extra.prev_state)
+    setTimer(tradeData.extra.remaining)
   end
 
   if tradeData.canceled then
@@ -1294,7 +1338,7 @@ function eventTradeEnded(tradeData)
 
   players.update()
 
-  -- TODO log traded items
+  -- TODO log traded items line by line
 end
 
 -- Commands
@@ -1601,9 +1645,23 @@ command_list["join"] = {
     for i=1, #config.images.tokens do
       eventTokenClicked(target, i)
     end
+
+    for i=1, #config.tokenColors do
+      eventTextAreaCallback(0, target, "color" .. i)
+    end
   end,
   desc = "force join people",
   argc_min = 0, argc_max = 1, arg_types = {"player"}
+}
+
+command_list["trade"] = {
+  perms = "admins",
+  func = function(name, target)
+    eventActionUIClick(target, "Trade")
+    eventTradeRequest(name, target)
+  end,
+  desc = "force trade with people",
+  argc_min = 1, argc_max = 1, arg_types = {"player"}
 }
 
 command_list["logs"] = {

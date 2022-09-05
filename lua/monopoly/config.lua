@@ -74,8 +74,9 @@ config.gameTime = {
   dice = 10,
   property = 20,
   play = 60,
-  auction = 60,
+  auction = 30,
   auctionBid = 5,
+  trading = 30,
 }
 
 config.images = {
@@ -134,7 +135,7 @@ config.images = {
     {"182072a2a0a.png", 50, 30},
     {"182072a7e6a.png", 50, 26},
     {"1820f864577.png", 50, 30},
-    {"1821023e89f.png", 40, 45},
+    {"1821023e89f.png", 40, 50},
   },
   actionui = {
     x = 200, y = 365,

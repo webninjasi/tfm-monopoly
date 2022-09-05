@@ -68,7 +68,7 @@ local function updateUI()
       money_diff < 0 and '-' or '+',
       math.abs(money_diff),
       player.jailcard and ' - ☔' or '',
-      player.tradeMode and ' - ☎' or ''
+      player.tradeMode and ' - ☕' or ''
     )
     list[i] = string.format(
       '<font color="#%.6x"><b>%s%s</b>\n' ..
@@ -84,7 +84,7 @@ local function updateUI()
       math.abs(money_diff),
       player.jailcard and ' <G>- <FC>☔' or '',
       player.tradeMode and string.format(
-        ' <G>- <N><a href="event:trade_%s">☎</a>',
+        ' <G>- <N><a href="event:trade_%s">☕</a>',
         player.name
       ) or ''
     )

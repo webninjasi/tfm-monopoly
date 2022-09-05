@@ -12,29 +12,26 @@ local function buildItemList(trade, target)
 
   list._len = 1 + list._len
   if trade.lock then
-    list[list._len] = '<VP><font face="Verdana" size="20">☑</font>   '
+    list[list._len] = '<VP><font face="Verdana" size="20">✅</font>\n'
   else
-    list[list._len] = '<R><font face="Verdana" size="20">☐</font>   '
+    list[list._len] = '<R><font face="Verdana" size="20">❌</font>\n'
   end
 
   list._len = 1 + list._len
-  list[list._len] = trade.jailcard and '<VP>' or '<BL>'
-
-  list._len = 1 + list._len
-  list[list._len] = '<font size="20"><a href="event:tradecb_jailcard">☔</a></font>\n'
-
-  list._len = 1 + list._len
-  list[list._len] = '<V><font size="16"><b><u>' .. trade.name .. '</u></b></font>\n'
+  list[list._len] = '<V><b><u>' .. trade.name .. '</u></b>\n\n'
 
   list._len = 1 + list._len
   list[list._len] = trade.money > 0 and '<VP>' or '<BL>'
 
   list._len = 1 + list._len
-  list[list._len] = '<a href="event:tradecb_money">$' .. trade.money .. '</a>\n'
+  list[list._len] = '<font size="15"><a href="event:tradecb_money">$' .. trade.money .. '</a></font>\n'
 
-  if trade.houseCount > 0 then
+  if trade.can_jailcard then
     list._len = 1 + list._len
-    list[list._len] = '<FC>' .. trade.houseCount .. ' houses\n'
+    list[list._len] = trade.jailcard and '<VP>' or '<BL>'
+
+    list._len = 1 + list._len
+    list[list._len] = '<font size="20"><a href="event:tradecb_jailcard">☔</a></font>\n'
   end
 
   for key, card in pairs(trade.cards) do
@@ -65,15 +62,15 @@ end
 
 local module = {}
 
-module.startTrade = function(player1, player2)
+module.startTrade = function(player1, player2, extra)
   currentTrade = {
+    extra = extra,
+
     left = {
       is_left = true,
       name = player1,
       money = 0,
       jailcard = false,
-      houses = {},
-      houseCount = 0,
       cards = {},
       cardCount = 0,
       lock = false,
@@ -84,8 +81,6 @@ module.startTrade = function(player1, player2)
       name = player2,
       money = 0,
       jailcard = false,
-      houses = {},
-      houseCount = 0,
       cards = {},
       cardCount = 0,
       lock = false,
@@ -98,32 +93,6 @@ module.cancelTrade = function()
     currentTrade.canceled = true
     eventTradeEnded(currentTrade)
     currentTrade = nil
-  end
-end
-
-module.addHouse = function(name, card_name)
-  local trade = getTrade(name)
-
-  if trade then
-    if trade.houses[card_name] then
-      return
-    end
-
-    trade.houses[card_name] = true
-    trade.houseCount = trade.houseCount + 1
-  end
-end
-
-module.removeHouse = function(name, card_name)
-  local trade = getTrade(name)
-
-  if trade then
-    if not trade.houses[card_name] then
-      return
-    end
-
-    trade.houses[card_name] = nil
-    trade.houseCount = trade.houseCount - 1
   end
 end
 
@@ -154,6 +123,14 @@ module.setMoney = function(name, amount)
   end
 end
 
+module.allowJailCard = function(name)
+  local trade = getTrade(name)
+
+  if trade then
+    trade.can_jailcard = true
+  end
+end
+
 module.toggleJailCard = function(name)
   local trade = getTrade(name)
 
@@ -162,11 +139,20 @@ module.toggleJailCard = function(name)
   end
 end
 
-module.setLock = function(name, state)
+module.setLock = function(name, state, skip_both)
   local trade = getTrade(name)
 
   if trade then
-    trade.lock = state
+    if state then
+      trade.lock = true
+    else
+      if skip_both then
+        trade.lock = false
+      else
+        currentTrade.left.lock = false
+        currentTrade.right.lock = false
+      end
+    end
 
     if currentTrade.left.lock and currentTrade.right.lock then 
       eventTradeEnded(currentTrade)
@@ -176,20 +162,64 @@ module.setLock = function(name, state)
 end
 
 module.showPopup = function(target)
+  local trade = getTrade(target)
+  if not trade then
+    return
+  end
+
+  local off = (trade.is_left and -1 or 1) * 215
   ui.addPopup(
     128, 2,
     '',
     target,
-    340, 235,
+    340 + off, 235-80,
     120, true
   )
   ui.addImage(
     "tradepopup",
     img.popup,
     "~150",
-    336, 231,
+    336 + off, 231-80,
     target,
     1, 1, 0, 1
+  )
+end
+
+module.showButtons = function(target)
+  ui.addImage(
+    "tradeconfirm",
+    img.pixels.black,
+    "~100",
+    300, 330,
+    target,
+    90, 20, 0, 1
+  )
+  translations.addTextArea(
+    "tradeconfirm",
+    'trade_confirm', nil,
+    target,
+    300, 330,
+    90, nil,
+    0, 0, 0,
+    true
+  )
+
+  ui.addImage(
+    "tradeclose",
+    img.pixels.black,
+    "~100",
+    410, 330,
+    target,
+    90, 20, 0, 1
+  )
+  translations.addTextArea(
+    "tradeclose",
+    'trade_close', nil,
+    target,
+    410, 330,
+    90, nil,
+    0, 0, 0,
+    true
   )
 end
 
@@ -239,42 +269,6 @@ module.showUI = function(target)
     0, 0, 0,
     true
   )
-
-  ui.addImage(
-    "tradeconfirm",
-    img.pixels.black,
-    "~100",
-    300, 330,
-    target,
-    90, 20, 0, 1
-  )
-  translations.addTextArea(
-    "tradeconfirm",
-    'trade_confirm', nil,
-    target,
-    300, 330,
-    90, nil,
-    0, 0, 0,
-    true
-  )
-
-  ui.addImage(
-    "tradecancel",
-    img.pixels.black,
-    "~100",
-    410, 330,
-    target,
-    90, 20, 0, 1
-  )
-  translations.addTextArea(
-    "tradecancel",
-    'trade_cancel', nil,
-    target,
-    410, 330,
-    90, nil,
-    0, 0, 0,
-    true
-  )
 end
 
 module.hideUI = function(target)
@@ -285,8 +279,8 @@ module.hideUI = function(target)
   ui.removeTextArea("traderight", target)
   ui.removeImage("tradeconfirm", target)
   ui.removeTextArea("tradeconfirm", target)
-  ui.removeImage("tradecancel", target)
-  ui.removeTextArea("tradecancel", target)
+  ui.removeImage("tradeclose", target)
+  ui.removeTextArea("tradeclose", target)
   ui.removeImage("tradepopup", target)
   ui.addPopup(
     128, 2,
@@ -307,6 +301,17 @@ module.updateUI = function(target)
 
   ui.updateTextArea("tradeleft", table.concat(left, ''), target)
   ui.updateTextArea("traderight", '<p align="right">' .. table.concat(right, ''), target)
+
+  ui.updateTextArea(
+    "tradeconfirm", 
+    translations.get(currentTrade.left.lock and 'trade_cancel' or 'trade_confirm', currentTrade.left.name),
+    currentTrade.left.name
+  )
+  ui.updateTextArea(
+    "tradeconfirm", 
+    translations.get(currentTrade.right.lock and 'trade_cancel' or 'trade_confirm', currentTrade.right.name),
+    currentTrade.right.name
+  )
 end
 
 
@@ -316,7 +321,13 @@ function eventTextAreaCallback(id, name, callback)
     local action = callback:sub(9)
     local is_left = ui.textAreaId("tradeleft") == id
 
-    if trade and (trade.is_left == is_left or action == 'confirm' or action == 'cancel') then
+    if trade then
+      if trade.is_left ~= is_left then
+        if action ~= 'confirm' and action ~= 'cancel' and action ~= 'close' then
+          return
+        end
+      end
+
       eventTradeCallback(name, callback:sub(9))
     end
   end

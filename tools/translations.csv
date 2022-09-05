@@ -31,8 +31,9 @@ warn_need_house3,<J>You don't have any house to unmortgage.,<J>İpotekeğini kal
 log_card,<V>{player} <J>drew a <ROSE>{type} <J>card: <CH>{$cardtext},<V>{player} <J>bir <ROSE>{type} <J>kartı çekti: <N>{$cardtext}
 community,community,topluluk
 chance,chance,şans
-trade_confirm,"<p align=""center""><a href=""event:tradecb_confirm"">Confirm","<p align=""center""><a href=""event:tradecb_confirm"">Onayla"
-trade_cancel,"<R><p align=""center""><a href=""event:tradecb_cancel"">Cancel","<R><p align=""center""><a href=""event:tradecb_cancel"">İptal"
+trade_confirm,"<VP><p align=""center""><a href=""event:tradecb_confirm"">Confirm","<VP><p align=""center""><a href=""event:tradecb_confirm"">Onayla"
+trade_cancel,"<BL><p align=""center""><a href=""event:tradecb_cancel"">Cancel","<BL><p align=""center""><a href=""event:tradecb_cancel"">İptal"
+trade_close,"<R><p align=""center""><a href=""event:tradecb_close"">Close","<R><p align=""center""><a href=""event:tradecb_close"">Kapat"
 auction_title,"<font size=""20"" color=""#ffffff""><p align=""center"">Auction","<font size=""20"" color=""#ffffff""><p align=""center"">İhale"
 auction_highest,"<font color=""#000000"">Highest Bid: <VP>${bid}\n<font color=""#000000"">Highest Bidder: <V>{bidder}","<font color=""#000000"">En Yüksek Teklif: <VP>${bid}\n<font color=""#000000"">En Yüksek Teklifi Veren: <V>{bidder}"
 ui_house_title,"<font size=""19"" color=""#ffffff""><p align=""center""><a href=""event:close_house"">Manage Properties","<font size=""19"" color=""#ffffff""><p align=""center""><a href=""event:close_house"">Mülkleri Yönet"

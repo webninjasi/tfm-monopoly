@@ -1252,8 +1252,13 @@ function eventTradeCallback(name, callback)
       return
     end
 
-    trade.setLock(name, true)
-    trade.updateUI()
+    local lock = trade.setLock(name, true)
+    if lock then
+      trade.updateUI()
+    elseif not player.warn_trade_house or player.warn_trade_house < os.time() then
+      player.warn_trade_house = os.time() + 30 * 1000
+      translations.chatMessage('warn_trade_house', name)
+    end
 
   elseif callback == 'cancel' then
     player.tradeConfirmTime = os.time() + 1000
@@ -1303,6 +1308,7 @@ function eventTradeEnded(tradeData)
   end
 
   if tradeData.canceled then
+    players.update()
     return
   end
 

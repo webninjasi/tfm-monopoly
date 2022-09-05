@@ -2,6 +2,7 @@
 
 local config = pshy.require("monopoly.config")
 local translations = pshy.require("monopoly.translations")
+local property = pshy.require("monopoly.property")
 
 local img = config.images
 
@@ -144,7 +145,9 @@ module.setLock = function(name, state, skip_both)
 
   if trade then
     if state then
-      trade.lock = true
+      if property.canTradeAll(trade.cards) then
+        trade.lock = true
+      end
     else
       if skip_both then
         trade.lock = false
@@ -158,6 +161,8 @@ module.setLock = function(name, state, skip_both)
       eventTradeEnded(currentTrade)
       currentTrade = nil
     end
+
+    return trade.lock
   end
 end
 

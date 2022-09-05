@@ -368,7 +368,7 @@ module.canMortgage = function(cellId)
     return
   end
 
-  if mortgage[cellId] or houses[cellId] then
+  if mortgage[cellId] or module.getHouses(cellId) > 0 then
     return
   end
 
@@ -388,7 +388,34 @@ module.canMortgage = function(cellId)
 end
 
 module.canTrade = function(cellId)
-  return cellId and not mortgage[cellId] and module.getHouses(cellId) == 0
+  return cellId and not mortgage[cellId]
+end
+
+module.canTradeAll = function(trade_cards)
+  for _, cell in pairs(trade_cards) do
+    local group = cellsByGroup[cell.header_color]
+
+    if group then
+      local have_all = true
+      local have_house = false
+
+      for i=1, group._len do
+        if not trade_cards[group[i].id] then
+          have_all = false
+        end
+
+        if module.getHouses(group[i].id) > 0 then
+          have_house = true
+        end
+      end
+
+      if have_house and not have_all then
+        return false
+      end
+    end
+  end
+
+  return true
 end
 
 module.canUnmortgage = function(cellId)

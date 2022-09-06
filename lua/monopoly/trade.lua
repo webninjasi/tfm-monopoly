@@ -92,8 +92,9 @@ end
 module.cancelTrade = function()
   if currentTrade then
     currentTrade.canceled = true
-    eventTradeEnded(currentTrade)
+    local lastTrade = currentTrade
     currentTrade = nil
+    eventTradeEnded(lastTrade)
   end
 end
 
@@ -157,9 +158,10 @@ module.setLock = function(name, state, skip_both)
       end
     end
 
-    if currentTrade.left.lock and currentTrade.right.lock then 
-      eventTradeEnded(currentTrade)
+    if currentTrade.left.lock and currentTrade.right.lock then
+      local lastTrade = currentTrade
       currentTrade = nil
+      eventTradeEnded(lastTrade)
     end
 
     return trade.lock

@@ -1332,39 +1332,47 @@ function eventTradeEnded(tradeData)
     return
   end
 
-  if tradeData.left.money > 0 then
-    players.add(player1.name, 'money', -tradeData.left.money)
-    players.add(player2.name, 'money', tradeData.left.money)
+  if tradeData.left.money ~= tradeData.right.money then
+    if tradeData.left.money > 0 then
+      players.add(player1.name, 'money', -tradeData.left.money)
+      players.add(player2.name, 'money', tradeData.left.money)
+      logs.add('log_trade_money', player1.colorname, player2.colorname, tradeData.left.money)
+    end
+
+    if tradeData.right.money > 0 then
+      players.add(player2.name, 'money', -tradeData.right.money)
+      players.add(player1.name, 'money', tradeData.right.money)
+      logs.add('log_trade_money', player2.colorname, player1.colorname, tradeData.right.money)
+    end
   end
 
-  if tradeData.right.money > 0 then
-    players.add(player2.name, 'money', -tradeData.right.money)
-    players.add(player1.name, 'money', tradeData.right.money)
-  end
+  if tradeData.left.jailcard ~= tradeData.right.jailcard then
+    if tradeData.left.jailcard then
+      player1.jailcard = nil
+      player2.jailcard = true
+      logs.add('log_trade_jailcard', player1.colorname, player2.colorname)
+    end
 
-  if tradeData.left.jailcard then
-    player1.jailcard = nil
-    player2.jailcard = true
-  end
-
-  if tradeData.right.jailcard then
-    player1.jailcard = true
-    player2.jailcard = nil
+    if tradeData.right.jailcard then
+      player1.jailcard = true
+      player2.jailcard = nil
+      logs.add('log_trade_jailcard', player2.colorname, player1.colorname)
+    end
   end
 
   for _, card in pairs(tradeData.left.cards) do
     property.setOwner(card.id, player2.name)
     board.setCellColor(card.id, player2.color)
+    logs.add('log_trade_property', player1.colorname, player2.colorname, card)
   end
 
   for _, card in pairs(tradeData.right.cards) do
     property.setOwner(card.id, player1.name)
     board.setCellColor(card.id, player1.color)
+    logs.add('log_trade_property', player2.colorname, player1.colorname, card)
   end
 
   players.update()
-
-  -- TODO log traded items line by line
 end
 
 -- Commands

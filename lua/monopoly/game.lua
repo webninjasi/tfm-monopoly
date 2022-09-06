@@ -243,6 +243,12 @@ local function startAuction(card)
   property.showAuction(card, currentAuction.fold)
   property.updateAuction(whoseTurn.name, 1, 'BANK', currentAuction.fold)
 
+  for player in players.iter do
+    if not currentAuction.fold[player.name] then
+      tfm.exec.movePlayer(player.name, 400, 400)
+    end
+  end
+
   checkAuctionPlayers()
 end
 
@@ -1251,6 +1257,8 @@ function eventTradeRequest(to_name, from_name)
   whoseTurn.tradeMode = true
   tfm.exec.playSound("cite18/baguette2", 100, nil, nil, from_name)
 
+  tfm.exec.movePlayer(from_name, 400, 400)
+  tfm.exec.movePlayer(to_name, 400, 400)
   trade.startTrade(from_name, to_name, {
     prev_state = gameState,
     remaining = currentTimer and math.ceil((currentTimer - os.time()) / 1000) or 5,

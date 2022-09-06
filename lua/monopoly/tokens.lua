@@ -84,7 +84,7 @@ local function showToken(token, clickable, target, groundId)
   ui.addImage(
     "token" .. token.id,
     token.img,
-    groundId and ('+' .. groundId) or (clickable and ':70' or '!70'),
+    groundId and ('+' .. groundId) or (clickable and '!70' or '!70'),
     groundId and 0 or token.x,
     groundId and 0 or token.y,
     target,
@@ -140,7 +140,7 @@ local function showToken(token, clickable, target, groundId)
       token.x - w / 2, token.y - h / 2,
       w, h,
       0, 0, 0,
-      true
+      false
     )
   end
 end
@@ -182,7 +182,7 @@ local function showColors(target)
     colorUIx, colorUIy,
     nil, nil,
     0, 0, 0,
-    true
+    false
   )
   updateColors(target)
 end
@@ -232,7 +232,7 @@ module.showUI = function(target)
   ui.addImage(
     "tokensbg",
     background,
-    ":50",
+    "!50",
     imgX, imgY,
     target,
     1, 1, 0, 1,
@@ -249,7 +249,7 @@ module.showUI = function(target)
         imgX-166, imgY-105,
         332, nil,
         0, 0, 0,
-        true
+        false
       )
     end
   else
@@ -260,7 +260,7 @@ module.showUI = function(target)
       imgX-166, imgY-105,
       332, nil,
       0, 0, 0,
-      true
+      false
     )
   end
 

@@ -5,6 +5,7 @@ local translations = pshy.require("monopoly.translations")
 local property = pshy.require("monopoly.property")
 
 local img = config.images
+local tradeUI = config.tradeUI
 
 local currentTrade
 
@@ -169,24 +170,26 @@ module.setLock = function(name, state, skip_both)
 end
 
 module.showPopup = function(target)
-  local trade = getTrade(target)
-  if not trade then
-    return
-  end
-
-  local off = (trade.is_left and -1 or 1) * 215
+  ui.addImage(
+    "tradepopupshadow",
+    img.pixels.black,
+    ":90",
+    336-1, 21-1,
+    target,
+    128+2, 72+2, 0, 1
+  )
   ui.addPopup(
     128, 2,
     '',
     target,
-    340 + off, 235-80,
+    340, 25,
     120, true
   )
   ui.addImage(
     "tradepopup",
     img.popup,
     "~150",
-    336 + off, 231-80,
+    336, 21,
     target,
     1, 1, 0, 1
   )
@@ -196,8 +199,8 @@ module.showButtons = function(target)
   ui.addImage(
     "tradeconfirm",
     img.pixels.black,
-    "~100",
-    300, 330,
+    "!100",
+    tradeUI.x + 66, tradeUI.y + 230,
     target,
     90, 20, 0, 1
   )
@@ -205,17 +208,17 @@ module.showButtons = function(target)
     "tradeconfirm",
     'trade_confirm', nil,
     target,
-    300, 330,
+    tradeUI.x + 66, tradeUI.y + 230,
     90, nil,
     0, 0, 0,
-    true
+    false
   )
 
   ui.addImage(
     "tradeclose",
     img.pixels.black,
-    "~100",
-    410, 330,
+    "!100",
+    tradeUI.x + 176, tradeUI.y + 230,
     target,
     90, 20, 0, 1
   )
@@ -223,10 +226,10 @@ module.showButtons = function(target)
     "tradeclose",
     'trade_close', nil,
     target,
-    410, 330,
+    tradeUI.x + 176, tradeUI.y + 230,
     90, nil,
     0, 0, 0,
-    true
+    false
   )
 end
 
@@ -234,16 +237,16 @@ module.showUI = function(target)
   ui.addImage(
     "tradeui",
     img.ui,
-    "~100",
-    234, 100,
+    "!100",
+    tradeUI.x, tradeUI.y,
     target,
     1, 1, 0, 1
   )
   ui.addImage(
     "tradesep",
     img.pixels.black,
-    "~100",
-    400 - 1, 150,
+    "!100",
+    tradeUI.x + 166 - 1, tradeUI.y + 50,
     target,
     2, 160, 0, 1
   )
@@ -252,29 +255,29 @@ module.showUI = function(target)
     "tradetitle",
     "ui_trade_title", nil,
     target,
-    234, 110,
+    tradeUI.x, tradeUI.y + 10,
     332, nil,
     0, 0, 0,
-    true
+    false
   )
 
   ui.addTextArea(
     "tradeleft",
     '',
     target,
-    250, 115,
+    tradeUI.x + 16, tradeUI.y + 15,
     150, 195,
     0, 0, 0,
-    true
+    false
   )
   ui.addTextArea(
     "traderight",
     '',
     target,
-    400, 115,
+    tradeUI.x + 166, tradeUI.y + 15,
     150, 195,
     0, 0, 0,
-    true
+    false
   )
 end
 
@@ -288,6 +291,7 @@ module.hideUI = function(target)
   ui.removeTextArea("tradeconfirm", target)
   ui.removeImage("tradeclose", target)
   ui.removeTextArea("tradeclose", target)
+  ui.removeImage("tradepopupshadow", target)
   ui.removeImage("tradepopup", target)
   ui.addPopup(
     128, 2,
@@ -353,6 +357,7 @@ end
 
 function eventPopupAnswer(popupId, name, answer)
   if popupId == 128 then
+    ui.removeImage("tradepopupshadow", target)
     ui.removeImage("tradepopup", name)
 
     local trade = getTrade(name)

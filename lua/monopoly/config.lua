@@ -16,7 +16,7 @@ config.mapXML = [[
       <S T="12" X="800" Y="450" L="900" H="10" P="0,0,0,0.2,90,0,0,0" o="324650" c="2" m=""/>
     </S>
     <D>
-      <DS X="50" Y="50"/>
+      <DS X="400" Y="400"/>
     </D>
     <O/>
     <L/>
@@ -56,6 +56,16 @@ config.logsUI = {
   y = 145 + 400,
   width = 380,
   lines = 10, -- 2000/10 = ~200 chars per line
+}
+
+config.auctionUI = {
+  x = 234,
+  y = 100 + 200,
+}
+
+config.tradeUI = {
+  x = 234,
+  y = 100 + 200,
 }
 
 config.gameTime = {
@@ -157,9 +167,9 @@ config.roll = {
 -- tokens default position
 config.tokens = {
   imgX = 400,
-  imgY = 215,
+  imgY = 215+200,
   defaultX = 400,
-  defaultY = 150,
+  defaultY = 150+200,
   rowItems = 5,
   colorsOffset = 33,
 }

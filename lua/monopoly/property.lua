@@ -8,6 +8,7 @@ local players = pshy.require("monopoly.players")
 -- Variables
 local img = config.images
 local boardCells = config.board.cells
+local auctionUI = config.auctionUI
 local houseSize = config.board.houseSize
 local positions = config.board.positions
 local cellCount = #positions
@@ -512,26 +513,35 @@ module.calculateRent = function(cell, diceSum)
 end
 
 module.showAuctionBid = function(target)
+  ui.addImage(
+    "auctionpopupshadow",
+    pixels.black,
+    ":90",
+    336-1, 21-1,
+    target,
+    128+2, 72+2, 0, 1
+  )
   ui.addPopup(
     44, 2,
     "",
     target,
-    260, 235,
+    340, 25,
     120, true
   )
   ui.addImage(
     "auctionpopup",
     img.popup,
     "~110",
-    256, 231,
+    336, 21,
     target,
     1, 1, 0, 1
   )
+
   ui.addImage(
     "auctionfold",
     pixels.red,
-    "~110",
-    415, 280,
+    "!110",
+    auctionUI.x + 181, auctionUI.y + 180,
     target,
     120, 20, 0, 1
   )
@@ -539,16 +549,17 @@ module.showAuctionBid = function(target)
     "auctionfold",
     'ui_auction_fold', nil,
     target,
-    415, 280,
+    auctionUI.x + 181, auctionUI.y + 180,
     120, 20,
     0, 0, 0,
-    true
+    false
   )
 end
 
 module.hideAuctionBid = function(target)
   ui.removeTextArea("auctionfold", target)
   ui.removeImage("auctionfold", target)
+  ui.removeImage("auctionpopupshadow", target)
   ui.removeImage("auctionpopup", target)
   ui.addPopup(
     44, 2,
@@ -564,24 +575,24 @@ module.showAuction = function(cell, fold)
     "auctiontimer",
     '',
     nil,
-    490, 120,
+    auctionUI.x + 256, auctionUI.y + 20,
     70, 30,
     0, 0, 0,
-    true
+    false
   )
   ui.addImage(
     "auctionui",
     img.ui,
-    "~100",
-    234, 100,
+    "!100",
+    auctionUI.x, auctionUI.y,
     nil,
     1, 1, 0, 1
   )
   ui.addImage(
     "auctionsep",
     pixels.black,
-    "~100",
-    400 - 1, 150,
+    "!100",
+    auctionUI.x + 166 - 1, auctionUI.y + 50,
     nil,
     2, 160, 0, 1
   )
@@ -592,19 +603,19 @@ module.showAuction = function(cell, fold)
     "auctiontitle",
     'ui_auction_title', nil,
     name,
-    234, 110,
+    auctionUI.x, auctionUI.y + 10,
     332, nil,
     0, 0, 0,
-    true
+    false
   )
   translations.addTextArea(
     "auctioncard",
     'ui_auction_card', { cell.id, cell.card_title },
     name,
-    260, 150,
+    auctionUI.x + 26, auctionUI.y + 50,
     120, nil,
     cell.header_color_int, cell.header_color_int, 1,
-    true
+    false
   )
 
   for player in players.iter do
@@ -660,20 +671,20 @@ module.updateAuction = function(whoseTurn, highestBid, highestBidder, fold)
     "auctionhighest",
     'ui_auction_highest', { highestBid, highestBidder },
     nil,
-    250, 190,
+    auctionUI.x + 16, auctionUI.y + 90,
     140, nil,
     0, 0, 0,
-    true
+    false
   )
 
   ui.addTextArea(
     "auctionplayers",
     table.concat(list, '\n'),
     nil,
-    410, 150,
+    auctionUI.x + 176, auctionUI.y + 50,
     nil, nil,
     0, 0, 0,
-    true
+    false
   )
 end
 

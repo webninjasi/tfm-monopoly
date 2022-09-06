@@ -1,35 +1,44 @@
 key,variables,en,tr,ar
-passed_go,player,<V>{player} <J>passed GO and collected <VP>$200,<V>{player} <J>BAŞLANGIÇ üzerinden geçti ve <VP>$200 <J>kazandı.,<V>{player} <VP>$200 <J>عبر البداية احصل على 
-roll_once,player|dice1|dice2|dicesum,<V>{player} <J>rolled a <CH>{dice1} <J>and <CH>{dice2} <J>moved <CH>{dicesum} <J>spaces!,<V>{player} <J>attığı zarlar <CH>{dice1} <J>ile <CH>{dice2} <J>geldi ve <CH>{dicesum} <J>adım ilerledi!,<V>{player} <J>مسافات <VP>{dicesum} <J>تحرك <VP>{dice1} <J>و <VP>{dice2}  <J>رمى
-roll_double,player|dice1|dice2|dicesum,<V>{player} <J>rolled double <VP>{dice1} <J>and <VP>{dice2} <J>moved <VP>{dicesum} <J>spaces!,<V>{player} <J>attığı zarlar çift <VP>{dice1} <J>geldi ve <VP>{dicesum} <J>adım ilerledi!,<V>{player} <J>مسافات <VP>{dicesum} <J>تحرك <VP>{dice1} <J>و <VP>{dice2}  <J>رمية مزدوجة
-roll_lobby,player|dice1|dice2|dicesum,<V>{player} <J>rolled a <CH>{dice1} <J>and <CH>{dice2} <J>which sums up to <CH>{dicesum}.,<V>{player} <J>attığı zarlar toplamı <CH>{dicesum} <J>olan <CH>{dice1} <J>ile <CH>{dice2} <J>geldi.,<V>{player} <J>مجموعهم <CH>{dicesum}  <CH>{dice1} <J>و <CH>{dice2} <J>رمى
-roll_jail,player,<V>{player} <R>rolled a double 3 times and went to jail.,<V>{player} <R>üç defa çift zar attığı için hapise düştü.,<V>{player} <R>لعب نرد مزدوج ثلاث مرات وذهب الى السجن!
-roll_jail_fail,player|dice1|dice2,<V>{player} <J>rolled a <CH>{dice1} <J>and <CH>{dice2} <J>and failed to escape from jail!,<V>{player} <J>attığı zarlar <CH>{dice1} <J>ile <CH>{dice2} <J>geldi ve hapisten kaçamadı!,<V>{player} <J>رمى<CH>{dice1} <J>و <CH>{dice2} <J>فشل في الخروج من السجن
-move,player|propertycolor|property,"<V>{player} <J>moved to <font color=""#{propertycolor}"">{$property}","<V>{player} <font color=""#{propertycolor}"">{$property} <J>arazisinde.","<V>{player}  <font color=""#{propertycolor}"">{$property} <J>تحرك الى"
-purchase,player|propertycolor|property|price,"<V>{player} <J>purchased <font color=""#{propertycolor}"">{$property} <J>for <VP>${price}","<V>{player} <font color=""#{propertycolor}"">{$property} <J>arazisini <VP>${price} <J>ödeyerek satın aldı.","<V>{player}  <font color=""#{propertycolor}"">{$property} <J>مقابل <VP>${price} <J>دفع"
-auction,player|propertycolor|property|price,"<V>{player} <J>purchased <font color=""#{propertycolor}"">{$property} <J>for <VP>${price} <J>in the auction.","<V>{player} <J>ihaleyle <font color=""#{propertycolor}"">{$property} <VP>${price} <J>ödeyerek arazisini satın aldı.","<V>{player} <J>في المزاد<font color=""#{propertycolor}"">{$property} <J>مقابل <VP>${price} <J>دفع"
-pay_rent,player|money|playerowner,<V>{player} <J>paid <VP>${money} <J>in rent to <V>{playerowner}.,<V>{player} <J>kira bedeli olarak <VP>${money} <J>kadar <V>{playerowner} <J>oyuncusuna ödedi.,<V>{player} <J>paid <VP>${money} <J>in rent to <V>{playerowner}.
-jail_in,player,<V>{player} <R>was sent to jail!,<V>{player} <R>hapise düştü!,<V>{player} <R>تم إرساله إلى السجن!
-jail_out_money,player,<V>{player} <J>paid the <VP>$50 <J>fine to get out of jail.,<V>{player} <VP>$50 <J>kefaret ödeyerek hapisten çıktı.,<V>{player}  <J>غرامة للخروج من السجن<VP>$50 <J>دفع
-jail_out_dice,player,<V>{player} <J>rolled doubles to get out of jail.,<V>{player} <J>çift zarla hapisten çıktı.,<V>{player} <J>لعب نرد مزدوج للخروج من السجن
-jail_out_card,player,"<V>{player} <J>used a ""Get Out of Jail Free"" card.","<V>{player} <J>""Kefaret Ödemeden Hapisten Çık"" kartını kullandı.","<V>{player} <J>استخدم بطاقة ""الخروج من السجن مجانًا"""
-won,player,<V>{player} <ROSE>won the game!,<V>{player} <ROSE>oyunu kazandı!,<V>{player} <ROSE>!ربح اللعبة
-player_left,player,<V>{player} <R>left the game!,<V>{player} <R>oyunu terk etti!,<V>{player} <R>!خرج من اللعبة
+property,cell,"<font color=""#{cell.header_color}"">{$cell.title}</font>",,
+log_passed_go,player,{player} <J>passed GO and collected <VP>$200,{player} <J>BAŞLANGIÇ üzerinden geçti ve <VP>$200 <J>kazandı.,{player} <VP>$200 <J>عبر البداية احصل على 
+log_sell_house,player|property|count,{player} <J>sold a house on {!property} which has {count} houses now.,,
+log_buy_house,player|property|count,{player} <J>bought a house for {!property} which has {count} houses now.,,
+log_buy_hotel,player|property,{player} <J>bought a hotel for {!property}.,,
+log_mortgage,player|property,{player} <J>mortgaged {!property}.,,
+log_unmortgage,player|property,{player} <J>unmortgaged {!property}.,,
+log_trade_property,player1|player2|property,{player1} <J>gave {!property} to {player2} in a trade.,,
+log_trade_money,player1|player2|amount,{player1} <J>gave <VP>${amount} <J>to {player2} in a trade.,,
+log_trade_jailcard,player1|player2,"{player1} <J>gave a ""Get Out of Jail Free"" card to {player2} in a trade.",,
+roll_once,player|dice1|dice2|dicesum,{player} <J>rolled a <CH>{dice1} <J>and <CH>{dice2} <J>moved <CH>{dicesum} <J>spaces!,{player} <J>attığı zarlar <CH>{dice1} <J>ile <CH>{dice2} <J>geldi ve <CH>{dicesum} <J>adım ilerledi!,{player} <J>مسافات <VP>{dicesum} <J>تحرك <VP>{dice1} <J>و <VP>{dice2}  <J>رمى
+roll_double,player|dice1|dice2|dicesum,{player} <J>rolled double <VP>{dice1} <J>and <VP>{dice2} <J>moved <VP>{dicesum} <J>spaces!,{player} <J>attığı zarlar çift <VP>{dice1} <J>geldi ve <VP>{dicesum} <J>adım ilerledi!,{player} <J>مسافات <VP>{dicesum} <J>تحرك <VP>{dice1} <J>و <VP>{dice2}  <J>رمية مزدوجة
+roll_lobby,player|dice1|dice2|dicesum,{player} <J>rolled a <CH>{dice1} <J>and <CH>{dice2} <J>which sums up to <CH>{dicesum}.,{player} <J>attığı zarlar toplamı <CH>{dicesum} <J>olan <CH>{dice1} <J>ile <CH>{dice2} <J>geldi.,{player} <J>مجموعهم <CH>{dicesum}  <CH>{dice1} <J>و <CH>{dice2} <J>رمى
+roll_jail,player,{player} <R>rolled a double 3 times and went to jail.,{player} <R>üç defa çift zar attığı için hapise düştü.,{player} <R>لعب نرد مزدوج ثلاث مرات وذهب الى السجن!
+roll_jail_fail,player|dice1|dice2,{player} <J>rolled a <CH>{dice1} <J>and <CH>{dice2} <J>and failed to escape from jail!,{player} <J>attığı zarlar <CH>{dice1} <J>ile <CH>{dice2} <J>geldi ve hapisten kaçamadı!,{player} <J>رمى<CH>{dice1} <J>و <CH>{dice2} <J>فشل في الخروج من السجن
+move,player|property,{player} <J>moved to {!property},{player} {!property} <J>arazisinde.,{player} {!property} <J>تحرك الى
+purchase,player|property|price,{player} <J>purchased {!property} for <VP>${price},{player} {!property} <J>arazisini <VP>${price} <J>ödeyerek satın aldı.,{player} {!property} <J>مقابل <VP>${price} <J>دفع
+auction,player|property|price,{player} <J>purchased {!property} for <VP>${price} <J>in the auction.,{player} <J>ihaleyle {!property} <VP>${price} <J>ödeyerek arazisini satın aldı.,{player} <J>في المزاد{!property} <J>مقابل <VP>${price} <J>دفع
+pay_rent,player|money|playerowner,{player} <J>paid <VP>${money} <J>in rent to {playerowner}.,{player} <J>kira bedeli olarak <VP>${money} <J>kadar {playerowner} <J>oyuncusuna ödedi.,
+jail_in,player,{player} <R>was sent to jail!,{player} <R>hapise düştü!,{player} <R>تم إرساله إلى السجن!
+jail_out_money,player,{player} <J>paid the <VP>$50 <J>fine to get out of jail.,{player} <VP>$50 <J>kefaret ödeyerek hapisten çıktı.,{player}  <J>غرامة للخروج من السجن<VP>$50 <J>دفع
+jail_out_dice,player,{player} <J>rolled doubles to get out of jail.,{player} <J>çift zarla hapisten çıktı.,{player} <J>لعب نرد مزدوج للخروج من السجن
+jail_out_card,player,"{player} <J>used a ""Get Out of Jail Free"" card.","{player} <J>""Kefaret Ödemeden Hapisten Çık"" kartını kullandı.","{player} <J>استخدم بطاقة ""الخروج من السجن مجانًا"""
+won,player,{player} <ROSE>won the game!,{player} <ROSE>oyunu kazandı!,{player} <ROSE>!ربح اللعبة
+player_left,player,{player} <R>left the game!,{player} <R>oyunu terk etti!,{player} <R>!خرج من اللعبة
 start_roll,,<ROSE>Roll the dice to determine start order.,<ROSE>Zar at ve başlangıç sırasını belirle.,<ROSE>العب النرد لتحديد ترتيب البدء
 new_game,,<ROSE>The game has started.,<ROSE>Oyun başladı.,<ROSE>بدأت اللعبة
-player_turn,player,<V>{player} <J>is playing.,<J>Sıra <V>{player} <J>oyuncusunda.,<V>{player} <J>يلعب
-chance_space,player,<V>{player} <J>landed on a chance space!,<V>{player} <J>şans bölgesinde!,<V>{player} <J>هبط على الفرصة
-community_chest,player,<V>{player} <J>landed on community chest!,<V>{player} <J>topluluk sandığında!,<V>{player} <J>هبط على صندوق المجتمع
-income_tax,player,<V>{player} <J>has to pay <VP>$200 <J>in income tax from collecting too much cheese!,<V>{player} <J>çok fazla peynir topladığı için <VP>$200 <J>gelir vergisi ödemek zorunda kaldı.,<V>{player}   <J>!ضريبة لجمعه الكثيرمن الجبن<VP>$200 <J>عليه دفع
-luxury_tax,player,<V>{player} <J>has to pay <VP>$100 <J>in luxury tax for being too noob!,<V>{player} <J>fazla noob olduğu için <VP>$100 <J>özel tüketim vergisi ödemek zorunda kaldı.,<V>{player}   <J>ضريبة لانه نوب <VP>$100 <J>عليه دفع
-bankrupt,player|playerowner,<V>{player} <R>went bankrupt and has lost the game! All of their assets will be turned over to <V>{playerowner}.,<V>{player} <R>iflas etti ve oyunu kaybetti! Tüm malvarlığı <V>{playerowner} <R> oyuncusuna devredilecek.,<V>{player}  <V>{playerowner} <R>أفلس وخسر اللعبة! سيتم تسليم جميع ممتلكاته إلى
-mortgage_property,player|propertycolor|movedtoproperty|playerowner,"<V>{player} <J>landed on <font color=""#{propertycolor}"">{movedtoproperty} <J>owned by <V>{playerowner}<J>. Property is mortgaged, no rent was collected.","<V>{player}<J>, sahibi <V>{playerowner} <J>olan <font color=""#{propertycolor}"">{movedtoproperty} <J>mülkünün üzerinde. Mülk ipotek edildiği için, kira ödenmedi.","<V>{player}   <J>.الأملاك مرهونة. لم يتم تحصيل اي اجار  <V>{playerowner} <J>مملوكه من قبل <font color=""#{propertycolor}"">{movedtoproperty} <J>هبط على "
+player_turn,player,{player} <J>is playing.,<J>Sıra {player} <J>oyuncusunda.,{player} <J>يلعب
+chance_space,player,{player} <J>landed on a chance space!,{player} <J>şans bölgesinde!,{player} <J>هبط على الفرصة
+community_chest,player,{player} <J>landed on community chest!,{player} <J>topluluk sandığında!,{player} <J>هبط على صندوق المجتمع
+income_tax,player,{player} <J>has to pay <VP>$200 <J>in income tax from collecting too much cheese!,{player} <J>çok fazla peynir topladığı için <VP>$200 <J>gelir vergisi ödemek zorunda kaldı.,{player}   <J>!ضريبة لجمعه الكثيرمن الجبن<VP>$200 <J>عليه دفع
+luxury_tax,player,{player} <J>has to pay <VP>$100 <J>in luxury tax for being too noob!,{player} <J>fazla noob olduğu için <VP>$100 <J>özel tüketim vergisi ödemek zorunda kaldı.,{player}   <J>ضريبة لانه نوب <VP>$100 <J>عليه دفع
+bankrupt,player|playerowner,{player} <R>went bankrupt and has lost the game! All of their assets will be turned over to {playerowner}.,{player} <R>iflas etti ve oyunu kaybetti! Tüm malvarlığı {playerowner} <R> oyuncusuna devredilecek.,{player}  <V>{playerowner} <R>أفلس وخسر اللعبة! سيتم تسليم جميع ممتلكاته إلى
+mortgage_property,player|property|playerowner,"{player} <J>landed on {!property} <J>owned by {playerowner}. Property is mortgaged, no rent was collected.","{player}<J>, sahibi {playerowner} <J>olan {!property} mülkünün üzerinde. Mülk ipotek edildiği için, kira ödenmedi.",{player}   <J>.الأملاك مرهونة. لم يتم تحصيل اي اجار  {playerowner} <J>مملوكه من قبل {!property} <J>هبط على 
 warn_need_fullset,,"<J>Before you can buy a house, you must own all the properties of a color-group.",<J>Ev satın almadan önce bir renk grubundaki tüm mülkiyetlere sahip olmalısınız.,<J> قبل أن تتمكن من شراء منزل ، يجب أن تمتلك جميع مجموعة اللون.
 warn_need_house,,<J>You don't have any house to sell.,<J>Satabileceğin bir evin bulunmamakta.,<J>ليس لديك أي منزل للبيع.
 warn_need_house2,,<J>You don't have any house to mortgage.,<J>İpotekleyebileceğin bir evin bulunmamakta.,<J>ليس لديك أي منزل لترهنه.
 warn_need_house3,,<J>You don't have any house to unmortgage.,<J>İpotekeğini kaldırabileceğin bir evin bulunmamakta.,<J>ليس لديك أي منزل لفك الرهن العقاري عنه.
 warn_trade_house,,<J>At least one property in your offer has a house/hotel. You need to either remove the property or offer all properties in its color-group.,<J>Teklifinde en az bir mülkte ev/otel bulunmakta. Mülkü kaldır veya renk grubundaki tüm mülkleri teklife dahil et.,
-log_card,player|type|cardtext,<V>{player} <J>drew a <ROSE>{type} <J>card: <CH>{$cardtext},<V>{player} <J>bir <ROSE>{type} <J>kartı çekti: <N>{$cardtext},<V>{player} <J>card: <CH>{$cardtext} <ROSE>{type}  <J>سحب 
+log_card,player|type|cardtext,{player} <J>drew a <ROSE>{type} <J>card: <CH>{$cardtext},{player} <J>bir <ROSE>{type} <J>kartı çekti: <CH>{$cardtext},{player} <J>card: <CH>{$cardtext} <ROSE>{type}  <J>سحب 
 community,,community,topluluk,المجتمع
 chance,,chance,şans,فرصة
 trade_confirm,,"<VP><p align=""center""><a href=""event:tradecb_confirm"">Confirm","<VP><p align=""center""><a href=""event:tradecb_confirm"">Onayla","<VP><p align=""center""><a href=""event:tradecb_confirm"">تأكيد"
@@ -158,42 +167,42 @@ chance_12,,You have won a crossword competition\nCollect $100,Kare bulmaca turnu
 chance_13,,Your Building loan matures\nReceive $150,İnşaat kredinin primleri geri ödendi\n$150 al,موعد استحقاق قرض البناء الخاص بك\n $احصل على 150
 chance_14,,Go to Jail,Hapise Git,أذهب الى السجن
 chance_15,,Get out of jail free\nThis card may kept until needed,Hapisten kefaret ödemeden çık\nBu kartı lazım olana dek saklayabilirsin,اخرج من السجن مجانًا\n يتم الاحتفاظ بهذه البطاقة لحين الحاجة إليها
-cardinfo_jailvisit,title|price|rent|house|house2|house3|house4|hotel|separator|house_hotel|mortgage|station1|station2|station3|station4,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$title}</a></b></p>",,
-cardinfo_jail,title|price|rent|house|house2|house3|house4|hotel|separator|house_hotel|mortgage|station1|station2|station3|station4,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$title}</a></b></p>",,
-cardinfo_chance,title|price|rent|house|house2|house3|house4|hotel|separator|house_hotel|mortgage|station1|station2|station3|station4,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$title}</a></b></p>",,
-cardinfo_chest,title|price|rent|house|house2|house3|house4|hotel|separator|house_hotel|mortgage|station1|station2|station3|station4,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$title}</a></b></p>",,
-cardinfo_win,title|price|rent|house|house2|house3|house4|hotel|separator|house_hotel|mortgage|station1|station2|station3|station4,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$title}</a></b></p>
+cardinfo_jailvisit,cell|separator,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,
+cardinfo_jail,cell|separator,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,
+cardinfo_chance,cell|separator,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,
+cardinfo_chest,cell|separator,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,
+cardinfo_win,cell|separator,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>
 <textformat tabstops=""[110]""><font size=""8"" color=""#8E8E8E"">
-Earn\t<font color=""#006400"">${price}</font>",,
-cardinfo_lose,title|price|rent|house|house2|house3|house4|hotel|separator|house_hotel|mortgage|station1|station2|station3|station4,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$title}</a></b></p>
+Earn\t<font color=""#006400"">${cell.price}</font>",,
+cardinfo_lose,cell|separator,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>
 <textformat tabstops=""[110]""><font size=""8"" color=""#8E8E8E"">
-Lose\t<font color=""#006400"">${price}</font>",,
-cardinfo_utility,title|price|rent|house|house2|house3|house4|hotel|separator|house_hotel|mortgage|station1|station2|station3|station4,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$title}</a></b></p>
+Lose\t<font color=""#006400"">${cell.price}</font>",,
+cardinfo_utility,cell|separator,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>
 <textformat tabstops=""[110]""><font size=""8"" color=""#8E8E8E"">
-Price\t<font color=""#006400"">${price}</font>
+Price\t<font color=""#006400"">${cell.price}</font>
 If one utility is owned, rent is 4
 times amount shown on dice.
 If both utilities are owned, rent
 is 10 times amount shown on
 dice
-Mortgage\t<font color=""#006400"">${mortgage}</font>",,
-cardinfo_station,title|price|rent|house|house2|house3|house4|hotel|separator|house_hotel|mortgage|station1|station2|station3|station4,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$title}</a></b></p>
+Mortgage\t<font color=""#006400"">${cell.mortgage}</font>",,
+cardinfo_station,cell|separator,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>
 <textformat tabstops=""[110]""><font size=""8"" color=""#8E8E8E"">
-Price\t<font color=""#006400"">${price}</font>
-If 1 Station is owned\t<font color=""#006400"">${station1}</font>
-If 2 Stations are owned\t<font color=""#006400"">${station2}</font>
-If 3 Stations are owned\t<font color=""#006400"">${station3}</font>
-If 4 Stations are owned\t<font color=""#006400"">${station4}</font>
-Mortgage\t<font color=""#006400"">${mortgage}</font>",,
-cardinfo_property,title|price|rent|house|house2|house3|house4|hotel|separator|house_hotel|mortgage|station1|station2|station3|station4,"<textformat tabstops=""[90]""><font size=""10"" color=""#000000"">
-Price\t<font color=""#006400"">${price}</font>
-Rent\t<font color=""#006400"">${rent}</font>
-With 1 House\t<font color=""#006400"">${house}</font>
-With 2 Houses\t<font color=""#006400"">${house2}</font>
-With 3 Houses\t<font color=""#006400"">${house3}</font>
-With 4 Houses\t<font color=""#006400"">${house4}</font>
-With 1 Hotel\t<font color=""#006400"">${hotel}</font>
+Price\t<font color=""#006400"">${cell.price}</font>
+If 1 Station is owned\t<font color=""#006400"">${cell.station1}</font>
+If 2 Stations are owned\t<font color=""#006400"">${cell.station2}</font>
+If 3 Stations are owned\t<font color=""#006400"">${cell.station3}</font>
+If 4 Stations are owned\t<font color=""#006400"">${cell.station4}</font>
+Mortgage\t<font color=""#006400"">${cell.mortgage}</font>",,
+cardinfo_property,cell|separator,"<textformat tabstops=""[90]""><font size=""10"" color=""#000000"">
+Price\t<font color=""#006400"">${cell.price}</font>
+Rent\t<font color=""#006400"">${cell.rent}</font>
+With 1 House\t<font color=""#006400"">${cell.house}</font>
+With 2 Houses\t<font color=""#006400"">${cell.house2}</font>
+With 3 Houses\t<font color=""#006400"">${cell.house3}</font>
+With 4 Houses\t<font color=""#006400"">${cell.house4}</font>
+With 1 Hotel\t<font color=""#006400"">${cell.hotel}</font>
 {separator}
-A House Costs\t<font color=""#006400"">${house_hotel}</font>
-Mortgage\t<font color=""#006400"">${mortgage}</font>",,
-cardinfo_empty,title|price|rent|house|house2|house3|house4|hotel|separator|house_hotel|mortgage|station1|station2|station3|station4,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$title}</a></b></p>",,
+A House Costs\t<font color=""#006400"">${cell.house_hotel}</font>
+Mortgage\t<font color=""#006400"">${cell.mortgage}</font>",,
+cardinfo_empty,cell|separator,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,

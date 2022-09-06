@@ -25,7 +25,13 @@ def replace_param(match):
   param = match.group(1)
 
   if param[0] == '$':
-    param = f'_translate({param[1:]}, _target)'
+    return f'", _translate({param[1:]}, _target), "'
+
+  elif param[0] == '#':
+    return f'######{param[1:]}######'
+
+  elif param[0] == '!':
+    return f'", _translate("{param[1:]}", _target, {param[1:]}), "'
 
   return f'", {param}, "'
 

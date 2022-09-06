@@ -99,7 +99,7 @@ local function nextTurn()
     end
 
     if whoseTurn then
-      logs.add('player_turn', whoseTurn.name)
+      logs.add('player_turn', whoseTurn.colorname)
       players.update(whoseTurn.name, "turn", true)
     else
       players.update()
@@ -157,11 +157,10 @@ local function buyProperty(name, color, card, bid)
   board.setCellColor(card.id, color)
   property.hideCard(name)
 
-  -- TODO use translations
   if bid then
-    logs.add("auction", name, card.header_color, card.title, bid)
+    logs.add("auction", players.get(name, "colorname"), card, bid)
   else
-    logs.add("purchase", name, card.header_color, card.title, card.price)
+    logs.add("purchase", players.get(name, "colorname"), card, card.price)
   end
 end
 
@@ -177,7 +176,7 @@ end
 local function jailPlayer(player, jail_type)
   player.jail = 0
 
-  logs.add(jail_type, player.name)
+  logs.add(jail_type, player.colorname)
 
   if whoseTurn == player then
     setGameState(states.JAIL_ANIM)
@@ -188,7 +187,7 @@ end
 
 local function unjail(player, unjail_type)
   player.jail = nil
-  logs.add(unjail_type, player.name)
+  logs.add(unjail_type, player.colorname)
 
   if whoseTurn == player then
     actionui.update(whoseTurn.name, "JailPay", false)
@@ -344,7 +343,7 @@ function eventPlayersUpdated(name, player)
     property.showMortgage(houses[i].id)
   end
 
-  logs.add("player_left", name)
+  logs.add("player_left", player.colorname)
 
   if player.tradeMode then
     trade.cancelTrade()
@@ -357,7 +356,7 @@ function eventPlayersUpdated(name, player)
 
   if players.count() < 2 then
     if whoseTurn then
-      logs.add("won", whoseTurn.name)
+      logs.add("won", whoseTurn.colorname)
     end
 
     setGameState(states.GAME_OVER)
@@ -431,7 +430,7 @@ function eventDiceRoll(dice1, dice2)
         if player.jail == 3 then
           player.jail = nil
           players.add(player.name, 'money', -50)
-          logs.add('jail_out_money', player.name)
+          logs.add('jail_out_money', player.colorname)
 
           setGameState(states.ROLLING)
           eventDiceRoll(dice1, dice2)
@@ -442,14 +441,14 @@ function eventDiceRoll(dice1, dice2)
         if dice1 == dice2 then
           player.jail = nil
 
-          logs.add('roll_double', player.name, dice1, dice2, dice1 + dice2)
-          logs.add('jail_out_dice', player.name)
+          logs.add('roll_double', player.colorname, dice1, dice2, dice1 + dice2)
+          logs.add('jail_out_dice', player.colorname)
 
           board.moveToken(player.tokenid, player.diceSum, true)
           return
         end
 
-        logs.add('roll_jail_fail', player.name, dice1, dice2)
+        logs.add('roll_jail_fail', player.colorname, dice1, dice2)
         nextTurn()
 
         return
@@ -458,7 +457,7 @@ function eventDiceRoll(dice1, dice2)
       if dice1 == dice2 then
         if player.double and player.double > 1 then
           player.double = nil
-          logs.add('roll_double', player.name, dice1, dice2, dice1 + dice2)
+          logs.add('roll_double', player.colorname, dice1, dice2, dice1 + dice2)
           jailPlayer(player, 'roll_jail')
 
           return
@@ -466,7 +465,7 @@ function eventDiceRoll(dice1, dice2)
 
         player.double = 1 + (player.double or 0)
 
-        logs.add('roll_double', player.name, dice1, dice2, dice1 + dice2)
+        logs.add('roll_double', player.colorname, dice1, dice2, dice1 + dice2)
         board.moveToken(player.tokenid, player.diceSum, true)
 
         return
@@ -474,7 +473,7 @@ function eventDiceRoll(dice1, dice2)
 
       player.double = nil
 
-      logs.add('roll_once', player.name, dice1, dice2, dice1 + dice2)
+      logs.add('roll_once', player.colorname, dice1, dice2, dice1 + dice2)
       board.moveToken(player.tokenid, player.diceSum, true)
     end
   elseif gameState == states.LOBBY then
@@ -485,7 +484,7 @@ function eventDiceRoll(dice1, dice2)
 
     if player then
       players.update(player.name, 'order', dice1 + dice2)
-      logs.add('roll_lobby', player.name, dice1, dice2, dice1 + dice2)
+      logs.add('roll_lobby', player.colorname, dice1, dice2, dice1 + dice2)
 
       -- only start with 2+ players
       if players.count() < 2 then
@@ -534,7 +533,7 @@ function eventTokenMove(tokenId, cellId, passedGo)
 
     if passedGo and not player.jail and cellId ~= 1 then
       players.add(name, 'money', 200)
-      logs.add('passed_go', name)
+      logs.add('log_passed_go', player.colorname)
     end
 
     local action = board.cellAction(cellId)
@@ -550,6 +549,8 @@ function eventTokenMove(tokenId, cellId, passedGo)
         jailPlayer(player, 'jail_in')
         return
       end
+    else
+      -- TODO logs.add('log_move', ...)
     end
   end
 end
@@ -995,6 +996,11 @@ function eventCellOverlayClicked(cellId, name)
     players.add(name, 'money', price / 2)
     property.removeHouse(cellId)
     property.showHouses(cellId)
+
+    local count = property.getHouses(cellId)
+
+    logs.add('log_sell_house', player.colorname, property.get(cellId), count)
+
   elseif player.overlay_mode == 'buy' then
     if player ~= whoseTurn or not property.canBuyHouse(cellId) then
       return
@@ -1007,6 +1013,15 @@ function eventCellOverlayClicked(cellId, name)
     players.add(name, 'money', -price)
     property.addHouse(cellId)
     property.showHouses(cellId)
+
+    local count = property.getHouses(cellId)
+
+    if count == 5 then
+      logs.add('log_buy_hotel', player.colorname, property.get(cellId))
+    else
+      logs.add('log_buy_house', player.colorname, property.get(cellId), count)
+    end
+
   elseif player.overlay_mode == 'mortgage' then
     if player ~= whoseTurn or not property.canMortgage(cellId) then
       return
@@ -1015,6 +1030,8 @@ function eventCellOverlayClicked(cellId, name)
     players.add(name, 'money', mortage_price)
     property.mortgage(cellId, true)
     property.showMortgage(cellId)
+    logs.add('log_mortgage', player.colorname, property.get(cellId))
+
   elseif player.overlay_mode == 'unmortgage' then
     if player ~= whoseTurn or not property.canUnmortgage(cellId) then
       return
@@ -1027,6 +1044,8 @@ function eventCellOverlayClicked(cellId, name)
     players.add(name, 'money', -mortage_price)
     property.mortgage(cellId, nil)
     property.showMortgage(cellId)
+    logs.add('log_unmortgage', player.colorname, property.get(cellId))
+
   elseif player.overlay_mode == 'trade' then
     if player.tradeMode and property.canTrade(cellId) then
       trade.setLock(name, false)
@@ -1034,6 +1053,7 @@ function eventCellOverlayClicked(cellId, name)
       board.setCellOverlay(cellId, name, state and 0xff0000 or 0x0000ff)
       trade.updateUI()
     end
+
   end
 end
 

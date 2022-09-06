@@ -194,6 +194,20 @@ local function remove(name)
   end
 end
 
+local function colorName(player)
+  if player then
+    if not player.username then
+      player.username, player.usertag = player.name:match('(%S-)#(%d+)')
+    end
+
+    player.colorname = string.format(
+      '<font color="#%.6x">%s</font> <font size="-2"><BL>#%s</BL></font>',
+      player.color or 0,
+      player.username,
+      player.usertag
+    )
+  end
+end
 
 -- Public Functions
 module.reset = reset
@@ -217,6 +231,7 @@ module.create = function(obj)
     _count = _count + 1
   end
 
+  colorName(obj)
   updateUI()
   showUI()
 end
@@ -242,6 +257,8 @@ module.update = function(name, key, value)
 
       if key == 'order' then
         reorder(player)
+      elseif key == 'color' or key == 'name' then
+        colorName(player)
       end
     end
   end

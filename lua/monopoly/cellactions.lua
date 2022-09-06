@@ -10,9 +10,9 @@ local randcard = pshy.require("monopoly.randcard")
 -- Events
 function eventInit()
   board.registerCellAction("win", function(cell)
-    return function(name)
+    return function(name, sum, player)
       if cell.id == 1 then
-        logs.add('passed_go', name)
+        logs.add('log_passed_go', player.colorname)
       end
 
       players.add(name, 'money', cell.price)
@@ -20,27 +20,27 @@ function eventInit()
   end)
 
   board.registerCellAction("lose", function(cell)
-    return function(name)
+    return function(name, sum, player)
       players.add(name, 'money', -cell.price)
 
       if cell.price == 100 then
-        logs.add('luxury_tax', name)
+        logs.add('luxury_tax', player.colorname)
       elseif cell.price == 200 then
-        logs.add('income_tax', name)
+        logs.add('income_tax', player.colorname)
       end
     end
   end)
 
   board.registerCellAction("chance", function(cell)
     return function(name, sum, player)
-      logs.add('chance_space', name)
+      logs.add('chance_space', player.colorname)
       randcard.chance(name, player)
     end
   end)
 
   board.registerCellAction("chest", function(cell)
     return function(name, sum, player)
-      logs.add('community_chest', name)
+      logs.add('community_chest', player.colorname)
       randcard.community(name, player)
     end
   end)
@@ -52,20 +52,19 @@ function eventInit()
   end)
 
   local function propertyCallback(cell)
-    return function(name, diceSum)
+    return function(name, dice_sum, player)
       local owner = property.getOwner(cell.id)
 
       if owner then
         if owner ~= name then
-          local rent = property.calculateRent(cell, diceSum)
+          local rent = property.calculateRent(cell, dice_sum)
 
           if rent == 0 then
-            -- TODO translate card title
-            logs.add('mortgage_property', name, cell.header_color, cell.title, owner)
+            logs.add('mortgage_property', player.colorname, cell, players.get(owner, "colorname"))
           else
             players.add(name, 'money', -rent)
             players.add(owner, 'money', rent)
-            logs.add('pay_rent', name, rent, owner)
+            logs.add('pay_rent', player.colorname, rent, players.get(owner, "colorname"))
           end
         end
       elseif eventEmptyProperty then

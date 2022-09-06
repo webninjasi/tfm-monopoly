@@ -316,7 +316,12 @@ module.updateUI = function(target)
   ui.updateTextArea("traderight", '<p align="right">' .. table.concat(right, ''), target)
 
   if target == currentTrade.left.name or target == currentTrade.right.name then
-    local lock = target == currentTrade.left.name and currentTrade.left.lock or currentTrade.right.lock
+    local lock = currentTrade.right.lock
+
+    if target == currentTrade.left.name then
+      lock = currentTrade.left.lock
+    end
+
     ui.updateTextArea(
       "tradeconfirm", 
       translations.get(lock and 'trade_cancel' or 'trade_confirm', target),

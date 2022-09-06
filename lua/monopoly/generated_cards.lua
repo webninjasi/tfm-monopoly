@@ -45,7 +45,7 @@ return {
     type = 'station',
     price = 200,
     mortgage = 100,
-    header_color = 0,
+    header_color = 'A2BAB4',
     card_image = 'train',
   },
   {
@@ -114,7 +114,7 @@ return {
     type = 'utility',
     price = 150,
     mortgage = 75,
-    header_color = 0,
+    header_color = 'A2BAB4',
     card_image = 'electric',
   },
   {
@@ -147,7 +147,7 @@ return {
     type = 'station',
     price = 200,
     mortgage = 100,
-    header_color = 0,
+    header_color = 'A2BAB4',
     card_image = 'train',
   },
   {
@@ -247,7 +247,7 @@ return {
     type = 'station',
     price = 200,
     mortgage = 100,
-    header_color = 0,
+    header_color = 'A2BAB4',
     card_image = 'train',
   },
   {
@@ -280,7 +280,7 @@ return {
     type = 'utility',
     price = 150,
     mortgage = 75,
-    header_color = 0,
+    header_color = 'A2BAB4',
     card_image = 'water',
   },
   {
@@ -349,7 +349,7 @@ return {
     type = 'station',
     price = 200,
     mortgage = 100,
-    header_color = 0,
+    header_color = 'A2BAB4',
     card_image = 'train',
   },
   {

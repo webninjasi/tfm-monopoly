@@ -40,7 +40,7 @@ local function buildItemList(trade, target)
     list[list._len] = string.format(
       '<font color="#%s">%s\n',
       card.header_color or 0,
-      card.title
+      translations.get(card.title, target)
     )
   end
 
@@ -301,22 +301,28 @@ module.updateUI = function(target)
     return
   end
 
+  if not target then
+    for name in pairs(tfm.get.room.playerList) do
+      module.updateUI(name)
+    end
+
+    return
+  end
+
   local left = buildItemList(currentTrade.left, target)
   local right = buildItemList(currentTrade.right, target)
 
   ui.updateTextArea("tradeleft", table.concat(left, ''), target)
   ui.updateTextArea("traderight", '<p align="right">' .. table.concat(right, ''), target)
 
-  ui.updateTextArea(
-    "tradeconfirm", 
-    translations.get(currentTrade.left.lock and 'trade_cancel' or 'trade_confirm', currentTrade.left.name),
-    currentTrade.left.name
-  )
-  ui.updateTextArea(
-    "tradeconfirm", 
-    translations.get(currentTrade.right.lock and 'trade_cancel' or 'trade_confirm', currentTrade.right.name),
-    currentTrade.right.name
-  )
+  if target == currentTrade.left.name or target == currentTrade.right.name then
+    local lock = target == currentTrade.left.name and currentTrade.left.lock or currentTrade.right.lock
+    ui.updateTextArea(
+      "tradeconfirm", 
+      translations.get(lock and 'trade_cancel' or 'trade_confirm', target),
+      target
+    )
+  end
 end
 
 

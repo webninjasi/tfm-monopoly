@@ -38,19 +38,14 @@ with open('cards.csv', newline='') as csvfile:
     
     for idx, value in enumerate(card):
       if value:
+        if head[idx] == 'title':
+          continue
+
         try:
           int(value)
         except:
           value = "'" + value.replace("'", "\\'") + "'"
-        
-        if head[idx] == 'title':
-          # filter out html tags
-          filtered = re.sub(r'<.+?>', '', value)
-          
-          if filtered != value:
-            lines += [ f'    title_html = {value},' ]
-            value = filtered
-        
+
         lines += [ f'    {head[idx]} = {value},' ]
     
     lines += [ '  },' ]

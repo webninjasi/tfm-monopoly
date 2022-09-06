@@ -84,7 +84,7 @@ local function updateUI()
       math.abs(money_diff),
       player.jailcard and ' <G>- <FC>☔' or '',
       player.tradeMode and string.format(
-        ' <G>- <N><a href="event:trade_%s">☕</a>',
+        ' <G>- <FC><a href="event:trade_%s">☕</a>',
         player.name
       ) or ''
     )

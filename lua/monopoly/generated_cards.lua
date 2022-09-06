@@ -1,14 +1,11 @@
 return {
   {
     type = 'win',
-    title = 'Go - Collect 200 as you pass',
     price = 200,
     card_image = 'go',
   },
   {
     type = 'property',
-    title_html = '<N>Vanilla Avenue',
-    title = 'Vanilla Avenue',
     price = 60,
     rent = 2,
     house = 10,
@@ -22,14 +19,11 @@ return {
   },
   {
     type = 'chest',
-    title = 'Community Chest',
     price = 0,
     card_image = 'community2',
   },
   {
     type = 'property',
-    title_html = '<N>Defilante Street',
-    title = 'Defilante Street',
     price = 60,
     rent = 4,
     house = 20,
@@ -43,14 +37,12 @@ return {
   },
   {
     type = 'lose',
-    title = 'Income Tax',
     price = 200,
     mortgage = 100,
     card_image = 'income_tax',
   },
   {
     type = 'station',
-    title = 'Deathmatch Station',
     price = 200,
     mortgage = 100,
     header_color = 0,
@@ -58,7 +50,6 @@ return {
   },
   {
     type = 'property',
-    title = 'Parkour Street',
     price = 100,
     rent = 6,
     house = 30,
@@ -72,13 +63,11 @@ return {
   },
   {
     type = 'chance',
-    title = 'Chance',
     price = 0,
     card_image = 'chance2',
   },
   {
     type = 'property',
-    title = 'Racing Route',
     price = 100,
     rent = 6,
     house = 30,
@@ -92,7 +81,6 @@ return {
   },
   {
     type = 'property',
-    title = 'Fight Boulevard',
     price = 120,
     rent = 8,
     house = 40,
@@ -106,14 +94,11 @@ return {
   },
   {
     type = 'jailvisit',
-    title = 'In Jail - Just Visiting',
     price = 0,
     card_image = 'jail',
   },
   {
     type = 'property',
-    title_html = '<font size="10">Transformice Alley',
-    title = 'Transformice Alley',
     price = 140,
     rent = 10,
     house = 50,
@@ -127,7 +112,6 @@ return {
   },
   {
     type = 'utility',
-    title = 'Electric Utility Company',
     price = 150,
     mortgage = 75,
     header_color = 0,
@@ -135,7 +119,6 @@ return {
   },
   {
     type = 'property',
-    title = 'Batata Avenue',
     price = 140,
     rent = 10,
     house = 50,
@@ -149,7 +132,6 @@ return {
   },
   {
     type = 'property',
-    title = 'Dancefloor Alley',
     price = 160,
     rent = 12,
     house = 60,
@@ -163,7 +145,6 @@ return {
   },
   {
     type = 'station',
-    title = 'Trade Station',
     price = 200,
     mortgage = 100,
     header_color = 0,
@@ -171,8 +152,6 @@ return {
   },
   {
     type = 'property',
-    title_html = '<font size="12">Prophunt Avenue',
-    title = 'Prophunt Avenue',
     price = 180,
     rent = 14,
     house = 70,
@@ -186,13 +165,11 @@ return {
   },
   {
     type = 'chest',
-    title = 'Community Chest',
     price = 0,
     card_image = 'community2',
   },
   {
     type = 'property',
-    title = 'Football Venue',
     price = 180,
     rent = 14,
     house = 70,
@@ -206,7 +183,6 @@ return {
   },
   {
     type = 'property',
-    title = 'Unotfm Street',
     price = 200,
     rent = 16,
     house = 80,
@@ -220,13 +196,11 @@ return {
   },
   {
     type = 'empty',
-    title = 'Village AFK',
     price = 0,
     card_image = 'afkvillage',
   },
   {
     type = 'property',
-    title = 'Spiritual Avenue',
     price = 220,
     rent = 18,
     house = 90,
@@ -240,13 +214,11 @@ return {
   },
   {
     type = 'chance',
-    title = 'Chance',
     price = 0,
     card_image = 'chance2',
   },
   {
     type = 'property',
-    title = 'Freezertag Road',
     price = 220,
     rent = 18,
     house = 90,
@@ -260,8 +232,6 @@ return {
   },
   {
     type = 'property',
-    title_html = '<font size="10">Towerdefense Street',
-    title = 'Towerdefense Street',
     price = 240,
     rent = 20,
     house = 100,
@@ -275,7 +245,6 @@ return {
   },
   {
     type = 'station',
-    title = 'Survivor Station',
     price = 200,
     mortgage = 100,
     header_color = 0,
@@ -283,7 +252,6 @@ return {
   },
   {
     type = 'property',
-    title = 'Circuit Avenue',
     price = 260,
     rent = 22,
     house = 110,
@@ -297,7 +265,6 @@ return {
   },
   {
     type = 'property',
-    title = 'Ratapult Plaza',
     price = 260,
     rent = 22,
     house = 110,
@@ -311,7 +278,6 @@ return {
   },
   {
     type = 'utility',
-    title = 'Water Cbase Company',
     price = 150,
     mortgage = 75,
     header_color = 0,
@@ -319,7 +285,6 @@ return {
   },
   {
     type = 'property',
-    title = 'Mycity Avenue',
     price = 280,
     rent = 24,
     house = 120,
@@ -333,14 +298,11 @@ return {
   },
   {
     type = 'jail',
-    title = 'Go To Jail',
     price = 0,
     card_image = 'gojail',
   },
   {
     type = 'property',
-    title_html = '<font size="12">Hardcamp Avenue',
-    title = 'Hardcamp Avenue',
     price = 300,
     rent = 26,
     house = 130,
@@ -354,8 +316,6 @@ return {
   },
   {
     type = 'property',
-    title_html = '<font size="10">Hidenseek Boulevard',
-    title = 'Hidenseek Boulevard',
     price = 300,
     rent = 26,
     house = 130,
@@ -369,13 +329,11 @@ return {
   },
   {
     type = 'chest',
-    title = 'Community Chest',
     price = 0,
     card_image = 'community2',
   },
   {
     type = 'property',
-    title = 'Divinity Avenue',
     price = 320,
     rent = 28,
     house = 150,
@@ -389,7 +347,6 @@ return {
   },
   {
     type = 'station',
-    title = 'Cannonup Station',
     price = 200,
     mortgage = 100,
     header_color = 0,
@@ -397,14 +354,11 @@ return {
   },
   {
     type = 'chance',
-    title = 'Chance',
     price = 0,
     card_image = 'chance2',
   },
   {
     type = 'property',
-    title_html = '<N>Records Plaza',
-    title = 'Records Plaza',
     price = 350,
     rent = 35,
     house = 175,
@@ -418,14 +372,11 @@ return {
   },
   {
     type = 'lose',
-    title = 'Luxury Tax',
     price = 100,
     card_image = 'luxury_tax',
   },
   {
     type = 'property',
-    title_html = '<N><font size="12">Bootcamp Avenue',
-    title = 'Bootcamp Avenue',
     price = 400,
     rent = 50,
     house = 200,

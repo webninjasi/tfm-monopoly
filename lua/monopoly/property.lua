@@ -13,11 +13,6 @@ local positions = config.board.positions
 local cellCount = #positions
 local cardImages = config.images.cards
 local pixels = config.images.pixels
-local cardRowsByType = config.cardRows
-
-for _, rows in pairs(cardRowsByType) do
-  rows._len = #rows
-end
 
 local owners = {}
 local houses = {}
@@ -63,7 +58,8 @@ local function scanBoardCells()
 
     cell.card_image = cardImages[cell.card_image or 'empty']
     cell.header_color = cell.header_color or '000000'
-    cell.title_tr = "card_" .. i
+    cell.title = "board_" .. i
+    cell.card_title = "card_" .. i
     cell.infoY = 35
 
     if cell.type == 'station' then
@@ -89,15 +85,11 @@ end
 
 local function showPropertyCard(cell, name, x, y, canBuy)
   local w, h = 150, 200
-  local isProperty = cell.type == 'property'
 
-  if isProperty then
-    ui.addTextArea(
+  if cell.type == 'property' then
+    translations.addTextArea(
       "cardheader",
-      string.format(
-        '<p align="center"><font size="15" color="#000000"><a href="event:closecard">%s',
-        translations.get(cell.title_tr, name)
-      ),
+      'ui_property_title', { cell.card_title },
       name,
       x + 10, y + 15,
       w - 20, 50,
@@ -108,63 +100,21 @@ local function showPropertyCard(cell, name, x, y, canBuy)
 
   ui.addImage("cardbg", cell.card_image, "~150", x, y, name)
 
-  local cardRows = cardRowsByType[cell.type]
-  local rows = { _len = 0 }
-  local val, card
-
-  if isProperty then
-    rows._len = 1 + rows._len
-    rows[rows._len] = '<textformat tabstops="[90]"><font size="10" color="#000000">'
-  else
-    rows._len = 1 + rows._len
-    rows[rows._len] = string.format(
-      '\n\n\n\n<font size="9" color="#000000"><p align="center"><b><a href="event:closecard">%s</a></b></p>\n<textformat tabstops="[110]"><font size="8" color="#8E8E8E">',
-      translations.get(cell.title_tr, name)
-    )
-  end
-
-  -- TODO move rows to translations
-  if cardRows then
-    for i=1, cardRows._len do
-      card = cardRows[i]
-      val = cell[card.key]
-
-      if val then
-        if card.key == 'house_hotel' then
-          rows._len = 1 + rows._len
-          rows[rows._len] = separator
-        end
-
-        rows._len = 1 + rows._len
-        if val > 0 then
-          rows[rows._len] = string.format(
-            '%s\t<font color="#006400">$%d</font>',
-            card.title_html or card.title,
-            val
-          )
-        else
-          rows[rows._len] = card.title_html or card.title
-        end
-      end
-    end
-  end
-
   if canBuy then
     ui.addImage("cardbtnbuy", pixels.black, "~160", x, y + 205, name, 70, 20, 0, 0.8)
     ui.addImage("cardbtnauction", pixels.black, "~160", x + 80, y + 205, name, 70, 20, 0, 0.8)
-    -- TODO use translations
-    ui.addTextArea(
+    translations.addTextArea(
       "cardbtnbuy",
-      '<VP><b><p align="center"><a href="event:buy">BUY</a>',
+      'ui_button_buy', nil,
       name,
       x, y + 205,
       70, nil,
       0, 0, 0,
       true
     )
-    ui.addTextArea(
+    translations.addTextArea(
       "cardbtnauction",
-      '<VP><b><p align="center"><a href="event:auction">AUCTION</a>',
+      'ui_button_auction', nil,
       name,
       x + 80, y + 205,
       70, nil,
@@ -173,9 +123,25 @@ local function showPropertyCard(cell, name, x, y, canBuy)
     )
   end
 
-  ui.addTextArea(
+  translations.addTextArea(
     "cardinfo",
-    table.concat(rows, '\n'),
+    'cardinfo_' .. cell.type, {
+      cell.card_title,
+      cell.price,
+      cell.rent,
+      cell.house,
+      cell.house2,
+      cell.house3,
+      cell.house4,
+      cell.hotel,
+      separator,
+      cell.house_hotel,
+      cell.mortgage,
+      cell.station1,
+      cell.station2,
+      cell.station3,
+      cell.station4,
+    },
     name,
     x + (isProperty and 10 or 7), y + cell.infoY,
     cell.card_width, nil,
@@ -582,9 +548,9 @@ module.showAuctionBid = function(target)
     target,
     120, 20, 0, 1
   )
-  ui.addTextArea(
+  translations.addTextArea(
     "auctionfold",
-    '<p align="center"><a href="event:auction_fold"><b><font size="12" color="#ffffff">FOLD',
+    'ui_auction_fold', nil,
     target,
     415, 280,
     120, 20,
@@ -616,51 +582,43 @@ module.showAuction = function(cell, fold)
     0, 0, 0,
     true
   )
+  ui.addImage(
+    "auctionui",
+    img.ui,
+    "~100",
+    234, 100,
+    nil,
+    1, 1, 0, 1
+  )
+  ui.addImage(
+    "auctionsep",
+    pixels.black,
+    "~100",
+    400 - 1, 150,
+    nil,
+    2, 160, 0, 1
+  )
+  module.hideCard(nil)
+  showPropertyCard(cell, nil, 75, 110, false)
 
-  for name in pairs(tfm.get.room.playerList) do
-    ui.addImage(
-      "auctionui",
-      img.ui,
-      "~100",
-      234, 100,
-      name,
-      1, 1, 0, 1
-    )
-    ui.addImage(
-      "auctionsep",
-      pixels.black,
-      "~100",
-      400 - 1, 150,
-      name,
-      2, 160, 0, 1
-    )
-
-    module.hideCard(name)
-    showPropertyCard(cell, name, 75, 110, false)
-
-    ui.addTextArea(
-      "auctiontitle",
-      translations.get("auction_title", name),
-      name,
-      234, 110,
-      332, nil,
-      0, 0, 0,
-      true
-    )
-    ui.addTextArea(
-      "auctioncard",
-      string.format(
-        '<p align="center"><font size="12" color="#000000"><a href="event:auctioncard_%d">%s',
-        cell.id,
-        translations.get(cell.title_tr, name)
-      ),
-      name,
-      260, 150,
-      120, nil,
-      cell.header_color_int, cell.header_color_int, 1,
-      true
-    )
-  end
+  translations.addTextArea(
+    "auctiontitle",
+    'ui_auction_title', nil,
+    name,
+    234, 110,
+    332, nil,
+    0, 0, 0,
+    true
+  )
+  translations.addTextArea(
+    "auctioncard",
+    'ui_auction_card', { cell.id, cell.card_title },
+    name,
+    260, 150,
+    120, nil,
+    cell.header_color_int, cell.header_color_int, 1,
+    true
+  )
 
   for player in players.iter do
     if not fold[player.name] then
@@ -711,17 +669,15 @@ module.updateAuction = function(whoseTurn, highestBid, highestBidder, fold)
     end
   end
 
-  for name in pairs(tfm.get.room.playerList) do
-    ui.addTextArea(
-      "auctionhighest",
-      translations.get("auction_highest", name, highestBid, highestBidder),
-      name,
-      250, 180,
-      140, nil,
-      0, 0, 0,
-      true
-    )
-  end
+  translations.addTextArea(
+    "auctionhighest",
+    'ui_auction_highest', { highestBid, highestBidder },
+    nil,
+    250, 180,
+    140, nil,
+    0, 0, 0,
+    true
+  )
 
   ui.addTextArea(
     "auctionplayers",

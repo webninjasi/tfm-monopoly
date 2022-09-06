@@ -35,6 +35,7 @@ module.roll = function(x, y)
 
   for i=1, #cage do
     tfm.exec.addPhysicObject(2+i, x + cage[i].x, y + cage[i].y, {
+      miceCollision = false,
       type = 14,
       width = cage[i].w,
       height = cage[i].h,
@@ -46,6 +47,7 @@ module.roll = function(x, y)
   tfm.exec.addPhysicObject(1, x + dice1.x, y + dice1.y, {
     dynamic = true,
     fixedRotation = false,
+    miceCollision = false,
     type = 12,
     color = 0xffffff,
     width = 30,
@@ -54,6 +56,7 @@ module.roll = function(x, y)
   tfm.exec.addPhysicObject(2, x + dice2.x, y + dice2.y, {
     dynamic = true,
     fixedRotation = false,
+    miceCollision = false,
     type = 12,
     color = 0xffffff,
     width = 30,

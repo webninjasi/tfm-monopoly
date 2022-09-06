@@ -15,8 +15,8 @@ local command_list = pshy.require("pshy.commands.list")
 
 
 -- Game Variables
+local pixels = config.images.pixels
 local gameTime = config.gameTime
-local scrollPos = config.scrollPos
 local diceArea = config.diceArea
 local mapXML = config.mapXML:gsub("[%s\r\n]+<", "<"):gsub(">[%s\r\n]+", ">")
 local states = {
@@ -36,6 +36,8 @@ local whoseTurn
 local gameState = states.LOBBY
 local currentAuction
 local currentTimer
+local player_speed = {}
+local player_ctrl = {}
 
 
 -- Helper Functions
@@ -265,6 +267,8 @@ end
 function eventNewGame()
   ui.setBackgroundColor(config.bgcolor)
 
+  player_speed = {}
+
   for name in pairs(tfm.get.room.playerList) do
     eventInitPlayer(name)
   end
@@ -299,6 +303,11 @@ function eventLoop(elapsed, remaining)
 end
 
 function eventNewPlayer(name)
+  for pname in pairs(tfm.get.room.playerList) do
+    tfm.exec.setPlayerGravityScale(pname, 0, 0)
+    ui.addImage("player_" .. pname, pixels.black, "%" .. pname, 0, 0, name, 100, 200, 0, 0, 0.5, 0.5)
+  end
+
   ui.setBackgroundColor(config.bgcolor)
   showBoard(name)
   property.showButtons(name)
@@ -320,10 +329,14 @@ function eventNewPlayer(name)
 end
 
 function eventInitPlayer(name)
-  tfm.exec.bindKeyboard(name, 1, true, true)
-  tfm.exec.bindKeyboard(name, 3, true, true)
-  tfm.exec.freezePlayer(name, true, false)
+  for _, key in pairs({ 0, 1, 2, 3, 17 }) do
+    tfm.exec.bindKeyboard(name, key, true, true)
+    tfm.exec.bindKeyboard(name, key, false, true)
+  end
+
+  ui.addImage("player_" .. name, pixels.black, "%" .. name, 0, 0, nil, 1, 1, 0, 0, 0.5, 0.5)
   system.bindMouse(name, true)
+  tfm.exec.setPlayerGravityScale(name, 0, 0)
 end
 
 function eventPlayersUpdated(name, player)
@@ -365,15 +378,47 @@ function eventPlayersUpdated(name, player)
 end
 
 function eventKeyboard(name, key, down, x, y)
-  if key == 1 or key == 3 then -- UP/DOWN key
-    local off = key == 1 and -1 or 1
+  if key >= 0 and key <= 3 then
+    local ox = (key == 0 and -1 or (key == 2 and 1 or 0))
+    local oy = (key == 1 and -1 or (key == 3 and 1 or 0))
 
-    for i=1, 3 do
-      if scrollPos[i + off] and math.abs(y - scrollPos[i]) < 10 then
-        tfm.exec.movePlayer(name, scrollPos.x, scrollPos[i + off])
-        break
+    if player_ctrl[name] and down then
+      local dist = 200
+      local fx = math.max(50, math.min(1200 - 50, x + ox * dist))
+      local fy = math.max(50, math.min(900 - 50, y + oy * dist))
+
+      tfm.exec.movePlayer(name, fx, fy, false)
+
+      return
+    end
+
+    if not player_speed[name] then
+      player_speed[name] = { 0, 0 }
+    end
+
+    local speed = 100
+    local vx, vy = player_speed[name][1], player_speed[name][2]
+
+    if down then
+      if key == 0 or key == 2 then
+        vx = ox * speed
+      else
+        vy = oy * speed
+      end
+    else
+      if key == 0 or key == 2 then
+        vx = 0
+      else
+        vy = 0
       end
     end
+
+    player_speed[name][1] = vx
+    player_speed[name][2] = vy
+
+    tfm.exec.movePlayer(name, 0, 0, true, vx, vy, false)
+  elseif key == 17 then
+    player_ctrl[name] = down or nil
   end
 end
 
@@ -1138,6 +1183,7 @@ function eventGameStateChanged(newState, oldState)
 
         dice.hide()
         tfm.exec.addPhysicObject(202, x, y, {
+          miceCollision = false,
           type = 14,
           width = 1500,
           height = 10,
@@ -1154,6 +1200,7 @@ function eventGameStateChanged(newState, oldState)
         tfm.exec.addPhysicObject(203, x2, y2, {
           dynamic = true,
           fixedRotation = false,
+          miceCollision = false,
           angle = 0,
           type = 13,
           width = 30,

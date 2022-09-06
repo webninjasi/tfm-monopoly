@@ -332,7 +332,7 @@ module.canBuyHouse = function(cellId)
   local cell = cellId and boardCells[cellId]
   local owner = cellId and owners[cellId]
 
-  if not cell or not cell.header_color or not owner then
+  if not cell or not cell.header_color or not owner or cell.type ~= 'property' then
     return
   end
 

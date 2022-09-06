@@ -43,7 +43,7 @@ return {
   },
   {
     type = 'lose',
-    title = 'Tax',
+    title = 'Income Tax',
     price = 200,
     mortgage = 100,
     card_image = 'income_tax',
@@ -53,6 +53,7 @@ return {
     title = 'Deathmatch Station',
     price = 200,
     mortgage = 100,
+    header_color = 0,
     card_image = 'train',
   },
   {
@@ -129,6 +130,7 @@ return {
     title = 'Electric Utility Company',
     price = 150,
     mortgage = 75,
+    header_color = 0,
     card_image = 'electric',
   },
   {
@@ -164,6 +166,7 @@ return {
     title = 'Trade Station',
     price = 200,
     mortgage = 100,
+    header_color = 0,
     card_image = 'train',
   },
   {
@@ -275,6 +278,7 @@ return {
     title = 'Survivor Station',
     price = 200,
     mortgage = 100,
+    header_color = 0,
     card_image = 'train',
   },
   {
@@ -310,6 +314,7 @@ return {
     title = 'Water Cbase Company',
     price = 150,
     mortgage = 75,
+    header_color = 0,
     card_image = 'water',
   },
   {
@@ -387,6 +392,7 @@ return {
     title = 'Cannonup Station',
     price = 200,
     mortgage = 100,
+    header_color = 0,
     card_image = 'train',
   },
   {
@@ -412,7 +418,7 @@ return {
   },
   {
     type = 'lose',
-    title = 'Tax',
+    title = 'Luxury Tax',
     price = 100,
     card_image = 'luxury_tax',
   },

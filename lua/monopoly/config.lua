@@ -24,10 +24,17 @@ config.mapXML = [[
 </C>
 ]]
 
-config.diceArea = {
+
+-- dice spawn offsets
+config.dice = {
+  off1 = { x = -40, y = 0 },
+  off2 = { x = 40, y = 0 },
+
   x1 = 110, x2 = 690,
   y1 = 110, y2 = 690,
   offset = 70,
+
+  delay = 2000, -- duration of the dice roll animation
 }
 
 config.tokenColors = {
@@ -151,19 +158,6 @@ config.images = {
   },
 }
 
--- dice spawn offsets
-config.dice1 = { x = -40, y = 0 }
-config.dice2 = { x = 40, y = 0 }
-
--- roll config
-config.roll = {
-  delay = 2000, -- length of the dice roll animation
-  x = 325, -- button x
-  y = 305, -- button y
-  w = 140, -- button width
-  h = 140, -- button height
-}
-
 -- tokens default position
 config.tokens = {
   imgX = 400,
@@ -174,14 +168,14 @@ config.tokens = {
   colorsOffset = 33,
 }
 
--- money ui
-config.money = { x = 370, y = 150 }
-
 -- board configs
 config.board = {}
 
 -- height of houses to place on top of properties
 config.board.houseSize = 20
+
+-- upper bar height
+config.board.offset = 30
 
 -- property positions in clockwise order
 config.board.positions = {

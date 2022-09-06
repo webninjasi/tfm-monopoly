@@ -10,6 +10,7 @@ local cellActions = {}
 local houseSize = config.board.houseSize
 local tokenSize = config.board.tokenSize
 local tokenOffset = config.board.tokenOffset
+local boardOffset = config.board.offset
 local positions = config.board.positions
 local tokenImages = config.images.tokens
 local cellCount = #positions
@@ -34,6 +35,8 @@ local function updateCells()
   for i=1, boardCells._len do
     boardCells[i].id = i
     boardCells[i].header_color_int = boardCells[i].header_color and tonumber(tostring(boardCells[i].header_color), 16) or 0
+    positions[i][2] = boardOffset + positions[i][2]
+    positions[i][4] = boardOffset + positions[i][4]
   end
 end
 

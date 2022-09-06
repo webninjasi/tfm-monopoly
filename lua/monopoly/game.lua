@@ -16,8 +16,9 @@ local command_list = pshy.require("pshy.commands.list")
 
 -- Game Variables
 local pixels = config.images.pixels
+local boardOffset = config.board.offset
 local gameTime = config.gameTime
-local diceArea = config.diceArea
+local diceArea = config.dice
 local mapXML = config.mapXML:gsub("[%s\r\n]+<", "<"):gsub(">[%s\r\n]+", ">")
 local states = {
   LOBBY = 0,
@@ -70,7 +71,7 @@ local function setGameState(newState)
 end
 
 local function showBoard(target)
-  ui.addImage("bg", config.images.background, "?1", 0, 20, target)
+  ui.addImage("bg", config.images.background, "?1", 0, 20 + boardOffset, target)
 end
 
 local function nextTurn()
@@ -630,7 +631,7 @@ function eventActionUIClick(name, action)
       return
     end
 
-    players.add(player.name, "money", -50)
+    players.add(player.name, 'money', -50)
     unjail(player, 'jail_out_money')
   elseif action == "JailCard" then
     if not player.jail or whoseTurn ~= player then

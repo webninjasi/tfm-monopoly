@@ -4,11 +4,11 @@ local config = pshy.require("monopoly.config")
 
 
 -- Variables
-local diceArea = config.diceArea
+local diceArea = config.dice
 local images = config.images.dices
-local dice1 = config.dice1
-local dice2 = config.dice2
-local rollDelay = config.roll.delay
+local dice1 = config.dice.off1
+local dice2 = config.dice.off2
+local rollDelay = config.dice.delay
 local rollTime
 local cage = {
   { x=-70, y=0, w=10, h=60, a=0 },

@@ -22,7 +22,7 @@ local mortgage = {}
 local cellsByGroup = {}
 local cellsByType = {}
 local separator = '<p align="center">' .. string.rep('━', 12) .. '</p>'
-local empty_space = string.rep(' ', 30)
+local empty_space = '<font size="200">' .. string.rep(' ', 50)
 
 local battery_cap = 10
 local battery = string.rep('█', battery_cap)
@@ -150,14 +150,13 @@ module.reset = function()
 end
 
 module.showButtons = function(target)
-  local spaces = string.rep(' ', 50)
   local pos
 
   for i=1, cellCount do
     pos = positions[i]
     ui.addTextArea(
       "boardcell_" .. i,
-      '<a href="event:boardcell_' .. i .. '"><font size="72">' .. spaces,
+      '<a href="event:boardcell_' .. i .. '">' .. empty_space,
       target,
       pos[1], pos[2],
       pos[3] - pos[1] - 5, pos[4] - pos[2] - 5,
@@ -734,7 +733,7 @@ module.showManageHouses = function(name)
   )
   ui.addTextArea(
     "buy_house_click",
-    '<font size="100"><a href="event:buy_house">' .. empty_space,
+    '<a href="event:buy_house">' .. empty_space,
     name,
     295-5, 160-5,
     50, 50,
@@ -761,7 +760,7 @@ module.showManageHouses = function(name)
   )
   ui.addTextArea(
     "sell_house_click",
-    '<font size="100"><a href="event:sell_house">' .. empty_space,
+    '<a href="event:sell_house">' .. empty_space,
     name,
     295-5, 240-5,
     50, 50,
@@ -788,7 +787,7 @@ module.showManageHouses = function(name)
   )
   ui.addTextArea(
     "unmortgage_click",
-    '<font size="100"><a href="event:unmortgage">' .. empty_space,
+    '<a href="event:unmortgage">' .. empty_space,
     name,
     455-5, 160-5,
     50, 50,
@@ -815,7 +814,7 @@ module.showManageHouses = function(name)
   )
   ui.addTextArea(
     "mortgage_click",
-    '<font size="100"><a href="event:mortgage">' .. empty_space,
+    '<a href="event:mortgage">' .. empty_space,
     name,
     455-5, 240-5,
     50, 50,

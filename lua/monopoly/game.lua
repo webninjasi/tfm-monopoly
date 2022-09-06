@@ -382,16 +382,6 @@ function eventKeyboard(name, key, down, x, y)
     local ox = (key == 0 and -1 or (key == 2 and 1 or 0))
     local oy = (key == 1 and -1 or (key == 3 and 1 or 0))
 
-    if player_ctrl[name] and down then
-      local dist = 200
-      local fx = math.max(50, math.min(1200 - 50, x + ox * dist))
-      local fy = math.max(50, math.min(900 - 50, y + oy * dist))
-
-      tfm.exec.movePlayer(name, fx, fy, false)
-
-      return
-    end
-
     if not player_speed[name] then
       player_speed[name] = { 0, 0 }
     end
@@ -423,6 +413,13 @@ function eventKeyboard(name, key, down, x, y)
 end
 
 function eventMouse(name, x, y)
+  if player_ctrl[name] then
+    local tpx = math.max(50, math.min(1200 - 50, x))
+    local tpy = math.max(50, math.min(900 - 50, y))
+
+    tfm.exec.movePlayer(name, tpx, tpy)
+  end
+
   local player = players.get(name)
 
   if not player or not player.allowMouse then

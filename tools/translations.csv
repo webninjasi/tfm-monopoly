@@ -167,42 +167,55 @@ chance_12,,You have won a crossword competition\nCollect $100,Kare bulmaca turnu
 chance_13,,Your Building loan matures\nReceive $150,İnşaat kredinin primleri geri ödendi\n$150 al,موعد استحقاق قرض البناء الخاص بك\n $احصل على 150
 chance_14,,Go to Jail,Hapise Git,أذهب الى السجن
 chance_15,,Get out of jail free\nThis card may kept until needed,Hapisten kefaret ödemeden çık\nBu kartı lazım olana dek saklayabilirsin,اخرج من السجن مجانًا\n يتم الاحتفاظ بهذه البطاقة لحين الحاجة إليها
-cardinfo_jailvisit,cell|separator,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,
-cardinfo_jail,cell|separator,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,
-cardinfo_chance,cell|separator,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,
-cardinfo_chest,cell|separator,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,
-cardinfo_win,cell|separator,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>
-<textformat tabstops=""[110]""><font size=""8"" color=""#8E8E8E"">
-Earn\t<font color=""#006400"">${cell.price}</font>",,
-cardinfo_lose,cell|separator,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>
-<textformat tabstops=""[110]""><font size=""8"" color=""#8E8E8E"">
-Lose\t<font color=""#006400"">${cell.price}</font>",,
-cardinfo_utility,cell|separator,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>
-<textformat tabstops=""[110]""><font size=""8"" color=""#8E8E8E"">
-Price\t<font color=""#006400"">${cell.price}</font>
-If one utility is owned, rent is 4
+cardinfo_row_price,,Price,,
+cardinfo_row_rent,,Rent,,
+cardinfo_row_earn,,Take,,
+cardinfo_row_lose,,Pay,,
+cardinfo_row_station1,,If 1 Station is owned,,
+cardinfo_row_station2,,If 2 Stations are owned,,
+cardinfo_row_station3,,If 3 Stations are owned,,
+cardinfo_row_station4,,If 4 Stations are owned,,
+cardinfo_row_house1,,With 1 House,,
+cardinfo_row_house2,,With 2 Houses,,
+cardinfo_row_house3,,With 3 Houses,,
+cardinfo_row_house4,,With 4 Houses,,
+cardinfo_row_hotel,,With 1 Hotel,,
+cardinfo_row_housecost,,A House Costs,,
+cardinfo_row_mortgage,,Mortgage,,
+cardinfo_row_utility,,"If one utility is owned, rent is 4
 times amount shown on dice.
 If both utilities are owned, rent
 is 10 times amount shown on
-dice
-Mortgage\t<font color=""#006400"">${cell.mortgage}</font>",,
+dice",,
+cardinfo_jailvisit,cell|separator,"\n\n\n\n<font size=""12"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,
+cardinfo_jail,cell|separator,"\n\n\n\n\n<font size=""12"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,
+cardinfo_chance,cell|separator,"\n\n\n\n\n<font size=""12"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,
+cardinfo_chest,cell|separator,"\n\n\n\n\n<font size=""12"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,
+cardinfo_win,cell|separator,"\n\n\n\n\n<font size=""14"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b>\n<font size=""-2"" color=""#000000"">
+{#cardinfo_row_earn} <font color=""#006400"">${cell.price}</font>",,
+cardinfo_lose,cell|separator,"\n\n\n\n<font face=""Comic Sans MS"" size=""16"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>\n<font size=""-2"" color=""#000000""><p align=""center"">{#cardinfo_row_lose} <font color=""#006400"">${cell.price}</font>",,
+cardinfo_utility,cell|separator,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>
+<textformat tabstops=""[110]""><font size=""8"" color=""#8E8E8E"">
+{#cardinfo_row_price}\t<font color=""#006400"">${cell.price}</font>
+{#cardinfo_row_utility}
+{#cardinfo_row_mortgage}\t<font color=""#006400"">${cell.mortgage}</font>",,
 cardinfo_station,cell|separator,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>
 <textformat tabstops=""[110]""><font size=""8"" color=""#8E8E8E"">
-Price\t<font color=""#006400"">${cell.price}</font>
-If 1 Station is owned\t<font color=""#006400"">${cell.station1}</font>
-If 2 Stations are owned\t<font color=""#006400"">${cell.station2}</font>
-If 3 Stations are owned\t<font color=""#006400"">${cell.station3}</font>
-If 4 Stations are owned\t<font color=""#006400"">${cell.station4}</font>
-Mortgage\t<font color=""#006400"">${cell.mortgage}</font>",,
+{#cardinfo_row_price}\t<font color=""#006400"">${cell.price}</font>
+{#cardinfo_row_station1}\t<font color=""#006400"">${cell.station1}</font>
+{#cardinfo_row_station2}\t<font color=""#006400"">${cell.station2}</font>
+{#cardinfo_row_station3}\t<font color=""#006400"">${cell.station3}</font>
+{#cardinfo_row_station4}\t<font color=""#006400"">${cell.station4}</font>
+{#cardinfo_row_mortgage}\t<font color=""#006400"">${cell.mortgage}</font>",,
 cardinfo_property,cell|separator,"<textformat tabstops=""[90]""><font size=""10"" color=""#000000"">
-Price\t<font color=""#006400"">${cell.price}</font>
-Rent\t<font color=""#006400"">${cell.rent}</font>
-With 1 House\t<font color=""#006400"">${cell.house}</font>
-With 2 Houses\t<font color=""#006400"">${cell.house2}</font>
-With 3 Houses\t<font color=""#006400"">${cell.house3}</font>
-With 4 Houses\t<font color=""#006400"">${cell.house4}</font>
-With 1 Hotel\t<font color=""#006400"">${cell.hotel}</font>
+{#cardinfo_row_price}\t<font color=""#006400"">${cell.price}</font>
+{#cardinfo_row_rent}\t<font color=""#006400"">${cell.rent}</font>
+{#cardinfo_row_house1}\t<font color=""#006400"">${cell.house}</font>
+{#cardinfo_row_house2}\t<font color=""#006400"">${cell.house2}</font>
+{#cardinfo_row_house3}\t<font color=""#006400"">${cell.house3}</font>
+{#cardinfo_row_house4}\t<font color=""#006400"">${cell.house4}</font>
+{#cardinfo_row_hotel}\t<font color=""#006400"">${cell.hotel}</font>
 {separator}
-A House Costs\t<font color=""#006400"">${cell.house_hotel}</font>
-Mortgage\t<font color=""#006400"">${cell.mortgage}</font>",,
-cardinfo_empty,cell|separator,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,
+{#cardinfo_row_housecost}\t<font color=""#006400"">${cell.house_hotel}</font>
+{#cardinfo_row_mortgage}\t<font color=""#006400"">${cell.mortgage}</font>",,
+cardinfo_empty,cell|separator,"\n\n\n\n<font size=""12"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,

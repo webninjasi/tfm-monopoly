@@ -62,11 +62,11 @@ unmortgage,,"<p align=""center""><b><VP><a href=""event:unmortgage"">Unmortgage"
 board_1,,Go - Collect $200 as you pass,Başlangıç - Geçerken $200 al,البداية - احصل على200$ كلما مررت
 card_1,,{#board_1},,
 board_2,,Vanilla Avenue,Vanilla Caddesi,شارع الفانيليا
-card_2,,<N>{#board_2},,
+card_2,,<N>{#board_2}</N>,,
 board_3,,Community Chest,Topluluk Sandığı,صندوق المجتمع
 card_3,,{#board_3},,
 board_4,,Defilante Street,Defilante Sokak,شارع ديفيلانت
-card_4,,<N>{#board_4},,
+card_4,,<N>{#board_4}</N>,,
 board_5,,Income Tax,Gelir Vergisi,الدخل ضريبة
 card_5,,{#board_5},,
 board_6,,Deathmatch Station,Deathmatch İstasyonu,محطة ديثماتش
@@ -82,9 +82,9 @@ card_10,,{#board_10},,
 board_11,,In Jail - Just Visiting,Hapis - Ziyaret,في السجن - مجرد زيارة
 card_11,,{#board_11},,
 board_12,,Transformice Alley,Transformice Geçiti,زقاق ترانسفورمايس
-card_12,,"<font size=""10"">{#board_12}",,
+card_12,,"<font size=""10"">{#board_12}</font>",,
 board_13,,Electric Utility Company,Utility Elektrik Hizmetleri,شركة المرافق الكهربائية
-card_13,,{#board_13},"<font size=""10"">{#board_13}",
+card_13,,{#board_13},"<font size=""9"">{#board_13}</font>",
 board_14,,Batata Avenue,Batata Caddesi,شارع بطاطة
 card_14,,{#board_14},,
 board_15,,Dancefloor Alley,Dancefloor Geçiti,زقاق حلبة الرقص
@@ -92,7 +92,7 @@ card_15,,{#board_15},,
 board_16,,Trade Station,Trade İstasyonu,محطة التجارة
 card_16,,{#board_16},,
 board_17,,Prophunt Avenue,Prophunt Caddesi,شارع بروبهانت
-card_17,,"<font size=""12"">{#board_17}",,
+card_17,,"<font size=""12"">{#board_17}</font>",,
 board_18,,Community Chest,Topluluk Sandığı,صندوق المجتمع
 card_18,,{#board_18},,
 board_19,,Football Venue,Football Mekanı,ملعب كرة القدم
@@ -108,7 +108,7 @@ card_23,,{#board_23},,
 board_24,,Freezertag Road,Freezertag Road,طريق فريزرتاج
 card_24,,{#board_24},,
 board_25,,Towerdefense Street,Towerdefense Sokak,شارع الدفاع عن البرج
-card_25,,"<font size=""10"">{#board_25}",,
+card_25,,"<font size=""10"">{#board_25}</font>",,
 board_26,,Survivor Station,Survivor İstasyonu,محطة النجاة
 card_26,,{#board_26},,
 board_27,,Circuit Avenue,Circuit Cadesi,شارع الدائرة
@@ -116,7 +116,7 @@ card_27,,{#board_27},,
 board_28,,Ratapult Plaza,Ratapult Plaza,راتابولت بلازا
 card_28,,{#board_28},,
 board_29,,Water Cbase Company,Cbase Su Hizmetleri,شركة مياه كباسي
-card_29,,{#board_29},"<font size=""10"">{#board_29}",
+card_29,,{#board_29},"<font size=""10"">{#board_29}</font>",
 board_30,,Mycity Avenue,Mycity Caddesi,شارع مايسيتي
 card_30,,{#board_30},,
 board_31,,Go To Jail,Hapise Git,أذهب الى السجن
@@ -134,11 +134,11 @@ card_36,,{#board_36},,
 board_37,,Chance,Şans,فرصة
 card_37,,{#board_37},,
 board_38,,Records Plaza,Records Plaza,حديقة ريكوردز
-card_38,,<N>{#board_38},,
+card_38,,<N>{#board_38}</N>,,
 board_39,,Luxury Tax,Özel Tüketim Vergisi,الرفاهية ضريبة
 card_39,,{#board_39},,
 board_40,,Bootcamp Avenue,Bootcamp Caddesi,جادة بوتكامب
-card_40,,"<N><font size=""12"">{#board_40}",,
+card_40,,"<N><font size=""12"">{#board_40}</font></N>",,
 community_1,,Advance to Go\nCollect $200,Başlangıça ilerle\n$200 al,$تقدم الى البداية واحصل على 200
 community_2,,Go back to Vanilla Avenue,Vanilla Caddesine geri dön,ارجع إلى شارع فانيلا
 community_3,,Bank error in your favor\nCollect $200,Bankada senin yararına bir hata oldu\n$200 kazandın,$خطأ بنكي لصالحك احصل على 200
@@ -175,21 +175,23 @@ cardinfo_row_station1,,If 1 Station is owned,Eğer 1 istasyona sahipsen,إذا �
 cardinfo_row_station2,,If 2 Stations are owned,Eğer 2 istasyona sahipsen,إذا كنت تمتلك 2 محطة
 cardinfo_row_station3,,If 3 Stations are owned,Eğer 3 istasyona sahipsen,إذا كنت تمتلك 3 محطة
 cardinfo_row_station4,,If 4 Stations are owned,Eğer 4 istasyona sahipsen,إذا كنت تمتلك 4 محطة
-cardinfo_row_house1,,With 1 House,Üstünde 1 ev varsa,إذا كنت تمتلك 1 منزل
-cardinfo_row_house2,,With 2 Houses,Üstünde 2 ev varsa,إذا كنت تمتلك 2 منزل
-cardinfo_row_house3,,With 3 Houses,Üstünde 3 ev varsa,إذا كنت تمتلك 3 منازل
-cardinfo_row_house4,,With 4 Houses,Üstünde 4 ev varsa,إذا كنت تمتلك 4 منازل
-cardinfo_row_hotel,,With 1 Hotel,Üstünde 1 otel varsa,إذا كنت تمتلك 1 فندق
-cardinfo_row_housecost,,A House Costs,Bir Evin Fiyatı,سعر المنزل
+cardinfo_row_house1,,With 1 House,1 ev varsa,إذا كنت تمتلك 1 منزل
+cardinfo_row_house2,,With 2 Houses,2 ev varsa,إذا كنت تمتلك 2 منزل
+cardinfo_row_house3,,With 3 Houses,3 ev varsa,إذا كنت تمتلك 3 منازل
+cardinfo_row_house4,,With 4 Houses,4 ev varsa,إذا كنت تمتلك 4 منازل
+cardinfo_row_hotel,,With 1 Hotel,1 otel varsa,إذا كنت تمتلك 1 فندق
+cardinfo_row_housecost,,A House Costs,Ev Fiyatı,سعر المنزل
 cardinfo_row_mortgage,,Mortgage,İpotek,سعر الرهن 
 cardinfo_row_utility,,"If one utility is owned, rent is 4
 times amount shown on dice.
 If both utilities are owned, rent
 is 10 times amount shown on
-dice","Eğer bir kamu hizmetine sahipsen
-kira bedeli zarlar toplamının 4 katı,
-Eğer her iki kamu hizmetine sahipsen
-kira bedeli zarlar toplamının 10 katı.","إذا كانت إحدى المرافق مملوكة ، يكون الإيجار 4
+dice","Eğer bir kamu hizmetine
+sahipsen kira bedeli zarlar
+toplamının 4 katı.
+Eğer her iki kamu hizmetine
+sahipsen kira bedeli zarlar
+toplamının 10 katı.","إذا كانت إحدى المرافق مملوكة ، يكون الإيجار 4
 مرات المقدار المعروض على النرد.
 إذا كانت كلتا المرافقين مملوكتين ، قيمة الإيجار
 هو 10 أضعاف المبلغ الظاهر على
@@ -202,12 +204,12 @@ cardinfo_win,cell|separator,"\n\n\n\n\n<font size=""14"" color=""#000000""><p al
 {#cardinfo_row_earn} <font color=""#006400"">${cell.price}</font>",,
 cardinfo_lose,cell|separator,"\n\n\n\n<font face=""Comic Sans MS"" size=""16"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>\n<font size=""-2"" color=""#000000""><p align=""center"">{#cardinfo_row_lose} <font color=""#006400"">${cell.price}</font>",,
 cardinfo_utility,cell|separator,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>
-<textformat tabstops=""[110]""><font size=""8"" color=""#8E8E8E"">
+<textformat tabstops=""[110]""><font size=""-1"">
 {#cardinfo_row_price}\t<font color=""#006400"">${cell.price}</font>
 {#cardinfo_row_utility}
 {#cardinfo_row_mortgage}\t<font color=""#006400"">${cell.mortgage}</font>",,
 cardinfo_station,cell|separator,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>
-<textformat tabstops=""[110]""><font size=""8"" color=""#8E8E8E"">
+<textformat tabstops=""[110]""><font size=""8"" color=""#000000"">
 {#cardinfo_row_price}\t<font color=""#006400"">${cell.price}</font>
 {#cardinfo_row_station1}\t<font color=""#006400"">${cell.station1}</font>
 {#cardinfo_row_station2}\t<font color=""#006400"">${cell.station2}</font>

@@ -73,7 +73,7 @@ local function scanBoardCells()
       cell.utility1 = -1
       cell.utility2 = -1
     elseif cell.type ~= 'property' then
-      cell.card_width = 136
+      cell.card_width = 140
 
       if cell.type == 'chance' or cell.type == 'jailvisit' then
         cell.infoY = 50
@@ -132,7 +132,7 @@ local function showPropertyCard(cell, name, x, y, canBuy)
       separator,
     },
     name,
-    x + (isProperty and 10 or 7), y + cell.infoY,
+    x + 5, y + cell.infoY,
     cell.card_width, nil,
     0, 0, 0,
     true

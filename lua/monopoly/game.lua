@@ -426,11 +426,13 @@ function eventMouse(name, x, y)
     local tpy = math.max(50, math.min(900 - 50, y))
 
     tfm.exec.movePlayer(name, tpx, tpy)
+
+    return
   end
 
   local player = players.get(name)
 
-  if not player or not player.allowMouse then
+  if not player then
     return
   end
 
@@ -438,13 +440,15 @@ function eventMouse(name, x, y)
     return
   end
 
-  player.allowMouse = false
-
   if gameState == states.LOBBY then
     -- play order is already decided or being decided right now
     if player.order or lobbyTurn then
       return
     end
+
+    if not player.color or not player.tokenid then
+      return
+    end 
 
     lobbyTurn = player
     dice.roll(x, y)
@@ -644,6 +648,7 @@ function eventActionUIClick(name, action)
     if not player.jail or whoseTurn ~= player then
       return
     end
+
     if not player.jailcard or gameState ~= states.WAITING then
       return
     end
@@ -651,7 +656,15 @@ function eventActionUIClick(name, action)
     players.update(player.name, "jailcard", nil)
     unjail(player, 'jail_out_card')
   elseif action == "Dice" then
-    player.allowMouse = true
+    if whoseTurn ~= player then
+      return
+    end
+
+    if gameState ~= states.LOBBY and gameState ~= states.WAITING then
+      return
+    end
+
+    eventMouse(whoseTurn.name, 400, 400)
   elseif action == "Cards" then
   elseif action == "Build" then
     if whoseTurn ~= player then
@@ -830,7 +843,6 @@ function eventTimeout()
       return
     end
 
-    whoseTurn.allowMouse = true
     eventMouse(whoseTurn.name, 400, 400)
 
     return

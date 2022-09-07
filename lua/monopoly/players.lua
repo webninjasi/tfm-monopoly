@@ -59,10 +59,11 @@ local function updateUI()
     money = player.money or 0
 
     listShadow[i] = string.format(
-      '<b>%s%s</b>\n' ..
+      '<b>%s%s <font size="-2">#%s</font></b>\n' ..
       '%s$%s <font size="-2">%s$%s<font size="+2">%s%s',
       player.turn and "• " or "",
-      player.name,
+      player.username,
+      player.usertag,
       money < 0 and "-" or "",
       math.abs(money),
       money_diff < 0 and '-' or '+',
@@ -71,11 +72,11 @@ local function updateUI()
       player.tradeMode and ' - ☕' or ''
     )
     list[i] = string.format(
-      '<font color="#%.6x"><b>%s%s</b>\n' ..
+      '<b><font color="#%.6x">%s</font>%s</b>\n' ..
       '%s%s$%s <BL><font size="-2">%s%s$%s<font size="+2"><BL>%s%s',
       player.color or 0,
       player.turn and "• " or "",
-      player.name,
+      player.colorname,
       money < 0 and '<R>' or '<VP>',
       money < 0 and '-' or '',
       math.abs(money),

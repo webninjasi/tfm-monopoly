@@ -10,6 +10,7 @@ local max = math.max
 local uiX, uiY, uiW = config.logsUI.x, config.logsUI.y,  config.logsUI.width
 local centerX = (800 - uiW) / 2
 local lineLimit = config.logsUI.lines
+local move_button = '<p align="left"><font size="20" color="#%.6x"><a href="event:move_ui">⛶</a></font></p>'
 
 local allLogs = {}
 local module = {}
@@ -40,26 +41,46 @@ local function getPage(lang, pageNum)
   return table.concat(lines, '\n')
 end
 
-module.show = function(pageNum, target)
+local function updateUI(target)
   if not target then
     for name in pairs(tfm.get.room.playerList) do
-      module.show(pageNum, name)
+      updateUI(name)
     end
 
     return
   end
 
-  local page = getPage(getLanguage(target), pageNum)
+  local page = getPage(getLanguage(target), 1)
 
   if page then
-    ui.addTextArea(
+    ui.updateTextArea(
       "logs",
-      getPage(getLanguage(target), pageNum),
-      target,
-      uiX, uiY, uiW, nil,
-      0, 0, 0, false
+      move_button:format(0xDEDEDE) .. page,
+      target
     )
   end
+end
+
+module.showUI = function(target, x, y)
+  if not target then
+    for name in pairs(tfm.get.room.playerList) do
+      module.showUI(name, x, y)
+    end
+
+    return
+  end
+
+  x = x or uiX
+  y = y or uiY
+
+  ui.addTextArea(
+    "logs",
+    '',
+    target,
+    x, y, uiW, nil,
+    0, 0, 0, false
+  )
+  updateUI(target)
 end
 
 module.showPage = function(pageNum, target)
@@ -101,7 +122,7 @@ module.add = function(key, ...)
   end
 
   print(translated[translations.getLanguage()])
-  module.show(1)
+  updateUI()
 end
 
 
@@ -115,6 +136,12 @@ function eventTextAreaCallback(id, name, callback)
 
     local page = tonumber(callback) or 1
     module.showPage(page, name)
+  end
+end
+
+function eventTextAreaMove(id, name, x, y)
+  if id == ui.textAreaId("logs") then
+    module.showUI(name, x, y)
   end
 end
 

@@ -39,6 +39,7 @@ local currentAuction
 local currentTimer
 local player_speed = {}
 local player_ctrl = {}
+local player_move_ui = {}
 
 
 -- Helper Functions
@@ -93,6 +94,7 @@ local function nextTurn()
       board.setCellOverlay(nil, prev.name, nil)
       property.hideManageHouses(prev.name)
       actionui.reset(prev.name)
+      actionui.update(prev.name, "Trade", true)
       tokens.circleMode(prev.tokenid, false)
       prev.turn = nil
     end
@@ -170,6 +172,7 @@ end
 local function startGame()
   for player in players.iter do
     players.add(player.name, 'money', 1500)
+    actionui.update(player.name, "Trade", true)
   end
 
   whoseTurn = nil
@@ -245,7 +248,7 @@ local function startAuction(card)
 
   for player in players.iter do
     if not currentAuction.fold[player.name] then
-      tfm.exec.movePlayer(player.name, 400, 400)
+      tfm.exec.movePlayer(player.name, 400, 455)
     end
   end
 
@@ -266,6 +269,10 @@ function eventInit()
   tfm.exec.disableMortCommand(true)
   tfm.exec.disablePhysicalConsumables(true)
 
+  for pname in pairs(tfm.get.room.playerList) do
+    eventInitPlayer(pname)
+  end
+
   tfm.exec.newGame(mapXML)
 end
 
@@ -278,7 +285,7 @@ function eventNewGame()
 
   for name in pairs(tfm.get.room.playerList) do
     tfm.exec.setPlayerScore(name, 0)
-    eventInitPlayer(name)
+    eventPlayerRespawn(name)
   end
 
   setGameState(states.LOBBY)
@@ -319,7 +326,6 @@ function eventNewPlayer(name)
   ui.setBackgroundColor(config.bgcolor)
   showBoard(name)
   property.showButtons(name)
-  players.showUI(name)
   tokens.show(name)
   board.showCellColor(nil, name)
   property.showHouses(nil, name)
@@ -342,10 +348,16 @@ function eventInitPlayer(name)
     tfm.exec.bindKeyboard(name, key, false, true)
   end
 
-  ui.addImage("player_" .. name, pixels.black, "%" .. name, 0, 0, nil, 1, 1, 0, 0, 0.5, 0.5)
   system.bindMouse(name, true)
-  tfm.exec.setPlayerGravityScale(name, 0, 0)
+  players.showUI(name)
+  logs.showUI(name)
 end
+
+function eventPlayerRespawn(name)
+  tfm.exec.setPlayerGravityScale(name, 0, 0)
+  ui.addImage("player_" .. name, pixels.black, "%" .. name, 0, 0, nil, 1, 1, 0, 0, 0.5, 0.5)
+end
+
 
 function eventPlayersUpdated(name, player)
   if gameState == states.GAME_OVER then
@@ -422,10 +434,19 @@ end
 
 function eventMouse(name, x, y)
   if player_ctrl[name] then
-    local tpx = math.max(50, math.min(1200 - 50, x))
-    local tpy = math.max(50, math.min(900 - 50, y))
+    local tpx = math.max(140, math.min(660, x))
+    local tpy = math.max(230, math.min(780, y))
 
     tfm.exec.movePlayer(name, tpx, tpy)
+
+    return
+  end
+
+  if player_move_ui[name] then
+    local id = player_move_ui[name]
+
+    player_move_ui[name] = nil
+    eventTextAreaMove(id, name, x, y)
 
     return
   end
@@ -460,6 +481,12 @@ function eventMouse(name, x, y)
 
     setGameState(states.ROLLING)
     dice.roll(x, y)
+  end
+end
+
+function eventTextAreaCallback(id, name, callback)
+  if callback == 'move_ui' then
+    player_move_ui[name] = id
   end
 end
 
@@ -1126,9 +1153,8 @@ end
 function eventGameStateChanged(newState, oldState)
   if whoseTurn then
     actionui.reset(whoseTurn.name)
+    actionui.update(whoseTurn.name, "Trade", true)
   end
-
-  actionui.update(nil, "Trade", true)
 
   if oldState == states.AUCTION then
     currentAuction = nil

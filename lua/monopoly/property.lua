@@ -597,7 +597,7 @@ module.showAuction = function(cell, fold)
     2, 160, 0, 1
   )
   module.hideCard(nil)
-  showPropertyCard(cell, nil, 75, 110, false)
+  showPropertyCard(cell, nil, 75 + 50, 110, false)
 
   translations.addTextArea(
     "auctiontitle",
@@ -946,7 +946,7 @@ function eventTextAreaCallback(id, name, callback)
 
     if cell then
       module.hideCard(name)
-      showPropertyCard(cell, name, 75, 110, false)
+      showPropertyCard(cell, name, 75 + 50, 110, false)
     end
   elseif callback:sub(1, 10) == 'boardcell_' then
     local id = tonumber(callback:sub(11))

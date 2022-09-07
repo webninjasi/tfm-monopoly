@@ -8,10 +8,13 @@ local initY, offX, offY = cfg.inity, cfg.offx, cfg.offy
 
 -- Variables
 local players = {}
+local lastX, lastY = {}, {}
 local _count = 0
 local first, last = nil, nil -- linked list of players
 local uiText = '' -- cached ui text
 local uiTextShadow = ''
+local move_button_shadow = '<p align="left"><font size="20" color="#000000">⛶</font></p>'
+local move_button = '<p align="left"><font size="20" color="#%.6x"><a href="event:move_ui">⛶</a></font></p>'
 local module = {}
 
 
@@ -45,10 +48,44 @@ local function reorder(target)
   end
 end
 
+local function updateTokens(target)
+  if not target then
+    for name in pairs(tfm.get.room.playerList) do
+      updateTokens(name)
+    end
+
+    return
+  end
+
+  local x = lastX[target] or uiX
+  local y = lastY[target] or uiY
+  local player = first
+  local imgY = y + initY
+  local scale
+
+  while player do
+    if player.tokenid and player.token then
+      scale = math.min(1, offY / player.token.h)
+      ui.addImage(
+        "playerlist_token_" .. player.tokenid,
+        player.token.img,
+        "!1",
+        x + offX - player.token.w / 2 * scale, imgY + player.token.h / 2 * scale,
+        target,
+        scale, scale, 0, 1,
+        0.5, 0.5
+      )
+    end
+
+    imgY = offY + imgY
+    player = player.next
+  end
+end
+
 local function updateUI()
   local player = first
-  local list = {'<font size="15">'}
-  local listShadow = {'<font size="15" color="#000000">'}
+  local list = {move_button:format(0xDEDEDE) .. '<font size="15">'}
+  local listShadow = {move_button_shadow .. '<font size="15" color="#000000">'}
   local i = #list
   local money_diff
   local money
@@ -94,15 +131,30 @@ local function updateUI()
 
   uiText = table.concat(list, '\n')
   uiTextShadow = table.concat(listShadow, '\n')
+
+  ui.updateTextArea(
+    "playerlistshadow",
+    uiTextShadow
+  )
+  ui.updateTextArea(
+    "playerlist",
+    uiText
+  )
+  updateTokens()
 end
 
-local function showUI(target)
+local function showUI(target, x, y)
+  if target then
+    lastX[target] = x
+    lastY[target] = y
+  end
+
   ui.addTextArea(
     "playerlistshadow",
     uiTextShadow,
     target,
-    uiX+1, uiY+1,
-    245, nil,
+    x+1, y+1,
+    nil, nil,
     0, 0, 0,
     false
   )
@@ -110,39 +162,20 @@ local function showUI(target)
     "playerlist",
     uiText,
     target,
-    uiX, uiY,
+    x, y,
     nil, nil,
     0, 0, 0,
     false
   )
-
-  local player = first
-  local y = uiY + initY
-  local scale
-
-  while player do
-    if player.tokenid and player.token then
-      scale = math.min(1, offY / player.token.h)
-      ui.addImage(
-        "playerlist_token_" .. player.tokenid,
-        player.token.img,
-        "!1",
-        uiX + offX - player.token.w / 2 * scale, y + player.token.h / 2 * scale,
-        target,
-        scale, scale, 0, 1,
-        0.5, 0.5
-      )
-    end
-
-    y = offY + y
-    player = player.next
-  end
+  updateTokens(target)
 end
 
 local function hideUI()
   ui.removeTextArea("playerlistshadow")
   ui.removeTextArea("playerlist")
+end
 
+local function hideTokens()
   local player = first
 
   while player do
@@ -161,7 +194,7 @@ local function reset()
   uiTextShadow = ''
   players = {}
   _count = 0
-  hideUI()
+  hideTokens()
 end
 
 local function remove(name)
@@ -212,7 +245,9 @@ end
 
 -- Public Functions
 module.reset = reset
-module.showUI = showUI
+module.showUI = function(target)
+  showUI(target, uiX, uiY)
+end
 
 module.create = function(obj)
   if last then
@@ -234,7 +269,6 @@ module.create = function(obj)
 
   colorName(obj)
   updateUI()
-  showUI()
 end
 
 module.get = function(name, key)
@@ -267,7 +301,6 @@ module.update = function(name, key, value)
   end
 
   updateUI()
-  showUI()
 end
 
 module.next = function(player)
@@ -296,7 +329,6 @@ module.remove = function(name)
 
   if player and eventPlayersUpdated then
     updateUI()
-    showUI()
     eventPlayersUpdated(name, player)
   end
 end
@@ -312,6 +344,12 @@ function eventTextAreaCallback(id, name, callback)
     local target = callback:sub(7)
 
     eventTradeRequest(name, target)
+  end
+end
+
+function eventTextAreaMove(id, name, x, y)
+  if id == ui.textAreaId("playerlist") or id == ui.textAreaId("playerlistshadow") then
+    showUI(name, x, y)
   end
 end
 

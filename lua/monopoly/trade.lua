@@ -14,9 +14,9 @@ local function buildItemList(trade, target)
 
   list._len = 1 + list._len
   if trade.lock then
-    list[list._len] = '<VP><font face="Verdana" size="20">✅</font>\n'
+    list[list._len] = '<VP><font size="20">✅</font>\n'
   else
-    list[list._len] = '<R><font face="Verdana" size="20">❌</font>\n'
+    list[list._len] = '<R><font size="20">❌</font>\n'
   end
 
   list._len = 1 + list._len

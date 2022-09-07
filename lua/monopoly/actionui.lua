@@ -14,7 +14,7 @@ do
   local tx = images.x - images.taw / 2
   local ty = images.y - images.tah / 2
   local step = images.w + images.sep
-  local spaces = string.rep(' ', 10)
+  local spaces = string.rep(' ', 5)
 
   for i=1,#images do
     img = images[i]
@@ -25,7 +25,7 @@ do
       alpha = images.alpha,
       invisible = img[3],
 
-      text = ('<font size="72"><a href="event:actionui %s">%s'):format(img[1], spaces),
+      text = ('<font size="50"><a href="event:actionui %s">%s'):format(img[1], spaces),
       tx = tx, ty = ty,
       tw = images.taw, th = images.tah,
     }

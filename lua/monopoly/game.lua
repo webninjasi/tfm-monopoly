@@ -884,6 +884,10 @@ function eventEmptyProperty(name, cell)
 end
 
 function eventPropertyClicked(name, cell)
+  if player_ctrl[name] then
+    return
+  end
+
   local canBuy = false
   local player = players.get(name)
 

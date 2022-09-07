@@ -47,8 +47,8 @@ end
 
 local function updateUI()
   local player = first
-  local list = {'<font size="15" face="Verdana">'}
-  local listShadow = {'<font size="15" face="Verdana" color="#000000">'}
+  local list = {'<font size="15">'}
+  local listShadow = {'<font size="15" color="#000000">'}
   local i = #list
   local money_diff
   local money
@@ -60,7 +60,7 @@ local function updateUI()
 
     listShadow[i] = string.format(
       '<b>%s%s</b>\n' ..
-      '%s$%s (%s$%s)%s%s',
+      '%s$%s <font size="-2">%s$%s<font size="+2">%s%s',
       player.turn and "• " or "",
       player.name,
       money < 0 and "-" or "",
@@ -72,7 +72,7 @@ local function updateUI()
     )
     list[i] = string.format(
       '<font color="#%.6x"><b>%s%s</b>\n' ..
-      '%s%s$%s <BL>(%s%s$%s<BL>)%s%s',
+      '%s%s$%s <BL><font size="-2">%s%s$%s<font size="+2"><BL>%s%s',
       player.color or 0,
       player.turn and "• " or "",
       player.name,

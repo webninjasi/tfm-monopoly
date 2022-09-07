@@ -151,13 +151,13 @@ local function hideToken(id, target)
 end
 
 local function updateColors(target)
-  local text = {'<p align="center"><font size="35" face="Verdana">'}
+  local text = {'<p align="center"><font size="35">'}
   local len = 1
 
   for i=1,tokenColors._len do
     len = 1 + len
     text[len] = string.format(
-      '<font color="#%.6x"><a href="event:color%d">█</a>  ',
+      '<font color="#%.6x"><a href="event:color%d">▉</a>  ',
       selectedColors[i] and 0xFAE1D2 or tokenColors[i], i
     )
 

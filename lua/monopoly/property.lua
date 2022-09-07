@@ -22,7 +22,8 @@ local mortgage = {}
 local cellsByGroup = {}
 local cellsByType = {}
 local separator = '<p align="center">' .. string.rep('━', 12) .. '</p>'
-local empty_space = '<font size="200">' .. string.rep(' ', 50)
+local empty_space = '<font size="20">' .. string.rep(' ', 8)
+local empty_space_big = '<font size="80">' .. string.rep(' ', 8)
 
 local battery_cap = 10
 local battery = string.rep('█', battery_cap)
@@ -156,7 +157,7 @@ module.showButtons = function(target)
     pos = positions[i]
     ui.addTextArea(
       "boardcell_" .. i,
-      '<a href="event:boardcell_' .. i .. '">' .. empty_space,
+      '<a href="event:boardcell_' .. i .. '">' .. empty_space_big,
       target,
       pos[1], pos[2],
       pos[3] - pos[1] - 5, pos[4] - pos[2] - 5,
@@ -642,7 +643,7 @@ module.updateAuctionTimer = function(remaining, total)
   ui.updateTextArea(
     "auctiontimer",
     string.format(
-      '<font size="6" face="Verdana">%s%s<font color="#000000">%s',
+      '<font size="6">%s%s<font color="#000000">%s',
       remaining <= 5 and '<R>' or '<V>',
       battery:sub(1, index * battery_cell_size),
       battery:sub(index * battery_cell_size + 1)

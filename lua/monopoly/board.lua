@@ -26,7 +26,7 @@ local board = {}
 local tokenCell = {}
 local cellColors = {}
 local movingToken
-local empty_space = string.rep(' ', 30)
+local empty_space = string.rep(' ', 8)
 
 
 -- Private Functions

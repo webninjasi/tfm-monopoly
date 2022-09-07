@@ -277,6 +277,7 @@ function eventNewGame()
   player_speed = {}
 
   for name in pairs(tfm.get.room.playerList) do
+    tfm.exec.setPlayerScore(name, 0)
     eventInitPlayer(name)
   end
 

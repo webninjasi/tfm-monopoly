@@ -259,6 +259,8 @@ module.update = function(name, key, value)
         reorder(player)
       elseif key == 'color' or key == 'name' then
         colorName(player)
+      elseif key == 'money' then
+        tfm.exec.setPlayerScore(name, player.money)
       end
     end
   end

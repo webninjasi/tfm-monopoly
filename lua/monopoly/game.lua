@@ -586,7 +586,9 @@ function eventDiceRoll(dice1, dice2)
 end
 
 function eventMoneyChanged(name, amount, change)
-
+  if change > 0 then
+    tfm.exec.playSound("cite18/piece2", 100, nil, nil, name)
+  end
 end
 
 function eventStartMoving()
@@ -848,6 +850,7 @@ function eventAuctionFold(name)
 
   currentAuction.fold[name] = true
   property.updateAuction(bidder, bid, bidder, currentAuction.fold)
+  tfm.exec.playSound("cite18/bulle1", 100)
 
   if remaining > 5000 then
     checkAuctionPlayers()

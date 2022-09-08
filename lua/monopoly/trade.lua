@@ -65,28 +65,33 @@ end
 local module = {}
 
 module.startTrade = function(player1, player2, extra)
+  local left = {
+    is_left = true,
+    name = player1,
+    money = 0,
+    jailcard = false,
+    cards = {},
+    cardCount = 0,
+    lock = false,
+  }
+
+  local right = {
+    is_left = false,
+    name = player2,
+    money = 0,
+    jailcard = false,
+    cards = {},
+    cardCount = 0,
+    lock = false,
+  }
+
+  left.other = right
+  right.other = left
+
   currentTrade = {
     extra = extra,
-
-    left = {
-      is_left = true,
-      name = player1,
-      money = 0,
-      jailcard = false,
-      cards = {},
-      cardCount = 0,
-      lock = false,
-    },
-
-    right = {
-      is_left = false,
-      name = player2,
-      money = 0,
-      jailcard = false,
-      cards = {},
-      cardCount = 0,
-      lock = false,
-    },
+    left = left,
+    right = right,
   }
 end
 
@@ -110,9 +115,11 @@ module.toggleCard = function(name, card)
     if trade.cards[card.id] then
       trade.cards[card.id] = nil
       trade.cardCount = trade.cardCount - 1
+      tfm.exec.playSound("cite18/camouflage", 100, nil, nil, trade.other.name)
     else
       trade.cards[card.id] = card
       trade.cardCount = trade.cardCount + 1
+      tfm.exec.playSound("cite18/caisse", 100, nil, nil, trade.other.name)
       return true
     end
   end
@@ -139,6 +146,11 @@ module.toggleJailCard = function(name)
 
   if trade then
     trade.jailcard = not trade.jailcard
+    if trade.jailcard then
+      tfm.exec.playSound("cite18/fleche1", 100, nil, nil, trade.other.name)
+    else
+      tfm.exec.playSound("cite18/fleche-debut", 100, nil, nil, trade.other.name)
+    end
   end
 end
 

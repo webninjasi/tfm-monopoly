@@ -9,6 +9,7 @@ local emoticons = config.images.emoticons
 local move_button = '<p align="left"><font size="20" color="#%.6x"><a href="event:move_ui">⛶</a></font></p>'
 local key_shift = {}
 local key_alt = {}
+local key_ctrl = {}
 local moving_ui = {}
 local timeout = {}
 local emoticon_list = {}
@@ -132,7 +133,7 @@ function eventLoop()
 end
 
 function eventInitPlayer(name)
-  for _, key in pairs({ 16, 18 }) do
+  for _, key in pairs({ 16, 17, 18 }) do
     tfm.exec.bindKeyboard(name, key, true, true)
     tfm.exec.bindKeyboard(name, key, false, true)
   end
@@ -147,18 +148,21 @@ function eventKeyboard(name, key, down, x, y)
   if key == 16 then
     key_shift[name] = down or nil
 
+  elseif key == 17 then
+    key_ctrl[name] = down or nil
+
   elseif key == 18 then
     key_alt[name] = down or nil
 
   elseif key >= 96 and key <= 96 + 9 then -- numpad
-    if key_alt[name] then
-      local id = key - 96 + 1
+    if key_alt[name] or key_ctrl[name] then
+      local id = key - 96 + (key_ctrl[name] and 11 or 1)
       show(name, id)
     end
 
   elseif key >= 112 and key <= 112 + 9 then -- f1-10
-    if key_shift[name] then
-      local id = key - 112 + 1
+    if key_shift[name] or key_ctrl[name] then
+      local id = key - 112 + (key_ctrl[name] and 11 or 1)
       show(name, id)
     end
 

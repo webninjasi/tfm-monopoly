@@ -10,7 +10,7 @@ local max = math.max
 local uiX, uiY, uiW = config.logsUI.x, config.logsUI.y,  config.logsUI.width
 local centerX = (800 - uiW) / 2
 local lineLimit = config.logsUI.lines
-local move_button = '<p align="left"><font size="20" color="#%.6x"><a href="event:move_ui">⛶</a></font></p>'
+local move_button = '<p align="left"><font size="20" color="#%.6x"><a href="event:move_ui">⛶</a></font></p>\n'
 
 local allLogs = {}
 local module = {}
@@ -77,7 +77,7 @@ module.showUI = function(target, x, y)
     "logs",
     '',
     target,
-    x, y, uiW, nil,
+    x, y, nil, nil,
     0, 0, 0, false
   )
   updateUI(target)

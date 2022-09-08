@@ -188,13 +188,14 @@ local function hideTokens()
 end
 
 local function reset()
+  hideTokens()
   first = nil
   last = nil
   uiText = ''
   uiTextShadow = ''
   players = {}
   _count = 0
-  hideTokens()
+  updateUI()
 end
 
 local function remove(name)

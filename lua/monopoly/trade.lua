@@ -170,28 +170,12 @@ module.setLock = function(name, state, skip_both)
 end
 
 module.showPopup = function(target)
-  ui.addImage(
-    "tradepopupshadow",
-    img.pixels.black,
-    ":90",
-    336-1, 21-1,
-    target,
-    128+2, 72+2, 0, 1
-  )
   ui.addPopup(
     128, 2,
     '',
     target,
-    340, 25,
-    120, true
-  )
-  ui.addImage(
-    "tradepopup",
-    img.popup,
-    "~150",
-    336, 21,
-    target,
-    1, 1, 0, 1
+    340, 25+400,
+    120, false
   )
 end
 
@@ -291,8 +275,6 @@ module.hideUI = function(target)
   ui.removeTextArea("tradeconfirm", target)
   ui.removeImage("tradeclose", target)
   ui.removeTextArea("tradeclose", target)
-  ui.removeImage("tradepopupshadow", target)
-  ui.removeImage("tradepopup", target)
   ui.addPopup(
     128, 2,
     "",
@@ -357,9 +339,6 @@ end
 
 function eventPopupAnswer(popupId, name, answer)
   if popupId == 128 then
-    ui.removeImage("tradepopupshadow", target)
-    ui.removeImage("tradepopup", name)
-
     local trade = getTrade(name)
     local amount = tonumber(answer)
 

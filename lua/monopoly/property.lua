@@ -22,8 +22,7 @@ local mortgage = {}
 local cellsByGroup = {}
 local cellsByType = {}
 local separator = '<p align="center">' .. string.rep('━', 12) .. '</p>'
-local empty_space = '<font size="20">' .. string.rep(' ', 8)
-local empty_space_big = '<font size="80">' .. string.rep(' ', 8)
+local empty_space = '<font size="80">' .. string.rep(' ', 8)
 
 local battery_cap = 10
 local battery = string.rep('█', battery_cap)
@@ -157,7 +156,7 @@ module.showButtons = function(target)
     pos = positions[i]
     ui.addTextArea(
       "boardcell_" .. i,
-      '<a href="event:boardcell_' .. i .. '">' .. empty_space_big,
+      '<a href="event:boardcell_' .. i .. '">' .. empty_space,
       target,
       pos[1], pos[2],
       pos[3] - pos[1] - 5, pos[4] - pos[2] - 5,
@@ -513,28 +512,12 @@ module.calculateRent = function(cell, diceSum)
 end
 
 module.showAuctionBid = function(target)
-  ui.addImage(
-    "auctionpopupshadow",
-    pixels.black,
-    ":90",
-    336-1, 21-1,
-    target,
-    128+2, 72+2, 0, 1
-  )
   ui.addPopup(
     44, 2,
     "",
     target,
-    340, 25,
-    120, true
-  )
-  ui.addImage(
-    "auctionpopup",
-    img.popup,
-    "~110",
-    336, 21,
-    target,
-    1, 1, 0, 1
+    340-35, 25+415,
+    120, false
   )
 
   ui.addImage(
@@ -559,8 +542,6 @@ end
 module.hideAuctionBid = function(target)
   ui.removeTextArea("auctionfold", target)
   ui.removeImage("auctionfold", target)
-  ui.removeImage("auctionpopupshadow", target)
-  ui.removeImage("auctionpopup", target)
   ui.addPopup(
     44, 2,
     "",
@@ -671,7 +652,7 @@ module.updateAuction = function(whoseTurn, highestBid, highestBidder, fold)
     "auctionhighest",
     'ui_auction_highest', { highestBid, highestBidder },
     nil,
-    auctionUI.x + 16, auctionUI.y + 90,
+    auctionUI.x + 16, auctionUI.y + 80,
     140, nil,
     0, 0, 0,
     false

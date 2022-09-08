@@ -29,7 +29,8 @@ local function showCard(player, type, id)
     0, 0, 0,
     true
   )
-  logs.add('log_card', player.colorname, type, trkey)
+  logs.add('log_card', player.colorname, type)
+  logs.add('log_card_detail', trkey)
 end
 
 local function randomWithException(count, exception)

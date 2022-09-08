@@ -924,7 +924,7 @@ function eventEmptyProperty(name, cell)
 end
 
 function eventPropertyClicked(name, cell)
-  if player_ctrl[name] then
+  if player_ctrl[name] or player_move_ui[name] then
     return
   end
 
@@ -1766,6 +1766,10 @@ command_list["join"] = {
       for target in pairs(tfm.get.room.playerList) do
         for i=1, #config.images.tokens do
           eventTokenClicked(target, i)
+        end
+
+        for i=1, #config.tokenColors do
+          eventTextAreaCallback(0, target, "color" .. i)
         end
       end
 

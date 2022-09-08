@@ -9,6 +9,7 @@ pshy.require("lays.ui")
 pshy.require("pshy.essentials")
 pshy.require("pshy.perms")
 pshy.require("pshy.bases.version")
+pshy.require("pshy.bases.emoticons")
 
 pshy.require("monopoly.game")
 

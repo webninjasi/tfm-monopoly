@@ -160,7 +160,7 @@ local function buyProperty(name, color, card, bid)
   players.add(name, 'money', bid and -bid or -card.price)
   property.setOwner(card.id, name)
   board.setCellColor(card.id, color)
-  property.hideCard(name)
+  property.hideCard(name, card)
 
   if bid then
     logs.add("auction", players.get(name, "colorname"), card, bid)
@@ -291,7 +291,7 @@ function eventNewGame()
   setGameState(states.LOBBY)
 
   showBoard()
-  property.showButtons()
+  --property.showButtons()
 
   currentTimer = nil
   currentAuction = nil
@@ -325,7 +325,7 @@ function eventNewPlayer(name)
 
   ui.setBackgroundColor(config.bgcolor)
   showBoard(name)
-  property.showButtons(name)
+  --property.showButtons(name)
   tokens.show(name)
   board.showCellColor(nil, name)
   property.showHouses(nil, name)
@@ -940,7 +940,6 @@ function eventPropertyClicked(name, cell)
     canBuy = card and card.id == cell.id and property.canBuy(cell)
   end
 
-  property.hideCard(name)
   property.showCard(cell, name, canBuy)
 end
 

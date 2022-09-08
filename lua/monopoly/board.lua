@@ -13,7 +13,7 @@ local tokenOffset = config.board.tokenOffset
 local boardOffset = config.board.offset
 local positions = config.board.positions
 local tokenImages = config.images.tokens
-local cellCount = #positions
+local cellCount = #boardCells
 local tokenPos = {
   { 0, 0 }, -- 1 token
   { -1, 0, 1, 0 }, -- 2 tokens

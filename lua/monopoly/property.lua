@@ -11,13 +11,14 @@ local boardCells = config.board.cells
 local auctionUI = config.auctionUI
 local houseSize = config.board.houseSize
 local positions = config.board.positions
-local cellCount = #positions
+local cellCount = #boardCells
 local cardImages = config.images.cards
 local pixels = config.images.pixels
 
 local owners = {}
 local houses = {}
 local mortgage = {}
+local viewing_card = {}
 
 local cellsByGroup = {}
 local cellsByType = {}
@@ -82,9 +83,45 @@ local function scanBoardCells()
     list._len = 1 + list._len
     list[list._len] = cell
   end
+
+  -- Used in eventMouse
+  positions[0] = positions[40]
+  positions[41] = positions[1]
+  boardCells[0] = boardCells[40]
+  boardCells[41] = boardCells[1]
+end
+
+local function hideCard(name, cell)
+  if name then
+    if cell and viewing_card[name] ~= cell then
+      return
+    end
+
+    viewing_card[name] = nil
+  else
+    viewing_card = {}
+  end
+
+  ui.removeTextArea("cardheader", name)
+  ui.removeTextArea("cardinfo", name)
+  ui.removeTextArea("cardbtnbuy", name)
+  ui.removeTextArea("cardbtnauction", name)
+  ui.removeImage("cardbg", name)
+  ui.removeImage("cardbtnbuy", name)
+  ui.removeImage("cardbtnauction", name)
 end
 
 local function showPropertyCard(cell, name, x, y, canBuy)
+  if name then
+    if viewing_card[name] == cell then
+      return
+    end
+
+    viewing_card[name] = cell
+  end
+
+  hideCard(name)
+
   local w, h = 150, 200
 
   if cell.type == 'property' then
@@ -146,7 +183,7 @@ module.reset = function()
   owners = {}
   houses = {}
   mortgage = {}
-  module.hideCard()
+  hideCard()
 end
 
 module.showButtons = function(target)
@@ -456,14 +493,8 @@ module.canSellHouse = function(cellId)
   return true
 end
 
-module.hideCard = function(name)
-  ui.removeTextArea("cardheader", name)
-  ui.removeTextArea("cardinfo", name)
-  ui.removeTextArea("cardbtnbuy", name)
-  ui.removeTextArea("cardbtnauction", name)
-  ui.removeImage("cardbg", name)
-  ui.removeImage("cardbtnbuy", name)
-  ui.removeImage("cardbtnauction", name)
+module.hideCard = function(name, cell)
+  hideCard(name, cell)
 end
 
 module.showCard = function(cell, name, canBuy)
@@ -577,7 +608,6 @@ module.showAuction = function(cell, fold)
     nil,
     2, 160, 0, 1
   )
-  module.hideCard(nil)
   showPropertyCard(cell, nil, 75 + 50, 110, false)
 
   translations.addTextArea(
@@ -607,7 +637,7 @@ module.showAuction = function(cell, fold)
 end
 
 module.hideAuction = function(target)
-  module.hideCard(target)
+  hideCard(target)
   module.hideAuctionBid(target)
   ui.removeTextArea("auctiontimer", target)
   ui.removeTextArea("auctiontitle", target)
@@ -897,6 +927,46 @@ function eventInit()
   scanBoardCells()
 end
 
+local bottom_line = positions[1][4]
+local top_line = positions[21][2]
+
+function eventMouse(name, x, y)
+  if x < 0 or x > 800 or y < top_line or y > bottom_line then
+    return
+  end
+
+  local bx = 1 + math.floor(x / 800 * 11)
+  local by = 1 +  math.floor((y - top_line) / 800 * 11)
+
+  if bx < 10 and bx > 2 and by < 10 and by > 2 then
+    return
+  end
+
+  local idx, pos
+
+  if by == 11 or by == 10 then
+    idx = 11 - bx + 1
+  elseif bx == 1 or bx == 2 then
+    idx = 11 + 11 - by
+  elseif by == 1 or by == 2 then
+    idx = 21 + bx - 1
+  elseif bx == 11 or bx == 10 then
+    idx = 31 + by - 1
+  end
+
+  local id = idx
+
+  for id=idx - 1, idx + 1 do
+    pos = positions[id]
+
+    if x >= pos[1] and x <= pos[3] and y >= pos[2] and y <= pos[4] then
+      local cell = id and boardCells[id]
+      eventPropertyClicked(name, cell)
+      break
+    end
+  end
+end
+
 function eventPopupAnswer(popupId, name, answer)
   if popupId == 44 then
     local bid = tonumber(answer)
@@ -910,7 +980,7 @@ end
 
 function eventTextAreaCallback(id, name, callback)
   if callback == "closecard" then
-    module.hideCard(name)
+    hideCard(name)
   elseif id == ui.textAreaId("cardbtnbuy") then
     if eventBuyCardClick then
       eventBuyCardClick(name)
@@ -926,7 +996,6 @@ function eventTextAreaCallback(id, name, callback)
     local cell = id and boardCells[id]
 
     if cell then
-      module.hideCard(name)
       showPropertyCard(cell, name, 75 + 50, 110, false)
     end
   elseif callback:sub(1, 10) == 'boardcell_' then

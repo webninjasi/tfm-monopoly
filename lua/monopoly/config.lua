@@ -159,6 +159,28 @@ config.images = {
     {"Trade", "181f0780a5c.png"},
     {"Stop", "181f077725b.png"},
   },
+  emoticons = {
+    { "16f56cbc4d7.png" },
+    { "16f56cdf28f.png" },
+    { "17aa1491af1.png" },
+    { "16f56d09dc2.png" },
+    { "16f5d8c7401.png" },
+    { "17088661168.png" },
+    { "16f56ce925e.png" },
+    { "1831d9ef9cf.png" },
+    { "1831d9f465c.png" },
+    { "1831d9f925d.png" },
+    { "1831d9fde5e.png" },
+    { "1831da02a60.png" },
+    { "1831da0765e.png" },
+    { "1831da0c25e.png" },
+    { "1831da10e5f.png" },
+  },
+}
+
+config.emoticon = {
+  x = 630, y = 185,
+  duration = 4500,
 }
 
 -- tokens default position

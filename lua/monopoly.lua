@@ -9,9 +9,9 @@ pshy.require("lays.ui")
 pshy.require("pshy.essentials")
 pshy.require("pshy.perms")
 pshy.require("pshy.bases.version")
-pshy.require("pshy.bases.emoticons")
 
 pshy.require("monopoly.game")
+pshy.require("monopoly.emoticons")
 
 
 --local loadersync = pshy.require("pshy.anticheats.loadersync")

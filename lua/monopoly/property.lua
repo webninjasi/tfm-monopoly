@@ -652,7 +652,7 @@ module.updateAuction = function(whoseTurn, highestBid, highestBidder, fold)
     "auctionhighest",
     'ui_auction_highest', { highestBid, highestBidder },
     nil,
-    auctionUI.x + 16, auctionUI.y + 80,
+    auctionUI.x + 16, auctionUI.y + 90, -- there is a 10px space for long property names
     140, nil,
     0, 0, 0,
     false

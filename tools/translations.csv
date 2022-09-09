@@ -49,7 +49,7 @@ ui_auction_title,,"<font size=""20"" color=""#ffffff""><p align=""center"">Aucti
 ui_auction_card,cardid|title,"<p align=""center""><font size=""12"" color=""#000000""><a href=""event:auctioncard_{cardid}"">{$title}",,
 ui_auction_highest,bid|bidder,"<font color=""#000000"">Highest Bid: <VP>${bid}\n<font color=""#000000"">Highest Bidder: <V>{bidder}","<font color=""#000000"">En Yüksek Teklif: <VP>${bid}\n<font color=""#000000"">En Yüksek Teklifi Veren: <V>{bidder}","<font color=""#000000"">اعلى رهان: <VP>${bid}\n<font color=""#000000"">اعلى مراهن: <V>{bidder}"
 ui_auction_fold,,"<p align=""center""><a href=""event:auction_fold""><b><font size=""12"" color=""#ffffff"">FOLD","<p align=""center""><a href=""event:auction_fold""><b><font size=""12"" color=""#ffffff"">Çekil","<p align=""center""><a href=""event:auction_fold""><b><font size=""12"" color=""#ffffff"">انسحاب"
-ui_property_title,title,"<p align=""center""><font size=""15"" color=""#000000"" face=""Verdana""><a href=""event:closecard"">{$title}",,
+ui_property_title,title,"<p align=""center""><font size=""15"" color=""#000000""><a href=""event:closecard"">{$title}",,
 ui_button_buy,,"<VP><b><p align=""center""><a href=""event:buy"">BUY</a>","<VP><b><p align=""center""><a href=""event:buy"">SATIN AL</a>","<VP><b><p align=""center""><a href=""event:buy"">شراء</a>"
 ui_button_auction,,"<VP><b><p align=""center""><a href=""event:auction"">AUCTION</a>","<VP><b><p align=""center""><a href=""event:auction"">İHALE</a>","<VP><b><p align=""center""><a href=""event:auction"">مزاد</a>"
 ui_house_title,,"<font size=""19"" color=""#ffffff""><p align=""center""><a href=""event:close_house"">Manage Properties","<font size=""19"" color=""#ffffff""><p align=""center""><a href=""event:close_house"">Mülkleri Yönet","<font size=""19"" color=""#ffffff""><p align=""center""><a href=""event:close_house"">أدارة الممتلكات"
@@ -236,32 +236,38 @@ sahipsen kira bedeli zarlar
 toplamının 4 katı.
 Eğer her iki kamu hizmetine
 sahipsen kira bedeli zarlar
-toplamının 10 katı.","إذا كانت إحدى المرافق مملوكة ، يكون الإيجار 4
-مرات المقدار المعروض على النرد.
-إذا كانت كلتا المرافقين مملوكتين ، قيمة الإيجار
-هو 10 أضعاف المبلغ الظاهر على
-حجر النرد"
-cardinfo_jailvisit,cell|separator,"\n\n\n\n<font size=""12"" color=""#000000"" face=""Verdana""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,
-cardinfo_jail,cell|separator,"\n\n\n\n\n<font size=""12"" color=""#000000"" face=""Verdana""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,
-cardinfo_chance,cell|separator,"\n\n\n\n\n<font size=""12"" color=""#000000"" face=""Verdana""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,
-cardinfo_chest,cell|separator,"\n\n\n\n\n<font size=""12"" color=""#000000"" face=""Verdana""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,
-cardinfo_win,cell|separator,"\n\n\n\n\n<font size=""14"" color=""#000000"" face=""Verdana""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b>\n<font size=""-2"" color=""#000000"">
+toplamının 10 katı.","إذا كانت إحدى المرافق مملوكة 
+يكون الإيجار 4 مرات المقدار المعروض على النرد.
+إذا كانت كلتا المرافقين مملوكتين
+قيمة الإيجارهو 10 أضعاف المبلغ الظاهر على النرد"
+cardinfo_jailvisit,cell|separator,"\n\n\n\n<font size=""12"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,
+cardinfo_jail,cell|separator,"\n\n\n\n\n<font size=""12"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,
+cardinfo_chance,cell|separator,"\n\n\n\n\n<font size=""12"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,
+cardinfo_chest,cell|separator,"\n\n\n\n\n<font size=""12"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,
+cardinfo_win,cell|separator,"\n\n\n\n\n<font size=""14"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b>\n<font size=""-2"" color=""#000000"">
 {#cardinfo_row_earn} <font color=""#006400"">${cell.price}</font>",,
 cardinfo_lose,cell|separator,"\n\n\n\n<font face=""Comic Sans MS"" size=""16"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>\n<font size=""-2"" color=""#000000""><p align=""center"">{#cardinfo_row_lose} <font color=""#006400"">${cell.price}</font>",,
-cardinfo_utility,cell|separator,"\n\n\n\n<font size=""9"" color=""#000000"" face=""Verdana""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>
+cardinfo_utility,cell|separator,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>
 <textformat tabstops=""[110]""><font size=""-1"">
 {#cardinfo_row_price}\t<font color=""#006400"">${cell.price}</font>
 {#cardinfo_row_utility}
 {#cardinfo_row_mortgage}\t<font color=""#006400"">${cell.mortgage}</font>",,
 cardinfo_station,cell|separator,"\n\n\n\n<font size=""9"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>
-<textformat tabstops=""[110]""><font size=""8"" color=""#000000"" face=""Verdana"">
+<textformat tabstops=""[110]""><font size=""8"" color=""#000000"">
 {#cardinfo_row_price}\t<font color=""#006400"">${cell.price}</font>
 {#cardinfo_row_station1}\t<font color=""#006400"">${cell.station1}</font>
 {#cardinfo_row_station2}\t<font color=""#006400"">${cell.station2}</font>
 {#cardinfo_row_station3}\t<font color=""#006400"">${cell.station3}</font>
 {#cardinfo_row_station4}\t<font color=""#006400"">${cell.station4}</font>
-{#cardinfo_row_mortgage}\t<font color=""#006400"">${cell.mortgage}</font>",,
-cardinfo_property,cell|separator,"<textformat tabstops=""[90]""><font size=""10"" color=""#000000"" face=""Verdana"">
+{#cardinfo_row_mortgage}\t<font color=""#006400"">${cell.mortgage}</font>",,"\n\n\n\n<font size=""12"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>
+<textformat tabstops=""[110]""><font size=""8"" color=""#000000"">
+{#cardinfo_row_price}\t<font color=""#006400"">${cell.price}</font>
+{#cardinfo_row_station1}\t<font color=""#006400"">${cell.station1}</font>
+{#cardinfo_row_station2}\t<font color=""#006400"">${cell.station2}</font>
+{#cardinfo_row_station3}\t<font color=""#006400"">${cell.station3}</font>
+{#cardinfo_row_station4}\t<font color=""#006400"">${cell.station4}</font>
+{#cardinfo_row_mortgage}\t<font color=""#006400"">${cell.mortgage}</font>"
+cardinfo_property,cell|separator,"<textformat tabstops=""[95]""><font size=""10"" color=""#000000"">
 {#cardinfo_row_price}\t<font color=""#006400"">${cell.price}</font>
 {#cardinfo_row_rent}\t<font color=""#006400"">${cell.rent}</font>
 {#cardinfo_row_house1}\t<font color=""#006400"">${cell.house}</font>
@@ -272,4 +278,4 @@ cardinfo_property,cell|separator,"<textformat tabstops=""[90]""><font size=""10"
 {separator}
 {#cardinfo_row_housecost}\t<font color=""#006400"">${cell.house_hotel}</font>
 {#cardinfo_row_mortgage}\t<font color=""#006400"">${cell.mortgage}</font>",,
-cardinfo_empty,cell|separator,"\n\n\n\n<font size=""12"" color=""#000000"" face=""Verdana""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,
+cardinfo_empty,cell|separator,"\n\n\n\n<font size=""12"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,

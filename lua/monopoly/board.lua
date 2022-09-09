@@ -25,6 +25,7 @@ local tokenPos = {
 local board = {}
 local tokenCell = {}
 local cellColors = {}
+local overlay_enabled = {}
 local movingToken
 local empty_space = string.rep(' ', 8)
 
@@ -202,6 +203,7 @@ module.reset = function()
   tokenCell = {}
   board.tokens = {}
   board.cells = {}
+  overlay_enabled = {}
 
   for i=1, cellCount do
     board.cells[i] = { count=0 }
@@ -395,6 +397,10 @@ module.setCellColor = function(cellId, color)
   module.showCellColor(cellId)
 end
 
+module.isOverlayEnabled = function(cellId)
+  return overlay_enabled[cellId]
+end
+
 module.setCellOverlay = function(cellId, name, color)
   if not cellId then
     for i=1, boardCells._len do
@@ -405,6 +411,7 @@ module.setCellOverlay = function(cellId, name, color)
   end
 
   if not color then
+    overlay_enabled[cellId] = nil
     ui.removeTextArea("celloverlay_" .. cellId, name)
     return
   end
@@ -442,6 +449,7 @@ module.setCellOverlay = function(cellId, name, color)
     y = pos[2]
   end
 
+  overlay_enabled[cellId] = true
   ui.addTextArea(
     "celloverlay_" .. cellId,
     '<font size="70"><a href="event:click_overlay_' .. cellId .. '">' .. empty_space,

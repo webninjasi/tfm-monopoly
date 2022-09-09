@@ -3,6 +3,7 @@
 local config = pshy.require("monopoly.config")
 local translations = pshy.require("monopoly.translations")
 local players = pshy.require("monopoly.players")
+local board = pshy.require("monopoly.board")
 
 
 -- Variables
@@ -112,6 +113,8 @@ local function hideCard(name, cell)
 end
 
 local function showPropertyCard(cell, name, x, y, canBuy)
+  hideCard(name)
+
   if name then
     if viewing_card[name] == cell then
       return
@@ -119,8 +122,6 @@ local function showPropertyCard(cell, name, x, y, canBuy)
 
     viewing_card[name] = cell
   end
-
-  hideCard(name)
 
   local w, h = 150, 200
 
@@ -961,6 +962,11 @@ function eventMouse(name, x, y)
 
     if x >= pos[1] and x <= pos[3] and y >= pos[2] and y <= pos[4] then
       local cell = id and boardCells[id]
+
+      if board.isOverlayEnabled(cell.id) then
+        return
+      end
+
       eventPropertyClicked(name, cell)
       break
     end

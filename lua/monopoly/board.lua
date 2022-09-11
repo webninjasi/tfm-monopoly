@@ -14,14 +14,6 @@ local boardOffset = config.board.offset
 local positions = config.board.positions
 local tokenImages = config.images.tokens
 local cellCount = #boardCells
-local tokenPos = {
-  { 0, 0 }, -- 1 token
-  { -1, 0, 1, 0 }, -- 2 tokens
-  { -1, -1, 1, -1, 0, 1 }, -- 3 tokens
-  { -1, -1, 1, -1, -1, 1, 1, 1 }, -- 4 tokens
-  { -1, -1, 1, -1, -1, 1, 1, 1, 0, 2 }, -- 5 tokens
-  { -1, -2, 1, -2, -1, 0, 1, 0, -1, 2, 1, 2 }, -- 6 tokens
-}
 local board = {}
 local tokenCell = {}
 local cellColors = {}
@@ -39,18 +31,6 @@ local function updateCells()
     positions[i][2] = boardOffset + positions[i][2]
     positions[i][4] = boardOffset + positions[i][4]
   end
-end
-
-local function getPos(index, x, y, scale, count, tokenId)
-  if index > count or index < 1 or not tokenImages[tokenId] then
-    return x, y
-  end
-
-  local offX = tokenImages[tokenId][2] * scale / 2 + 1
-  local offY = tokenImages[tokenId][3] * scale / 2 + 1
-
-  return x + offX * tokenPos[count][index * 2 - 1],
-         y + offY * tokenPos[count][index * 2]
 end
 
 local function placeToCell(cellId, tokenId)
@@ -136,8 +116,9 @@ local function updateTokens(cellId)
   end
 
   local cell = board.cells[cellId]
+  local pos = positions[cellId]
 
-  if not cell or cell.count == 0 then
+  if not cell or not pos or cell.count == 0 then
     return
   end
 
@@ -148,17 +129,34 @@ local function updateTokens(cellId)
     return
   end
 
-  local x, y, scale
-  local index = 0
+  local x, y
+  local index = -math.floor(cell.count / 2)
   local rotation = (direction - 1) * math.pi / 2
+  local x_space = math.max(0, pos[3] - pos[1] - 60)
+  local y_space = math.max(0, pos[4] - pos[2] - 60)
 
-  scale = cellId % 10 ~= 1 and cell.count > 1 and 0.5 or 1
+  for tokenId=#tokenImages, 1, -1 do
+    if cell[tokenId] then
+      if direction == 1 then
+        x = originX + x_space / 2 * ((index % 2) * 2 - 1)
+        y = originY + y_space / cell.count * index
 
-  for tokenId in pairs(cell) do
-    if tokenId ~= 'count' then
+      elseif direction == 2 then
+        x = originX - x_space / cell.count * index
+        y = originY + y_space / 2 * ((index % 2) * 2 - 1)
+
+      elseif direction == 3 then
+        x = originX + x_space / 2 * ((index % 2) * 2 - 1)
+        y = originY - y_space / cell.count * index
+
+      elseif direction == 4 then
+        x = originX + x_space / cell.count * index
+        y = originY + y_space / 2 * ((index % 2) * 2 - 1)
+
+      end
+
+      tokens.update(tokenId, x, y, 1, rotation)
       index = 1 + index
-      x, y = getPos(index, originX, originY, scale, cell.count, tokenId)
-      tokens.update(tokenId, x, y, scale, rotation)
     end
   end
 end

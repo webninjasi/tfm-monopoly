@@ -27,11 +27,12 @@ do
   local x, y = 0, 0
   local widthList = {}
   local width = 0
-  local startX, startY
+  local startX
   local maxHeight = 0
+  local offset_x = 5
 
   for i=1, tokens._len do
-    width = width + images[i][2] + 10
+    width = width + images[i][2] + offset_x
     x = x + images[i][2] / 2
 
     tokens[i] = {
@@ -46,10 +47,10 @@ do
     }
 
     maxHeight = math.max(maxHeight, tokens[i].h)
-    x = x + 10 + images[i][2] / 2
+    x = x + offset_x + images[i][2] / 2
 
     if i % rowItems == 0 then
-      widthList[1 + #widthList] = width - 10
+      widthList[1 + #widthList] = width - offset_x
       x = 0
       width = 0
       y = y + maxHeight + 10
@@ -74,19 +75,70 @@ do
     tokens[i].defaultY = tokens[i].y
   end
 
-  colorUIx = startX
+  colorUIx = imgX - 150 + 14
   colorUIy = tokens[tokens._len].y + colorsOffset
 end
 
 -- Private Functions
+local function hideCircle()
+  ui.removeImage("token_circle", nil)
+end
+
+local function showCircle(token)
+  if token then
+    return
+  end
+
+  if token.circle then
+    tfm.exec.addPhysicObject(43, token.x, token.y, {
+      type = 14,
+      miceCollision = false,
+      groundCollision = false,
+    })
+    tfm.exec.addPhysicObject(44, token.x, token.y, {
+      dynamic = true,
+      type = 14,
+      mass = 1,
+      miceCollision = false,
+      groundCollision = false,
+      foreground = true,
+    })
+    tfm.exec.addJoint(3, 44, 43, {
+      type = 3,
+      speedMotor = -1.2,
+      forceMotor = 100,
+    })
+
+    ui.addImage(
+      "token_circle",
+      circleImage,
+      '+44',
+      0, 0,
+      nil,
+      token.scale, token.scale,
+      0, 1,
+      0.5, 0.5
+    )
+  end
+end
+
 local function showToken(token, clickable, target, groundId)
   local upside_down = token.rotation == math.pi
+
+  if not groundId and not clickable then
+    tfm.exec.addPhysicObject(300 + token.id, token.x, token.y, {
+      groundCollision = false,
+      miceCollision = false,
+    })
+    groundId = 300 + token.id
+  end
+
   ui.addImage(
     "token" .. token.id,
     token.img,
-    groundId and ('+' .. groundId) or (clickable and '!70' or '!70'),
-    groundId and 0 or token.x,
-    groundId and 0 or token.y,
+    clickable and '!70' or ('+' .. groundId),
+    clickable and token.x or 0,
+    clickable and token.y or 0,
     target,
     upside_down and -token.scale or token.scale, token.scale,
     upside_down and 0 or token.rotation, 1,
@@ -95,37 +147,9 @@ local function showToken(token, clickable, target, groundId)
 
   if token.circle then
     if groundId then
-      ui.removeImage("token_circle", target)
+      hideCircle()
     else
-      tfm.exec.addPhysicObject(43, token.x, token.y, {
-        type = 14,
-        miceCollision = false,
-        groundCollision = false,
-      })
-      tfm.exec.addPhysicObject(44, token.x, token.y, {
-        dynamic = true,
-        type = 14,
-        mass = 1,
-        miceCollision = false,
-        groundCollision = false,
-        foreground = true,
-      })
-      tfm.exec.addJoint(3, 44, 43, {
-        type = 3,
-        speedMotor = -1.2,
-        forceMotor = 100,
-      })
-
-      ui.addImage(
-        "token_circle",
-        circleImage,
-        '+44',
-        0, 0,
-        target,
-        token.scale, token.scale,
-        0, 1,
-        0.5, 0.5
-      )
+      showCircle(token)
     end
   end
 
@@ -296,7 +320,7 @@ module.show = function(target)
     token = tokens[i]
 
     if token.active then
-      showToken(token, false, target)
+      showToken(token, false)
     end
   end
 end
@@ -399,7 +423,7 @@ module.circleMode = function(tokenId, enabled)
   end
 
   token.circle = enabled
-  showToken(token, false)
+  showCircle(token, target)
 end
 
 

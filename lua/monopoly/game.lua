@@ -121,17 +121,17 @@ local function createPlayer(name, coloridx, color, tokenid)
     return
   end  
 
-  -- reached the max number of players
-  if players.count() == 6 then
-    return
-  end
-
   if not player then
     players.create({
       name = name,
       money = 0,
     })
     player = players.get(name)
+
+    -- reached the max number of players
+    if players.count() == 8 then
+      return
+    end
   end
 
   if not player.color and color then
@@ -1476,14 +1476,26 @@ end
 -- Commands
 command_list["move"] = {
   perms = "admins",
-  func = function(name, cellId, doAnim)
-    local player = players.get(name)
-  
-    if not player or not player.tokenid then
+  func = function(name, cellId, doAnim, target)
+    if not cellId or cellId < 1 or cellId > 40 then
       return
     end
+
+    if target == "*" then
+      for player in players.iter do
+        if player.tokenid then
+          whoseTurn = player
+          eventStartMoving()
+          board.moveToken(player.tokenid, cellId, false, true, true)
+        end
+      end
+
+      return
+    end
+
+    local player = players.get(target or name)
   
-    if not cellId or cellId < 1 or cellId > 40 then
+    if not player or not player.tokenid then
       return
     end
   
@@ -1491,8 +1503,8 @@ command_list["move"] = {
     eventStartMoving()
     board.moveToken(player.tokenid, cellId, false, true, not doAnim)
   end,
-  desc = "move players' token",
-  argc_min = 1, argc_max = 2, arg_types = {"number", "boolean"}
+  desc = "move a token",
+  argc_min = 1, argc_max = 3, arg_types = {"number", "boolean", "player"}
 }
 
 command_list["roll"] = {

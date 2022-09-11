@@ -189,6 +189,8 @@ local function jailPlayer(player, jail_type)
   else
     board.moveToken(player.tokenid, 11, nil, nil, true)
   end
+
+  tfm.exec.playSound("deadmaze/sons/18", 100, nil, nil, player.name)
 end
 
 local function unjail(player, unjail_type)
@@ -199,6 +201,8 @@ local function unjail(player, unjail_type)
     actionui.update(whoseTurn.name, "JailPay", false)
     actionui.update(whoseTurn.name, "JailCard", false)
   end
+
+  tfm.exec.playSound("deadmaze/journal_page", 100, nil, nil, player.name)
 end
 
 local function setTimer(time)

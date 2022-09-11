@@ -410,14 +410,14 @@ function eventKeyboard(name, key, down, x, y)
       player_speed[name] = { 0, 0 }
     end
 
-    local speed = 100
+    local speed = 30
     local vx, vy = player_speed[name][1], player_speed[name][2]
 
     if down then
       if key == 0 or key == 2 then
         vx = ox * speed
       else
-        vy = oy * speed
+        vy = oy * speed / 10
       end
     else
       if key == 0 or key == 2 then
@@ -430,7 +430,11 @@ function eventKeyboard(name, key, down, x, y)
     player_speed[name][1] = vx
     player_speed[name][2] = vy
 
-    tfm.exec.movePlayer(name, 0, 0, true, vx, vy, false)
+    tfm.exec.setPlayerGravityScale(name, vy, -vx)
+
+    if vx == 0 and vy == 0 then
+      tfm.exec.movePlayer(name, 0, 0, true, vx, vy, false)
+    end
   elseif key == 17 then
     player_ctrl[name] = down or nil
   end

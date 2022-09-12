@@ -98,6 +98,7 @@ local function nextTurn()
       actionui.reset(prev.name)
       actionui.update(prev.name, "Trade", true)
       tokens.circleMode(prev.tokenid, false)
+      randcard.hide(prev.name)
       prev.turn = nil
     end
 
@@ -975,7 +976,12 @@ function eventTimeout()
 end
 
 function eventEmptyProperty(name, cell)
-  property.showCard(cell, name, true)
+  local player = players.get(name)
+
+  if player and not player.afk then
+    property.showCard(cell, name, true)
+  end
+
   setGameState(states.PROPERTY)
 end
 

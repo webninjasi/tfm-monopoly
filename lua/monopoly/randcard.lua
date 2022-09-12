@@ -34,6 +34,11 @@ local function showCard(player, type, id)
     0, 0, 0,
     true
   )
+end
+
+local function logCard(player, type, id)
+  local trkey = type .. '_' .. id
+
   logs.add('log_card', player.colorname, type)
   logs.add('log_card_detail', trkey)
 end
@@ -70,7 +75,10 @@ module.community = function(name, player)
   local id = player.communityid or randomWithException(count, lastCommunity)
   if id > 0 and id <= communityCount then
     lastCommunity = id
-    showCard(player, 'community', id)
+    if not player.afk then
+      showCard(player, 'community', id)
+    end
+    logCard(player, 'community', id)
     cardactions.community[id](name, player)
   end
 end
@@ -80,9 +88,17 @@ module.chance = function(name, player)
   local id = player.chanceid or randomWithException(count, lastChance)
   if id > 0 and id <= chanceCount then
     lastChance = id
-    showCard(player, 'chance', id)
+    if not player.afk then
+      showCard(player, 'chance', id)
+    end
+    logCard(player, 'chance', id)
     cardactions.chance[id](name, player)
   end
+end
+
+module.hide = function(name)
+  ui.removeImage("randcardbg", name)
+  ui.removeTextArea("randcardinfo", name)
 end
 
 function eventTextAreaCallback(id, name, callback)

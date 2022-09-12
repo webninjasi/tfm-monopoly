@@ -953,9 +953,9 @@ function eventMouse(name, x, y)
     idx = 21 + bx - 1
   elseif bx == 11 or bx == 10 then
     idx = 31 + by - 1
+  else
+    return
   end
-
-  local id = idx
 
   for id=idx - 1, idx + 1 do
     pos = positions[id]

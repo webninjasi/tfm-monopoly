@@ -96,11 +96,12 @@ local function updateUI()
     money = player.money or 0
 
     listShadow[i] = string.format(
-      '<b>%s%s <font size="-2">#%s</font></b>\n' ..
+      '<b>%s%s <font size="-2">#%s</font></b>%s\n' ..
       '%s$%s <font size="-2">%s$%s<font size="+2">%s%s',
       player.turn and "• " or "",
       player.username,
       player.usertag,
+      player.afk and ' [AFK]' or '',
       money < 0 and "-" or "",
       math.abs(money),
       money_diff < 0 and '-' or '+',
@@ -109,11 +110,12 @@ local function updateUI()
       player.tradeMode and ' - ☕' or ''
     )
     list[i] = string.format(
-      '<b><font color="#%.6x">%s</font>%s</b>\n' ..
+      '<b><font color="#%.6x">%s</font>%s</b>%s\n' ..
       '%s%s$%s <BL><font size="-2">%s%s$%s<font size="+2"><BL>%s%s',
       player.color or 0,
       player.turn and "• " or "",
       player.colorname,
+      player.afk and ' <V>[AFK]' or '',
       money < 0 and '<R>' or '<VP>',
       money < 0 and '-' or '',
       math.abs(money),
@@ -337,7 +339,11 @@ end
 
 -- Events
 function eventPlayerLeft(name)
-  module.remove(name)
+  local player = module.get(name)
+
+  if player then
+    module.update(name, 'afk', true)
+  end
 end
 
 function eventTextAreaCallback(id, name, callback)

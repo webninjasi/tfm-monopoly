@@ -30,6 +30,7 @@ local states = {
   AUCTION = 6,
   JAIL_ANIM = 7,
   TRADING = 8,
+  IDLE = 9,
   GAME_OVER = 10,
 }
 local lobbyTurn
@@ -207,7 +208,7 @@ end
 
 local function setTimer(time)
   currentTimer = os.time() + time * 1000
-  tfm.exec.setGameTime(time)
+  tfm.exec.setGameTime(time ~= 0 and time or 30)
 end
 
 local function checkAuctionPlayers()
@@ -230,7 +231,7 @@ end
 local function auctionFilter()
   if currentAuction then
     for player in players.iter do
-      if player.money <= currentAuction.bid and currentAuction.bidder ~= player.name then
+      if player.money <= currentAuction.bid and currentAuction.bidder ~= player.name or player.afk then
         currentAuction.fold[player.name] = true
       end
     end
@@ -335,8 +336,17 @@ function eventNewPlayer(name)
   property.showHouses(nil, name)
   property.showMortgage(nil, name)
 
+  local player = players.get(name)
+
+  if player then
+    players.update(name, "afk", nil)
+  end
+
   if gameState == states.LOBBY then
-    tokens.showUI(name)
+    if not player then
+      tokens.showUI(name)
+    end
+
   elseif gameState == states.TRADING then
     trade.showUI(name)
     trade.updateUI(name)
@@ -629,7 +639,7 @@ function eventTokenMove(tokenId, cellId, passedGo)
 
     local action = board.cellAction(cellId)
 
-    setGameState(states.PLAYING)
+    setGameState(states.IDLE)
 
     if action then
       -- diceSum can be nil if !move is used
@@ -642,6 +652,10 @@ function eventTokenMove(tokenId, cellId, passedGo)
       end
     else
       -- TODO logs.add('log_move', ...)
+    end
+
+    if gameState == states.IDLE then
+      setGameState(states.PLAYING)
     end
   end
 end
@@ -1193,6 +1207,12 @@ function eventGameStateChanged(newState, oldState)
     end
 
     if whoseTurn then
+      if whoseTurn.afk then
+        setTimer(0)
+        eventTimeout()
+        return
+      end
+
       actionui.update(whoseTurn.name, "JailPay", whoseTurn.jail and true)
       actionui.update(whoseTurn.name, "JailCard", whoseTurn.jail and whoseTurn.jailcard and true)
       actionui.update(whoseTurn.name, "Dice", true)
@@ -1207,6 +1227,12 @@ function eventGameStateChanged(newState, oldState)
   elseif newState == states.MOVING then
   elseif newState == states.PROPERTY then
     if whoseTurn then
+      if whoseTurn.afk then
+        setTimer(0)
+        eventTimeout()
+        return
+      end
+
       actionui.update(whoseTurn.name, "Stop", true)
     end
 
@@ -1214,6 +1240,13 @@ function eventGameStateChanged(newState, oldState)
 
   elseif newState == states.PLAYING then
     if whoseTurn then
+      if whoseTurn.afk then
+        setTimer(0)
+        eventTimeout()
+        -- TODO do some house management maybe
+        return
+      end
+
       actionui.update(whoseTurn.name, "Build", true)
       actionui.update(whoseTurn.name, "Stop", true)
     end
@@ -1275,6 +1308,7 @@ function eventGameStateChanged(newState, oldState)
     setTimer(gameTime.trading)
     trade.showUI()
 
+  elseif newState == states.IDLE then
   elseif newState == states.GAME_OVER then
     if newState ~= states.LOBBY then
       actionui.hide()
@@ -1826,4 +1860,23 @@ command_list["logs"] = {
     logs.showPage(1, name)
   end,
   desc = "browse logs",
+}
+
+command_list["afk"] = {
+  perms = "everyone",
+  func = function(name)
+    local player = players.get(name)
+
+    if player then
+      players.update(name, "afk", not player.afk or nil)
+
+      if whoseTurn == player and (gameState == states.WAITING or gameState == states.PROPERTY or gameState == states.PLAYING) then
+        setTimer(0)
+        eventTimeout()
+      end
+
+      tfm.exec.chatMessage(player.afk and "<ROSE>You're now AFK" or "<ROSE>Welcome back!", name)
+    end
+  end,
+  desc = "toggle afk mode",
 }

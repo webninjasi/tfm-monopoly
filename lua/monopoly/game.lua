@@ -326,7 +326,6 @@ function eventNewGame()
   setGameState(states.LOBBY)
 
   showBoard()
-  --property.showButtons()
 
   currentTimer = nil
   currentAuction = nil
@@ -361,7 +360,6 @@ function eventNewPlayer(name)
 
   ui.setBackgroundColor(config.bgcolor)
   showBoard(name)
-  --property.showButtons(name)
   tokens.show(name)
   board.showCellColor(nil, name)
   property.showHouses(nil, name)
@@ -369,8 +367,9 @@ function eventNewPlayer(name)
 
   local player = players.get(name)
 
-  if player then
+  if player and player.afk then
     players.update(name, "afk", nil)
+    translations.chatMessage('afk_off', player.name)
   end
 
   if gameState == states.LOBBY then
@@ -1907,7 +1906,7 @@ command_list["afk"] = {
         end
       end
 
-      tfm.exec.chatMessage(player.afk and "<ROSE>You're now AFK" or "<ROSE>Welcome back!", player.name)
+      translations.chatMessage(player.afk and 'afk_on' or 'afk_off', player.name)
     end
   end,
   desc = "toggle afk mode",

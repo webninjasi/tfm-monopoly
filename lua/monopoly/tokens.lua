@@ -85,10 +85,6 @@ local function hideCircle()
 end
 
 local function showCircle(token)
-  if token then
-    return
-  end
-
   if token.circle then
     tfm.exec.addPhysicObject(43, token.x, token.y, {
       type = 14,

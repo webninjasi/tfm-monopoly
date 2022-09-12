@@ -188,6 +188,7 @@ config.images = {
 config.emoticon = {
   x = 630, y = 185,
   duration = 4500,
+  rows = 15,
 }
 
 -- tokens default position

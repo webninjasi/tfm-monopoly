@@ -6,7 +6,8 @@ local command_list = pshy.require("pshy.commands.list")
 local cfg = config.emoticon
 local emoticons = config.images.emoticons
 
-local move_button = '<p align="left"><font size="20" color="#%.6x"><a href="event:move_ui">⛶</a></font></p>'
+local move_button = '<p align="left"><font size="20"><a href="event:move_ui">⛶</a></font></p>'
+local pagination = '<font size="20"><a href="event:emoticons_%d">«</a> <a href="event:emoticons_%d">»</a>'
 local key_shift = {}
 local key_alt = {}
 local key_ctrl = {}
@@ -18,7 +19,7 @@ local toggle_state = {}
 
 
 local function generateList()
-  local list = { move_button .. '<textformat leading="7"><font size="20" face="Verdana">' }
+  local list = { move_button, pagination:format(1, 2) .. '<textformat leading="7"><font size="20" face="Verdana">' }
   
   for i=1, #emoticons do
     if emoticons[i][2] and emoticons[i][3] then
@@ -26,10 +27,18 @@ local function generateList()
       emoticons[i][5] = emoticons[i][4]
     end
 
-    list[1 + i] = '<a href="event:emoticon_' .. i .. '">     </a>'
+    list[1 + #list] = '<a href="event:emoticon_' .. i .. '">     </a>'
+
+    if i % cfg.rows == 0 then
+      local n = math.floor(i / cfg.rows)
+      emoticon_list[1 + #emoticon_list] = list
+      list = { move_button, pagination:format(1, 2) .. '<textformat leading="7"><font size="20" face="Verdana">' }
+    end
   end
 
-  emoticon_list = list
+  if #list > 1 then
+    emoticon_list[1 + #emoticon_list] = list
+  end
 end
 generateList()
 
@@ -67,34 +76,52 @@ local function show(name, id)
   )
 end
 
-local function showList(target, x, y)
+local function showList(target, x, y, page)
+  if not page then
+    page = 1
+  end
+
+  if page < 1 or page > #emoticon_list then
+    return
+  end
+
   ui.addImage(
     'emoticon_ui_bg',
     config.images.pixels.black,
     '!290',
     x - 15, y,
     target,
-    60, 32 * (#emoticons + 1) + 10, 0, 0.8,
+    60, 32 * (cfg.rows + 2) + 10, 0, 0.8,
     0, 0,
     false
   )
 
-  for i=1, #emoticons do
-    ui.addImage(
-      'emoticon_ui_' .. i,
-      emoticons[i][1],
-      '!300',
-      x, y + i * 32 + 28,
-      target,
-      emoticons[i][4] or 1, emoticons[i][5] or 1, 0, 1,
-      0, 1,
-      false
-    )
+  local last_y = y + 28 + 26
+  local index = 0
+
+  for i=(page - 1) * cfg.rows + 1, page * cfg.rows do
+    index = 1 + index
+
+    if emoticons[i] then
+      last_y = last_y + 32
+      ui.addImage(
+        'emoticon_ui_' .. index,
+        emoticons[i][1],
+        '!300',
+        x, last_y,
+        target,
+        emoticons[i][4] or 1, emoticons[i][5] or 1, 0, 1,
+        0, 1,
+        false
+      )
+    else
+      ui.removeImage('emoticon_ui_' .. index, target)
+    end
   end
 
   ui.addTextArea(
     "emoticons",
-    table.concat(emoticon_list, '\n'),
+    table.concat(emoticon_list[page], '\n'),
     target,
     x, y,
     nil, nil,
@@ -182,6 +209,13 @@ function eventTextAreaCallback(id, name, callback)
 
     if id then
       show(name, id)
+    end
+  elseif callback:sub(1, 10) == 'emoticons_' then
+    local page = tonumber(callback:sub(11))
+
+    if page then
+      local xy = coords[name]
+      showList(name, xy and xy[1] or cfg.x, xy and xy[2] or cfg.y, page)
     end
   end
 end

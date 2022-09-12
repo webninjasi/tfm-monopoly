@@ -1382,12 +1382,14 @@ function eventTradeRequest(to_name, from_name)
   trade.showButtons(from_name)
   trade.showButtons(to_name)
 
-  if from_player.jailcard then
-    trade.allowJailCard(from_name)
-  end
+  if not from_player.jailcard or not to_player.jailcard then
+    if from_player.jailcard then
+      trade.allowJailCard(from_name)
+    end
 
-  if to_player.jailcard then
-    trade.allowJailCard(to_name)
+    if to_player.jailcard then
+      trade.allowJailCard(to_name)
+    end
   end
 
   trade.updateUI()

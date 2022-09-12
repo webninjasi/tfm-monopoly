@@ -225,7 +225,7 @@ local function checkAuctionPlayers()
 
   if count < 2 then
     setTimer(5)
-    return true
+    return count
   end
 end
 
@@ -250,7 +250,7 @@ local function startAuction(card)
   }
   auctionFilter()
 
-  if checkAuctionPlayers() then
+  if checkAuctionPlayers() == 0 then
     setTimer(0)
     eventTimeout()
     return

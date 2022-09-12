@@ -14,6 +14,11 @@ local chanceCount = config.randCard.chanceCount
 local lastCommunity
 local lastChance
 
+local jailcard = {
+  chance = true,
+  community = true,
+}
+
 local function showCard(player, type, id)
   local img = type == 'chance' and chanceBg or communityBg
   local trkey = type .. '_' .. id
@@ -49,8 +54,20 @@ end
 
 local module = {}
 
+module.reset = function()
+  jailcard = {
+    chance = true,
+    community = true,
+  }
+end
+
+module.putJailCard = function(type)
+  jailcard[type] = true
+end
+
 module.community = function(name, player)
-  local id = player.communityid or randomWithException(communityCount, lastCommunity)
+  local count = jailcard.community and communityCount or (communityCount - 1)
+  local id = player.communityid or randomWithException(count, lastCommunity)
   if id > 0 and id <= communityCount then
     lastCommunity = id
     showCard(player, 'community', id)
@@ -59,7 +76,8 @@ module.community = function(name, player)
 end
 
 module.chance = function(name, player)
-  local id = player.chanceid or randomWithException(chanceCount, lastChance)
+  local count = jailcard.chance and chanceCount or (chanceCount - 1)
+  local id = player.chanceid or randomWithException(count, lastChance)
   if id > 0 and id <= chanceCount then
     lastChance = id
     showCard(player, 'chance', id)

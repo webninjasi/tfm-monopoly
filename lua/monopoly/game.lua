@@ -11,6 +11,7 @@ local players = pshy.require("monopoly.players")
 local translations = pshy.require('monopoly.translations')
 local logs = pshy.require('monopoly.logs')
 local trade = pshy.require("monopoly.trade")
+local randcard = pshy.require("monopoly.randcard")
 local command_list = pshy.require("pshy.commands.list")
 
 
@@ -334,6 +335,7 @@ function eventNewGame()
   board.reset()
   tokens.reset()
   property.reset()
+  randcard.reset()
   tokens.showUI()
   property.showHouses()
 end
@@ -733,6 +735,7 @@ function eventActionUIClick(name, action)
       return
     end
 
+    randcard.putJailCard(player.jailcard)
     players.update(player.name, "jailcard", nil)
     unjail(player, 'jail_out_card')
   elseif action == "Dice" then
@@ -1219,7 +1222,8 @@ function eventGameStateChanged(newState, oldState)
 
     if whoseTurn then
       if whoseTurn.afk then
-        if whoseTurn.jail and pwhoseTurnlayer.jailcard then
+        if whoseTurn.jail and whoseTurn.jailcard then
+          randcard.putJailCard(whoseTurn.jailcard)
           players.update(whoseTurn.name, "jailcard", nil)
           unjail(whoseTurn, 'jail_out_card')
         end
@@ -1512,13 +1516,13 @@ function eventTradeEnded(tradeData)
 
   if tradeData.left.jailcard ~= tradeData.right.jailcard then
     if tradeData.left.jailcard then
+      player2.jailcard = player1.jailcard
       player1.jailcard = nil
-      player2.jailcard = true
       logs.add('log_trade_jailcard', player1.colorname, player2.colorname)
     end
 
     if tradeData.right.jailcard then
-      player1.jailcard = true
+      player1.jailcard = player2.jailcard
       player2.jailcard = nil
       logs.add('log_trade_jailcard', player2.colorname, player1.colorname)
     end
@@ -1598,7 +1602,7 @@ command_list["jailcard"] = {
       return
     end
 
-    players.update(player.name, "jailcard", true)
+    players.update(player.name, "jailcard", 'admin')
   end,
   desc = "receive a free get out of jail card",
 }

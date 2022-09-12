@@ -65,7 +65,7 @@ local community = {
   end,
 
   function(name, player)
-    players.update(name, "jailcard", true)
+    players.update(name, "jailcard", "community")
   end,
 }
 
@@ -135,7 +135,7 @@ local chance = {
   end,
 
   function(name, player)
-    players.update(name, "jailcard", true)
+    players.update(name, "jailcard", "chance")
   end,
 }
 

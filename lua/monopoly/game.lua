@@ -248,6 +248,13 @@ local function startAuction(card)
     start = os.time(),
   }
   auctionFilter()
+
+  if checkAuctionPlayers() then
+    setTimer(0)
+    eventTimeout()
+    return
+  end
+
   property.showAuction(card, currentAuction.fold)
   property.updateAuction(whoseTurn.name, 1, 'BANK', currentAuction.fold)
 
@@ -256,8 +263,6 @@ local function startAuction(card)
       tfm.exec.movePlayer(player.name, 400, 455)
     end
   end
-
-  checkAuctionPlayers()
 end
 
 

@@ -265,6 +265,30 @@ local function startAuction(card)
   end
 end
 
+local function buyHouse(cellId, player)
+  if player ~= whoseTurn or not property.canBuyHouse(cellId) then
+    return
+  end
+
+  local price = property.housePrice(cellId)
+
+  if player.money < price then
+    return
+  end
+
+  players.add(player.name, 'money', -price)
+  property.addHouse(cellId)
+  property.showHouses(cellId)
+
+  local count = property.getHouses(cellId)
+
+  if count == 5 then
+    logs.add('log_buy_hotel', player.colorname, property.get(cellId))
+  else
+    logs.add('log_buy_house', player.colorname, property.get(cellId), count)
+  end
+end
+
 
 -- Pshy Events
 function eventInit()
@@ -1124,25 +1148,7 @@ function eventCellOverlayClicked(cellId, name)
     logs.add('log_sell_house', player.colorname, property.get(cellId), count)
 
   elseif player.overlay_mode == 'buy' then
-    if player ~= whoseTurn or not property.canBuyHouse(cellId) then
-      return
-    end
-
-    if player.money < price then
-      return
-    end
-
-    players.add(name, 'money', -price)
-    property.addHouse(cellId)
-    property.showHouses(cellId)
-
-    local count = property.getHouses(cellId)
-
-    if count == 5 then
-      logs.add('log_buy_hotel', player.colorname, property.get(cellId))
-    else
-      logs.add('log_buy_house', player.colorname, property.get(cellId), count)
-    end
+    buyHouse(cellId, player)
 
   elseif player.overlay_mode == 'mortgage' then
     if player ~= whoseTurn or not property.canMortgage(cellId) then
@@ -1213,6 +1219,11 @@ function eventGameStateChanged(newState, oldState)
 
     if whoseTurn then
       if whoseTurn.afk then
+        if whoseTurn.jail and pwhoseTurnlayer.jailcard then
+          players.update(whoseTurn.name, "jailcard", nil)
+          unjail(whoseTurn, 'jail_out_card')
+        end
+
         setTimer(0)
         eventTimeout()
         return
@@ -1246,9 +1257,17 @@ function eventGameStateChanged(newState, oldState)
   elseif newState == states.PLAYING then
     if whoseTurn then
       if whoseTurn.afk then
+        local properties = property.getProperties(whoseTurn.name)
+      
+        for i=1, properties._len do
+          if property.canBuyHouse(properties[i].id) then
+            buyHouse(properties[i].id, whoseTurn)
+            break
+          end
+        end
+
         setTimer(0)
         eventTimeout()
-        -- TODO do some house management maybe
         return
       end
 
@@ -1873,14 +1892,16 @@ command_list["afk"] = {
     local player = players.get(name)
 
     if player then
-      players.update(name, "afk", not player.afk or nil)
+      players.update(player.name, "afk", not player.afk or nil)
 
-      if whoseTurn == player and (gameState == states.WAITING or gameState == states.PROPERTY or gameState == states.PLAYING) then
-        setTimer(0)
-        eventTimeout()
+      if player.afk and whoseTurn == player then
+        if gameState == states.WAITING or gameState == states.PROPERTY or gameState == states.PLAYING then
+          setTimer(0)
+          eventTimeout()
+        end
       end
 
-      tfm.exec.chatMessage(player.afk and "<ROSE>You're now AFK" or "<ROSE>Welcome back!", name)
+      tfm.exec.chatMessage(player.afk and "<ROSE>You're now AFK" or "<ROSE>Welcome back!", player.name)
     end
   end,
   desc = "toggle afk mode",

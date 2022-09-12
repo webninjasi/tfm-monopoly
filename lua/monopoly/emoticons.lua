@@ -21,6 +21,11 @@ local function generateList()
   local list = { move_button .. '<textformat leading="7"><font size="20" face="Verdana">' }
   
   for i=1, #emoticons do
+    if emoticons[i][2] and emoticons[i][3] then
+      emoticons[i][4] = math.min(32 / emoticons[i][2], 32 / emoticons[i][3])
+      emoticons[i][5] = emoticons[i][4]
+    end
+
     list[1 + i] = '<a href="event:emoticon_' .. i .. '">     </a>'
   end
 
@@ -45,6 +50,8 @@ local function show(name, id)
     hide(name)
   end
 
+  local player = tfm.get.room.playerList[name]
+  local facingLeft = player and not player.isFacingRight
   local emoticon = emoticons[id]
 
   timeout[name] = os.time() + cfg.duration
@@ -54,8 +61,8 @@ local function show(name, id)
     '%' .. name,
     0, -32,
     nil,
-    emoticon[3] or 1, emoticon[4] or 1, 0, 1,
-    0.5, 1,
+    (facingLeft and 1 or -1), 1, 0, 1,
+    facingLeft and 0.5 or -0.5, 1,
     false
   )
 end
@@ -79,7 +86,7 @@ local function showList(target, x, y)
       '!300',
       x, y + i * 32 + 28,
       target,
-      emoticons[i][3] or 1, emoticons[i][4] or 1, 0, 1,
+      emoticons[i][4] or 1, emoticons[i][5] or 1, 0, 1,
       0, 1,
       false
     )

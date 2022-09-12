@@ -382,7 +382,7 @@ module.canTrade = function(cellId)
   return cellId and not mortgage[cellId]
 end
 
-module.canTradeAll = function(trade_cards)
+module.canTradeAll = function(trade_cards, houses_allowed)
   for _, cell in pairs(trade_cards) do
     local group = cellsByGroup[cell.header_color]
 
@@ -396,6 +396,10 @@ module.canTradeAll = function(trade_cards)
         end
 
         if module.getHouses(group[i].id) > 0 then
+          if not houses_allowed then
+            return false
+          end
+
           have_house = true
         end
       end

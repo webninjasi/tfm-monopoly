@@ -12,6 +12,7 @@ pshy.require("pshy.bases.version")
 
 pshy.require("monopoly.game")
 pshy.require("monopoly.emoticons")
+pshy.require("monopoly.menu")
 
 
 --local loadersync = pshy.require("pshy.anticheats.loadersync")

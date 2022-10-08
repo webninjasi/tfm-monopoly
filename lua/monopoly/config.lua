@@ -88,6 +88,10 @@ config.gameTime = {
   bankrupt = 60,
 }
 
+config.menu = {
+  tabs = 4,
+}
+
 config.images = {
   background = "182cbf83510.png",
   circle = "182144f123d.png",
@@ -101,6 +105,10 @@ config.images = {
   tokensbg = "182cbf45136.png",
   ui = "182a637db2c.png",
   popup = "182ec0c077f.png",
+  menu = {
+    bg = "182cbf70ee5.png",
+    tab = "182cbf60566.png",
+  },
   cards = {
     empty = "18220bf6da4.png",
     chance = "18220c02228.png",

@@ -308,3 +308,11 @@ cardinfo_property,cell|separator,"<textformat tabstops=""[95]""><font size=""10"
 {#cardinfo_row_housecost}\t<font color=""#006400"">${cell.house_hotel}</font>
 {#cardinfo_row_mortgage}\t<font color=""#006400"">${cell.mortgage}</font>",,,
 cardinfo_empty,cell|separator,"\n\n\n\n<font size=""12"" color=""#000000""><p align=""center""><b><a href=""event:closecard"">{$cell.card_title}</a></b></p>",,,
+menu_tab_1,,How,,,
+menu_tab_2,,Rules,,,
+menu_tab_3,,Settings,,,
+menu_tab_4,,Credits,,,
+menu_content_1,,<G>click around and learn by yourself,,,
+menu_content_2,,<R>do not break the rules,,,
+menu_content_3,,<G>toggle this,,,
+menu_content_4,,<V>mice,,,

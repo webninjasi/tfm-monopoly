@@ -28,6 +28,11 @@ function eventInit()
       elseif cell.price == 200 then
         logs.add('income_tax', player.colorname)
       end
+
+      if player.money < 0 then
+        eventPlayerBankrupt(player, 'BANK')
+        return
+      end
     end
   end)
 
@@ -35,6 +40,11 @@ function eventInit()
     return function(name, sum, player)
       logs.add('chance_space', player.colorname)
       randcard.chance(name, player)
+
+      if player.money < 0 then
+        eventPlayerBankrupt(player, 'BANK')
+        return
+      end
     end
   end)
 
@@ -42,6 +52,11 @@ function eventInit()
     return function(name, sum, player)
       logs.add('community_chest', player.colorname)
       randcard.community(name, player)
+
+      if player.money < 0 then
+        eventPlayerBankrupt(player, 'BANK')
+        return
+      end
     end
   end)
 
@@ -65,6 +80,11 @@ function eventInit()
             players.add(name, 'money', -rent)
             players.add(owner, 'money', rent)
             logs.add('pay_rent', player.colorname, rent, players.get(owner, "colorname"))
+
+            if player.money < 0 then
+              eventPlayerBankrupt(player, owner)
+              return
+            end
           end
         end
       elseif eventEmptyProperty then

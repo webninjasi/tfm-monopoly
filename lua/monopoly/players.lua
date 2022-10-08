@@ -299,6 +299,7 @@ module.update = function(name, key, value)
         colorName(player)
       elseif key == 'money' then
         tfm.exec.setPlayerScore(name, player.money)
+        eventMoneyChanged(name, player.money, player.money_diff)
       end
     end
   end

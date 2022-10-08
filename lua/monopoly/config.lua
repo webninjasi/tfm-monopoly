@@ -85,6 +85,7 @@ config.gameTime = {
   auction = 30,
   auctionBid = 5,
   trading = 30,
+  bankrupt = 60,
 }
 
 config.images = {

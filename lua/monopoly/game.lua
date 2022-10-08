@@ -32,7 +32,8 @@ local states = {
   JAIL_ANIM = 7,
   TRADING = 8,
   IDLE = 9,
-  GAME_OVER = 10,
+  BANKRUPT = 10,
+  GAME_OVER = 11,
 }
 local lobbyTurn
 local whoseTurn
@@ -240,7 +241,15 @@ local function auctionFilter()
   end
 end
 
-local function startAuction(card)
+local function startAuction(cards)
+  local card = cards[1]
+
+  if not card then
+    return
+  end
+
+  table.remove(cards, 1)
+
   setGameState(states.AUCTION)
   currentAuction = {
     bid = 1,
@@ -248,6 +257,7 @@ local function startAuction(card)
     fold = {},
     card = card,
     start = os.time(),
+    cardlist = cards,
   }
   auctionFilter()
 
@@ -429,10 +439,11 @@ function eventPlayersUpdated(name, player)
 
   if whoseTurn == player then
     player.double = nil
-    nextTurn()
   end
 
   if players.count() < 2 then
+    nextTurn()
+
     if whoseTurn then
       logs.add("won", whoseTurn.colorname)
     end
@@ -562,6 +573,11 @@ function eventDiceRoll(dice1, dice2)
           players.add(player.name, 'money', -50)
           logs.add('jail_out_money', player.colorname)
 
+          if player.money < 0 then
+            eventPlayerBankrupt(player, 'BANK')
+            return
+          end
+
           setGameState(states.ROLLING)
           eventDiceRoll(dice1, dice2)
 
@@ -638,6 +654,16 @@ function eventMoneyChanged(name, amount, change)
   if change > 0 then
     tfm.exec.playSound("cite18/piece2", 100, nil, nil, name)
   end
+end
+
+function eventPlayerBankrupt(player, whom)
+  if whoseTurn ~= player then
+    -- TODO allow bankruption when it isn't the player's turn
+    return
+  end
+
+  player.bankrupt = whom
+  setGameState(states.BANKRUPT)
 end
 
 function eventStartMoving()
@@ -754,7 +780,8 @@ function eventActionUIClick(name, action)
       return
     end
 
-    if gameState ~= states.PLAYING and gameState ~= states.PROPERTY and gameState ~= states.WAITING then
+    if gameState ~= states.PLAYING and gameState ~= states.PROPERTY
+      and gameState ~= states.WAITING and gameState ~= states.BANKRUPT then
       return
     end
 
@@ -785,7 +812,7 @@ function eventActionUIClick(name, action)
       local card = board.getTokenCell(whoseTurn.tokenid)
 
       if card and property.canBuy(card) then
-        startAuction(card)
+        startAuction({ card })
         return
       end
     end
@@ -832,7 +859,7 @@ function eventAuctionCardClick(name)
   local card = board.getTokenCell(player.tokenid)
 
   if card and property.canBuy(card) then
-    startAuction(card)
+    startAuction({ card })
   end
 end
 
@@ -963,7 +990,12 @@ function eventTimeout()
       logs.add('auction_no_bid')
     end
 
-    setGameState(states.PLAYING)
+    if #currentAuction.cardlist > 0 then
+      startAuction(currentAuction.cardlist)
+    else
+      setGameState(states.PLAYING)
+    end
+
   elseif gameState == states.JAIL_ANIM then
     if whoseTurn then
       board.moveToken(whoseTurn.tokenid, 11, nil, nil, true)
@@ -972,6 +1004,67 @@ function eventTimeout()
     nextTurn()
   elseif gameState == states.TRADING then
     trade.cancelTrade()
+
+  elseif gameState == states.BANKRUPT then
+    if not whoseTurn then
+      nextTurn()
+      return
+    end
+
+    if whoseTurn.money >= 0 then
+      setGameState(states.PLAYING)
+      return
+    end
+
+    local properties = property.getProperties(whoseTurn.name)
+    local houseCount
+    local cellId
+    local housePrice
+    local mortagePrice
+    local goal = -whoseTurn.money
+    local sum = 0
+
+    for i=1, properties._len do
+      cellId = properties[i].id
+      housePrice = property.housePrice(cellId)
+      houseCount = property.getHouses(cellId)
+
+      for j=1, houseCount do
+        if property.canSellHouse(cellId) then
+          sum = sum + housePrice / 2
+          property.removeHouse(cellId)
+        end
+
+        if sum >= goal then
+          break
+        end
+      end
+
+      property.showHouses(cellId)
+
+      if sum >= goal then
+        break
+      end
+    end
+
+    for i=1, properties._len do
+      cellId = properties[i].id
+      mortagePrice = property.mortgagePrice(cellId)
+
+      if property.canMortgage(cellId) then
+        sum = sum + mortagePrice
+        property.mortgage(cellId, true)
+      end
+
+      property.showMortgage(cellId)
+
+      if sum >= goal then
+        break
+      end
+    end
+
+    players.add(whoseTurn.name, 'money', sum)
+    setGameState(states.PLAYING)
   end
 end
 
@@ -1037,7 +1130,7 @@ function eventSellHouseClicked(name)
     return
   end
 
-  if gameState ~= states.PLAYING then
+  if gameState ~= states.PLAYING and gameState ~= states.BANKRUPT then
     return
   end
 
@@ -1065,7 +1158,7 @@ function eventMortgageClicked(name)
     return
   end
 
-  if gameState ~= states.PLAYING then
+  if gameState ~= states.PLAYING and gameState ~= states.BANKRUPT then
     return
   end
 
@@ -1122,7 +1215,7 @@ function eventCellOverlayClicked(cellId, name)
   end
 
   if player.overlay_mode ~= 'trade' then
-    if gameState ~= states.PLAYING then
+    if gameState ~= states.PLAYING and gameState ~= states.BANKRUPT then
       return
     end
 
@@ -1139,8 +1232,6 @@ function eventCellOverlayClicked(cellId, name)
 
   local price = property.housePrice(cellId)
   local mortage_price = property.mortgagePrice(cellId) 
-
-  -- TODO add logs for these actions
 
   if player.overlay_mode == 'sell' then
     if player ~= whoseTurn or not property.canSellHouse(cellId) then
@@ -1342,6 +1433,82 @@ function eventGameStateChanged(newState, oldState)
     trade.showUI()
 
   elseif newState == states.IDLE then
+  elseif newState == states.BANKRUPT then
+    setTimer(gameTime.bankrupt)
+
+    if whoseTurn then
+      if whoseTurn.money >= 0 then
+        setGameState(states.PLAYING)
+        return
+      end
+
+      if whoseTurn.money >= 0 then
+        setGameState(states.PLAYING)
+        return
+      end
+
+      local properties = property.getProperties(whoseTurn.name)
+      local houseCount
+      local cellId
+      local housePrice
+      local mortagePrice
+      local goal = -whoseTurn.money
+      local sum = 0
+
+      for i=1, properties._len do
+        cellId = properties[i].id
+        housePrice = property.housePrice(cellId)
+        mortagePrice = property.mortgagePrice(cellId)
+        houseCount = property.getHouses(cellId)
+        sum = sum + houseCount * housePrice / 2
+
+        -- As long as there is no mortgage on the property we can mortgage it 
+        if not property.canUnmortgage(cellId) then
+          sum = sum + mortagePrice
+        end
+      end
+
+      if sum < goal then
+        if whoseTurn.bankrupt == 'BANK' then
+          for i=1, properties._len do
+            cellId = properties[i].id
+            houseCount = property.getHouses(cellId)
+  
+            for j=1, houseCount do
+              property.removeHouse(cellId)
+            end
+          end
+
+          logs.add('bankrupt_bank', whoseTurn.colorname)
+          players.remove(whoseTurn.name)
+
+          if gameState == states.BANKRUPT then
+            startAuction(properties)
+          end
+        else
+          local target = players.get(whoseTurn.bankrupt)
+
+          if target then
+            for i=1, properties._len do
+              cellId = properties[i].id
+              property.setOwner(cellId, target.name)
+              board.setCellColor(cellId, target.color)
+              property.showHouses(cellId)
+              property.showMortgage(cellId)
+            end
+          end
+
+          logs.add('bankrupt', whoseTurn.colorname, target.colorname)
+          players.remove(whoseTurn.name)
+        end
+
+        return
+      end
+
+      board.setCellOverlay(nil, whoseTurn.name, nil)
+      property.showManageHouses(whoseTurn.name)
+    end
+
   elseif newState == states.GAME_OVER then
     if newState ~= states.LOBBY then
       actionui.hide()

@@ -61,7 +61,12 @@ local function showMenu(target, tabidx)
   for i=1, cfg.tabs do
     ui.addTextArea(
       "menu_tab_" .. i,
-      '<BL><a href="event:menu ' .. i .. '">' .. translations.get('menu_tab_' .. i, target),
+      string.format(
+        '%s<a href="event:menu %d">%s',
+        tabidx == i and '<BL>' or '<G>',
+        i,
+        translations.get('menu_tab_' .. i, target)
+      ),
       target,
       200, 115 + (i - 1) * 50,
       nil, nil,
@@ -71,7 +76,7 @@ local function showMenu(target, tabidx)
 
   ui.addTextArea(
     "menu_content",
-    translations.get('menu_content_' .. tabidx, target),
+    translations.get('menu_content_' .. tabidx, target):sub(1, 2000),
     target,
     270, 65,
     320, 275,

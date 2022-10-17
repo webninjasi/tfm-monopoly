@@ -406,6 +406,8 @@ function eventInitPlayer(name)
   system.bindMouse(name, true)
   players.showUI(name)
   logs.showUI(name)
+
+  translations.chatMessage('welcome', name)
 end
 
 function eventPlayerRespawn(name)

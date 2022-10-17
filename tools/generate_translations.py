@@ -73,7 +73,7 @@ with open('translations.csv', newline='', encoding="utf8") as csvfile:
 
         elif i != 0:
           if value:
-            value = value.replace('"', '\\"').replace('\t', '\\t').replace('\n', '\\n')
+            value = value.replace('"', '\\"').replace('\t', '\\t').replace('\r\n', '\\n').replace('\n', '\\n')
 
             if len(tvars) > 0 and tvars[0]:
               # create a function that generates a translation with parameters
